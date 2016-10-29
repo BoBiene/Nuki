@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.UI.Xaml;
 
 namespace Nuki.Presentation
 {
@@ -13,6 +14,7 @@ namespace Nuki.Presentation
         private ObservableCollection<MenuItem> menuItems = new ObservableCollection<MenuItem>();
         private MenuItem selectedMenuItem;
         private bool isSplitViewPaneOpen;
+        private Visibility m_MenuVisibility = Visibility.Visible;
 
         public ShellViewModel()
         {
@@ -27,20 +29,44 @@ namespace Nuki.Presentation
             set { Set(ref this.isSplitViewPaneOpen, value); }
         }
 
+        public bool MenuEnabled { get { return MenuVisibility == Visibility.Visible; } }
+        public Visibility MenuVisibility
+        {
+            get { return m_MenuVisibility; }
+            set
+            {
+                if (Set(ref this.m_MenuVisibility, value))
+                    OnPropertyChanged(nameof(MenuEnabled));
+            }
+        }
         public MenuItem SelectedMenuItem
         {
             get { return this.selectedMenuItem; }
             set
             {
-                if (Set(ref this.selectedMenuItem, value)) {
-                    OnPropertyChanged("SelectedPageType");
-
+                if (value == null)
+                {
+                    MenuVisibility = Visibility.Collapsed;
                     // auto-close split view pane
                     this.IsSplitViewPaneOpen = false;
+                    this.selectedMenuItem = value;
+                }
+                else
+                {
+                    MenuVisibility = Visibility.Visible;
+
+                    if (Set(ref this.selectedMenuItem, value))
+                    {
+                        OnPropertyChanged("SelectedPageType");
+                        // auto-close split view pane
+                        this.IsSplitViewPaneOpen = false;
+                    }
+
+                    else { }
                 }
             }
         }
-
+        private Type m_nonMenuPage = null;
         public Type SelectedPageType
         {
             get
@@ -48,12 +74,18 @@ namespace Nuki.Presentation
                 if (this.selectedMenuItem != null) {
                     return this.selectedMenuItem.PageType;
                 }
-                return null;
+                return m_nonMenuPage;
             }
             set
             {
+                
                 // select associated menu item
                 this.SelectedMenuItem = this.menuItems.FirstOrDefault(m => m.PageType == value);
+
+                if (this.SelectedMenuItem == null)
+                    Set(ref m_nonMenuPage, value);
+                else
+                    m_nonMenuPage = null;
             }
         }
 

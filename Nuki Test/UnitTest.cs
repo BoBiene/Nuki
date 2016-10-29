@@ -41,16 +41,28 @@ namespace Nuki_Test
             string strCLPublic  = "F88127CCF48023B5CBE9101D24BAA8A368DA94E8C2E3CDE2DED29CE96AB50C15";
             string strSLPublic  = "2FE57DA347CD62431528DAAC5FBB290730FFF684AFC4CFC2ED90995F58CB3B74";
 
-            var by1 = StringToByteArray(strCLPrivate);
-            var by2 = StringToByteArray2(strCLPrivate);
+            var byCLPrivate = StringToByteArray(strCLPrivate);
 
-
-            for (int i = 0; i < by1.Length; ++i)
-                Assert.AreEqual(by1[i], by2[i]);
-            byte[] by = Sodium.ScalarMult.Mult(StringToByteArray(strCLPrivate), StringToByteArray(strSLPublic));
-            string dh1 = ByteArrayToString(by);
+            byte[] byDH1 = Sodium.ScalarMult.Mult(StringToByteArray(strCLPrivate), StringToByteArray(strSLPublic));
+            string dh1 = ByteArrayToString(byDH1);
             
             Assert.AreEqual(dh1, "0DE40B998E0E330376F2D2FC4892A6931E25055FD09F054F99E93FECD9BA611E");
+
+            var _0 = new byte[16];
+            var sigma = System.Text.Encoding.UTF8.GetBytes("expand 32-byte k");
+            var kdf1 = Sodium.KDF.HSalsa20(_0, byDH1, sigma);
+            var strUTF8Kdf1 = ByteArrayToString(kdf1);
+
+            Assert.AreEqual(strUTF8Kdf1, "217FCB0F18CAF284E9BDEA0B94B83B8D10867ED706BFDEDBD2381F4CB3B8F730");
+
+            string strChallenge = "6CD4163D159050C798553EAA57E278A579AFFCBC56F09FC57FE879E51C42DF17";
+            string strR = strCLPublic + strSLPublic + strChallenge;
+
+            byte[] byA = Sodium.SecretKeyAuth.SignHmacSha256( StringToByteArray(strR), kdf1);
+            string strA = ByteArrayToString(byA);
+
+            Assert.AreEqual(strA, "B09A0D3979A029E5FD027B519EAA200BC14AD3E163D3BE4563843E021073BCB1");
+
 
 
         }

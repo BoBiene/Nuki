@@ -7,6 +7,65 @@
     RequestedTheme="Dark">
     
     <Application.Resources>
+        <Style x:Key="SetupPage" TargetType="Page">
+    <!--        <Setter Property="Transitions">
+                <Setter.Value>
+                    <TransitionCollection>
+                        <NavigationThemeTransition>
+                            <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                                <ContinuumNavigationTransitionInfo/>
+                            </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                        </NavigationThemeTransition>
+                    </TransitionCollection>
+                </Setter.Value>
+            </Setter>
+            
+-->
+          
+        </Style>
+
+        <Style x:Key="SetupPageStyle" TargetType="Grid">
+            <Setter Property="ChildrenTransitions">
+                <Setter.Value>
+                        <TransitionCollection>
+                            <EntranceThemeTransition FromHorizontalOffset="480" />
+                        </TransitionCollection>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <ImageBrush ImageSource="/Assets/setup_bg.jpg" Stretch="UniformToFill" AlignmentY="Bottom" AlignmentX="Center" ></ImageBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TitleText" TargetType="TextBlock" BasedOn="{StaticResource TitleTextBlockStyle}">
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+            <Setter Property="FontWeight" Value="SemiBold"></Setter>
+        </Style>    
+        <Style x:Key="SetupPageTitle" TargetType="TextBlock" BasedOn="{StaticResource TitleText}">
+            <Setter Property="Margin" Value="30 80"></Setter>
+            <Setter Property="FontWeight" Value="Bold"></Setter>
+            <Setter Property="TextAlignment" Value="Center"></Setter>
+        </Style>
+
+        <Style x:Key="SetupPageButton" TargetType="Button">
+            <Setter Property="VerticalAlignment" Value="Bottom"></Setter>
+            <Setter Property="Background" Value="#292929"></Setter>
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+            <Setter Property="Width" Value="250"></Setter>
+            <Setter Property="Height" Value="40"></Setter>
+        </Style>
+        <Style x:Key="SetupPageTextBox" TargetType="TextBox">
+            <Setter Property="HorizontalAlignment" Value="Center" ></Setter>
+            <Setter Property="TextWrapping" Value="Wrap"></Setter>
+            <Setter Property="VerticalAlignment" Value="Top"></Setter>
+            <Setter Property="Width" Value="250"></Setter>
+            <Setter Property="TextAlignment" Value="Center"></Setter>
+            <Setter Property="Background" Value="Transparent"></Setter>
+            <Setter Property="BorderThickness" Value="0,0,0,2"></Setter>
+            <Setter Property="BorderBrush" Value="#292929"></Setter>
+            <Setter Property="Foreground" Value="#292929"></Setter>
+        </Style>
         <Style x:Key="AppTitleTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
             <Setter Property="Margin" Value="12,6,0,6" />
             <Setter Property="VerticalAlignment" Value="Center" />

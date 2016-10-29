@@ -94,11 +94,11 @@
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Horizontal" Background="{ThemeResource SystemChromeMediumColor}">
-            <Button Content="&#xE700;" Command="{x:Bind ViewModel.ToggleSplitViewPaneCommand}" Style="{StaticResource IconButtonStyle}" />
+            <Button Visibility="{x:Bind ViewModel.MenuVisibility, Mode=OneWay}" Content="&#xE700;" Command="{x:Bind ViewModel.ToggleSplitViewPaneCommand}" Style="{StaticResource IconButtonStyle}" />
             <TextBlock Text="Nuki - inoffizielle Windows UWP-APP" Style="{StaticResource AppTitleTextBlockStyle}" />
         </StackPanel>
 
-        <local:SwipeableSplitView x:Name="SplitView" Grid.Row="1" IsSwipeablePaneOpen="{x:Bind ViewModel.IsSplitViewPaneOpen, Mode=TwoWay}" CompactPaneLength="320">
+        <local:SwipeableSplitView x:Name="SplitView" IsPaneOpen="{x:Bind ViewModel.MenuEnabled, Mode=OneWay}"  Grid.Row="1" IsSwipeablePaneOpen="{x:Bind ViewModel.IsSplitViewPaneOpen, Mode=TwoWay}" CompactPaneLength="320">
             <SplitView.Pane>
                 <ListBox ItemsSource="{x:Bind ViewModel.MenuItems}" SelectedItem="{x:Bind ViewModel.SelectedMenuItem, Mode=TwoWay, Converter={StaticResource ObjectToMenuItemConverter}}" ItemContainerStyle="{StaticResource MenuListBoxItemStyle}">
                     <ListBox.ItemTemplate>

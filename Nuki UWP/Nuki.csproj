@@ -104,6 +104,17 @@
     <Compile Include="Pages\NukiSettings.xaml.cs">
       <DependentUpon>NukiSettings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Setup\SetupConfirmInstallation.xaml.cs">
+      <DependentUpon>SetupConfirmInstallation.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Setup\SetupLandingPage.xaml.cs">
+      <DependentUpon>SetupLandingPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Setup\SetupNamePage.xaml.cs">
+      <DependentUpon>SetupNamePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\NukiAppSettings.cs" />
+    <Compile Include="Settings\NukiDeviceSetting.cs" />
     <Compile Include="Shell.xaml.cs">
       <DependentUpon>Shell.xaml</DependentUpon>
     </Compile>
@@ -134,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\nuki-logo-white.png" />
+    <Content Include="Assets\setup_bg.jpg" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
     <Content Include="Assets\SplashScreen.scale-125.png" />
     <Content Include="Assets\SplashScreen.scale-150.png" />
@@ -161,6 +173,18 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Pages\NukiSettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Setup\SetupConfirmInstallation.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Setup\SetupLandingPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Setup\SetupNamePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

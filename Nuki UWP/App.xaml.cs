@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Foundation.Metadata;
@@ -53,7 +54,7 @@ namespace Nuki
 #endif
 
             var shell = Window.Current.Content as Shell;
-
+            
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
             if (shell == null) {
@@ -77,7 +78,8 @@ namespace Nuki
                 if (ApiInformation.IsTypePresent("Windows.Phone.UI.Input.HardwareButtons")) {
                     HardwareButtons.BackPressed += OnBackPressed;
                 }
-
+                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
+                
                 UpdateBackButtonVisibility();
             }
 
