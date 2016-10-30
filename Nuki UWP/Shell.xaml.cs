@@ -15,6 +15,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 namespace Nuki
@@ -42,6 +43,11 @@ namespace Nuki
             var transition = new NavigationThemeTransition { };
             transitions.Add(transition);
             this.Frame.ContentTransitions = transitions;
+            this.Frame.Background = new ImageBrush
+            {
+                ImageSource = new BitmapImage(new Uri("ms-appx:///Assets/setup_bg.jpg")),
+                Stretch = Stretch.UniformToFill
+            };
         }
 
         public static Shell Current

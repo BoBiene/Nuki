@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 
 namespace Nuki.Presentation
 {
@@ -15,7 +16,8 @@ namespace Nuki.Presentation
         private MenuItem selectedMenuItem;
         private bool isSplitViewPaneOpen;
         private Visibility m_MenuVisibility = Visibility.Visible;
-
+        private SplitViewDisplayMode m_SplitViewDisplayMode = SplitViewDisplayMode.CompactInline;
+        
         public ShellViewModel()
         {
             this.ToggleSplitViewPaneCommand = new Command(() => this.IsSplitViewPaneOpen = !this.IsSplitViewPaneOpen);
@@ -39,6 +41,7 @@ namespace Nuki.Presentation
                     OnPropertyChanged(nameof(MenuEnabled));
             }
         }
+        
         public MenuItem SelectedMenuItem
         {
             get { return this.selectedMenuItem; }

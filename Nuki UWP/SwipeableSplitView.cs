@@ -152,6 +152,33 @@ namespace Nuki
             }
         }
 
+        public bool IsSwipeablePaneEnabled
+        {
+            get { return (bool)GetValue(IsSwipeablePaneEnabledProperty); }
+            set { SetValue(IsSwipeablePaneEnabledProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsSwipeablePaneEnabledProperty =
+            DependencyProperty.Register(nameof(IsSwipeablePaneEnabled), typeof(bool), typeof(SwipeableSplitView), new PropertyMetadata(true, OnIsSwipeablePaneEnabledChanged));
+        private  SplitViewDisplayMode BackupSplitViewDisplayMode = SplitViewDisplayMode.Overlay;
+        static void OnIsSwipeablePaneEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var splitView = (SwipeableSplitView)d;
+            if (!(bool)e.NewValue)
+            {
+                splitView.IsPaneOpen = false;
+                splitView.CloseSwipeablePane();
+                splitView.IsSwipeablePaneOpen = false;
+               var backup = splitView.DisplayMode;
+                splitView.DisplayMode = SplitViewDisplayMode.Overlay;
+                splitView.BackupSplitViewDisplayMode = backup; //Set after displayMode -> Change event 
+            }
+            else
+            {
+                splitView.DisplayMode = splitView.BackupSplitViewDisplayMode;
+                OnIsSwipeablePaneOpenChanged(splitView, splitView.IsSwipeablePaneOpen || splitView.BackupSplitViewDisplayMode == SplitViewDisplayMode.CompactOverlay);
+            }
+        }
         public bool IsSwipeablePaneOpen
         {
             get { return (bool)GetValue(IsSwipeablePaneOpenProperty); }
@@ -164,18 +191,22 @@ namespace Nuki
         static void OnIsSwipeablePaneOpenChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var splitView = (SwipeableSplitView)d;
+            OnIsSwipeablePaneOpenChanged(splitView, (bool)e.NewValue);
+        }
+        private static void OnIsSwipeablePaneOpenChanged(SwipeableSplitView splitView,bool blnIsSwipeablePaneOpen)
+        { 
 
             switch (splitView.DisplayMode)
             {
                 case SplitViewDisplayMode.Inline:
                 case SplitViewDisplayMode.CompactOverlay:
                 case SplitViewDisplayMode.CompactInline:
-                    splitView.IsPaneOpen = (bool)e.NewValue;
+                    splitView.IsPaneOpen = blnIsSwipeablePaneOpen;
                     break;
 
                 case SplitViewDisplayMode.Overlay:
                     if (splitView.OpenSwipeablePaneAnimation == null || splitView.CloseSwipeablePaneAnimation == null) return;
-                    if ((bool)e.NewValue)
+                    if (blnIsSwipeablePaneOpen)
                     {
                         splitView.OpenSwipeablePane();
                     }
@@ -252,6 +283,7 @@ namespace Nuki
 
         void OnDisplayModeChanged(DependencyObject sender, DependencyProperty dp)
         {
+            BackupSplitViewDisplayMode = DisplayMode;
             switch (DisplayMode)
             {
                 case SplitViewDisplayMode.Inline:
@@ -282,6 +314,8 @@ namespace Nuki
 
         void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
+            if (!IsSwipeablePaneEnabled)
+                return;
             var x = _panAreaTransform.TranslateX + e.Delta.Translation.X;
 
             // keep the pan within the bountry
@@ -316,6 +350,9 @@ namespace Nuki
 
         async void OnManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
+            if (!IsSwipeablePaneEnabled)
+                return;
+
             var x = e.Velocities.Linear.X;
 
             // ignore a little bit velocity (+/-0.1)

@@ -135,7 +135,7 @@
     <Compile Include="Presentation\MenuItem.cs" />
     <Compile Include="Presentation\NotifyPropertyChanged.cs" />
     <Compile Include="Presentation\ObjectToMenuItemConverter.cs" />
-    <Compile Include="Presentation\ShellViewModel.cs" />
+    <Compile Include="Settings\ShellViewModel.cs" />
     <Compile Include="SwipeableSplitView.cs" />
   </ItemGroup>
   <ItemGroup>

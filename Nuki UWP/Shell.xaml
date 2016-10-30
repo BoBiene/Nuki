@@ -87,18 +87,21 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+       
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Horizontal" Background="{ThemeResource SystemChromeMediumColor}">
-            <Button Visibility="{x:Bind ViewModel.MenuVisibility, Mode=OneWay}" Content="&#xE700;" Command="{x:Bind ViewModel.ToggleSplitViewPaneCommand}" Style="{StaticResource IconButtonStyle}" />
-            <TextBlock Text="Nuki - inoffizielle Windows UWP-APP" Style="{StaticResource AppTitleTextBlockStyle}" />
+            <StackPanel Orientation="Horizontal"  Margin="0 25 0 0">
+                <Button Visibility="{x:Bind ViewModel.MenuVisibility, Mode=OneWay}" Content="&#xE700;" Command="{x:Bind ViewModel.ToggleSplitViewPaneCommand}" Height="50" Style="{StaticResource IconButtonStyle}" VerticalAlignment="Bottom" />
+                <TextBlock Text="Nuki - inoffizielle Windows UWP-APP" Visibility="{x:Bind ViewModel.MenuVisibility, Mode=OneWay}" Style="{StaticResource AppTitleTextBlockStyle}" VerticalAlignment="Center" />
+            </StackPanel>
         </StackPanel>
 
-        <local:SwipeableSplitView x:Name="SplitView" IsPaneOpen="{x:Bind ViewModel.MenuEnabled, Mode=OneWay}"  Grid.Row="1" IsSwipeablePaneOpen="{x:Bind ViewModel.IsSplitViewPaneOpen, Mode=TwoWay}" CompactPaneLength="320">
+        <local:SwipeableSplitView x:Name="SplitView" IsSwipeablePaneEnabled="{x:Bind ViewModel.MenuEnabled, Mode=OneWay}"  Grid.Row="1" IsSwipeablePaneOpen="{x:Bind ViewModel.IsSplitViewPaneOpen, Mode=TwoWay}" CompactPaneLength="320">
             <SplitView.Pane>
                 <ListBox ItemsSource="{x:Bind ViewModel.MenuItems}" SelectedItem="{x:Bind ViewModel.SelectedMenuItem, Mode=TwoWay, Converter={StaticResource ObjectToMenuItemConverter}}" ItemContainerStyle="{StaticResource MenuListBoxItemStyle}">
                     <ListBox.ItemTemplate>
