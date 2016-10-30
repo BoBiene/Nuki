@@ -27,9 +27,10 @@ namespace Nuki.Pages.Setup
             this.InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
 
+        private void Weiter_Click(object sender, RoutedEventArgs e)
+        {
+            Shell.Current.ViewModel.SelectedPageType = typeof(SetupIconPage);
         }
     }
 }

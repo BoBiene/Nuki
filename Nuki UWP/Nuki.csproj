@@ -107,6 +107,9 @@
     <Compile Include="Pages\Setup\SetupConfirmInstallation.xaml.cs">
       <DependentUpon>SetupConfirmInstallation.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Setup\SetupIconPage.xaml.cs">
+      <DependentUpon>SetupIconPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\Setup\SetupLandingPage.xaml.cs">
       <DependentUpon>SetupLandingPage.xaml</DependentUpon>
     </Compile>
@@ -135,7 +138,7 @@
     <Compile Include="Presentation\MenuItem.cs" />
     <Compile Include="Presentation\NotifyPropertyChanged.cs" />
     <Compile Include="Presentation\ObjectToMenuItemConverter.cs" />
-    <Compile Include="Settings\ShellViewModel.cs" />
+    <Compile Include="Presentation\ShellViewModel.cs" />
     <Compile Include="SwipeableSplitView.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +180,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\Setup\SetupConfirmInstallation.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Setup\SetupIconPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -7,10 +7,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d" Style="{StaticResource SetupPage}" >
 
-    <Grid Style="{StaticResource SetupPageStyle}">
-        <TextBlock Text="Gib deinen Namen ein:" Style="{StaticResource SetupPageTitle}" />
+        <Grid Style="{StaticResource SetupPageStyle}">
+            <TextBlock Text="Gib deinen Namen ein:" Style="{StaticResource SetupPageTitle}" />
         <TextBox x:Name="NameBox" Margin="0 120 0 0" Style="{StaticResource SetupPageTextBox}" Text="nuki" >
         </TextBox>
-        <Button Style="{StaticResource SetupPageButton}" VerticalAlignment="Top" Margin="0 180 0 0" Click="Button_Click">Weiter</Button>
+        <Button Style="{StaticResource SetupPageButton}" VerticalAlignment="Top" Margin="0 180 0 0" Click="Weiter_Click">Weiter</Button>
     </Grid>
 </Page>

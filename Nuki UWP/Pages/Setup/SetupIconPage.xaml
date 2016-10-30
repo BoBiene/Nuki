@@ -1,0 +1,21 @@
+﻿<Page
+    x:Class="Nuki.Pages.Setup.SetupIconPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Nuki.Pages.Setup"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Style="{StaticResource SetupPageStyle}">
+        <TextBlock Text="Wähle ein Bild für dein Schloss:" Style="{StaticResource SetupPageTitle}" />
+        <GridView Margin="100 180" BorderBrush="White" SelectedItem="{x:Bind SelectedItem}" VerticalAlignment="Top" SelectionMode="Single" ItemsSource="{x:Bind IconList}">
+            <GridView.ItemTemplate>
+                <DataTemplate x:DataType="local:IconItem">
+                    <SymbolIcon Foreground="White" Symbol="{x:Bind Icon}"  Width="40" Height="40"></SymbolIcon>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+        </GridView>
+        <Button Style="{StaticResource SetupPageButton}" VerticalAlignment="Bottom" Margin="0 0 0 60" Click="Weiter_Click">Weiter</Button>
+    </Grid>
+</Page>
