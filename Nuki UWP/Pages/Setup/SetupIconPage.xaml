@@ -9,7 +9,7 @@
 
     <Grid Style="{StaticResource SetupPageStyle}">
         <TextBlock Text="Wähle ein Bild für dein Schloss:" Style="{StaticResource SetupPageTitle}" />
-        <GridView Margin="100 180" BorderBrush="White" SelectedItem="{x:Bind SelectedItem}" VerticalAlignment="Top" SelectionMode="Single" ItemsSource="{x:Bind IconList}">
+        <GridView Margin="60 180" MaxWidth="300" BorderBrush="White" SelectedItem="{x:Bind SelectedItem}" VerticalAlignment="Top" SelectionMode="Single" ItemsSource="{x:Bind IconList}">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="local:IconItem">
                     <SymbolIcon Foreground="White" Symbol="{x:Bind Icon}"  Width="40" Height="40"></SymbolIcon>

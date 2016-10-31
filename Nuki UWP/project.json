@@ -1,7 +1,8 @@
 ﻿{
   "dependencies": {
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2",
-    "ObjectStorageHelper": "5.0.0"
+    "ObjectStorageHelper": "5.0.0",
+    "Win2D.uwp": "1.19.0"
   },
   "frameworks": {
     "uap10.0": {}

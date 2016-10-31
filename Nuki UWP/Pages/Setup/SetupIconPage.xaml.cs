@@ -60,6 +60,7 @@ namespace Nuki.Pages.Setup
             m_IconList.Add(new IconItem(Symbol.Emoji2));
             m_IconList.Add(new IconItem(Symbol.Mail));
             m_IconList.Add(new IconItem(Symbol.Camera));
+            Shell.Current.ViewModel.BackgoundMode = Presentation.BackgoundMode.BluredDarkImage;
             this.InitializeComponent();
         }
 

@@ -10,13 +10,21 @@ using Windows.UI.Xaml.Controls;
 
 namespace Nuki.Presentation
 {
+    public enum BackgoundMode
+    {
+        None,
+        CleanImage,
+        BluredImage,
+        BluredDarkImage,
+    }
+
     public class ShellViewModel : NotifyPropertyChanged
     {
         private ObservableCollection<MenuItem> menuItems = new ObservableCollection<MenuItem>();
         private MenuItem selectedMenuItem;
         private bool isSplitViewPaneOpen;
         private Visibility m_MenuVisibility = Visibility.Visible;
-        private SplitViewDisplayMode m_SplitViewDisplayMode = SplitViewDisplayMode.CompactInline;
+        private BackgoundMode m_BackgroundMode = BackgoundMode.CleanImage;
         
         public ShellViewModel()
         {
@@ -41,7 +49,13 @@ namespace Nuki.Presentation
                     OnPropertyChanged(nameof(MenuEnabled));
             }
         }
-        
+
+        public BackgoundMode BackgoundMode
+        {
+            get { return m_BackgroundMode; }
+            set { Set(ref m_BackgroundMode, value); }
+        }
+
         public MenuItem SelectedMenuItem
         {
             get { return this.selectedMenuItem; }

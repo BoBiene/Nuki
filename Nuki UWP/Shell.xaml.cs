@@ -1,4 +1,6 @@
-﻿using Nuki.Pages;
+﻿using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Effects;
+using Nuki.Pages;
 using Nuki.Presentation;
 using System;
 using System.Collections.Generic;
@@ -17,9 +19,12 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
+using Microsoft.Graphics.Canvas.UI.Xaml;
+using System.Threading.Tasks;
 
 namespace Nuki
 {
+
     public sealed partial class Shell : UserControl
     {
         public Shell()
@@ -43,11 +48,13 @@ namespace Nuki
             var transition = new NavigationThemeTransition { };
             transitions.Add(transition);
             this.Frame.ContentTransitions = transitions;
-            this.Frame.Background = new ImageBrush
-            {
-                ImageSource = new BitmapImage(new Uri("ms-appx:///Assets/setup_bg.jpg")),
-                Stretch = Stretch.UniformToFill
-            };
+            this.ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+        }
+
+        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ViewModel.BackgoundMode))
+                this.BackgroundCanvas.Invalidate();
         }
 
         public static Shell Current
@@ -63,6 +70,71 @@ namespace Nuki
             {
                 return this.Frame;
             }
+        }
+
+        CanvasBitmap m_BackgroundImage = null;
+        GaussianBlurEffect m_BluredBackground = null;
+        BlendEffect m_BlendedBackground = null;
+        private void CreateCanvasResources(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.CanvasCreateResourcesEventArgs args)
+        {
+            args.TrackAsyncAction(CreateResourcesAsync(sender).AsAsyncAction());
+        }
+
+        private async Task CreateResourcesAsync(CanvasControl sender)
+        {
+            m_BackgroundImage = await CanvasBitmap.LoadAsync(sender.Device,new Uri( "ms-appx:///Assets/setup_bg.jpg"));
+            m_BluredBackground = new GaussianBlurEffect()
+            {
+                Source = m_BackgroundImage,
+                BlurAmount = 10.0f,
+            };
+            m_BlendedBackground = new BlendEffect()
+            {
+                Background = m_BluredBackground,
+                Foreground = new ColorSourceEffect()
+                {
+                    Color = Windows.UI.Color.FromArgb(125, 0, 0, 0)
+                },
+                Mode = BlendEffectMode.Darken
+            };
+        }
+
+        private void CanvasDraw(CanvasControl sender, CanvasDrawEventArgs args)
+        {
+            int nTopSpace = 120;
+            int nBottomSpace = 180;
+            int nNeededSpace = nTopSpace + nBottomSpace;
+            Rect lockRect = new Rect(1080, 778, 344, 630);
+
+
+            double neededLockHeight = Math.Max(1, sender.ActualHeight - nNeededSpace);
+            double factor = neededLockHeight / lockRect.Height;
+            double drawWidth = m_BackgroundImage.Bounds.Width * factor;
+            double drawHeight = m_BackgroundImage.Bounds.Height * factor;
+
+            Rect drawRect = new Rect((float)((sender.ActualWidth / 2d) - (drawWidth / 2d)),
+                                        nTopSpace - (lockRect.Y * factor),
+                                        drawWidth, drawHeight);
+
+            ICanvasImage img = null;
+            switch (ViewModel.BackgoundMode)
+            {
+
+                case BackgoundMode.CleanImage:
+                    img = m_BackgroundImage;
+                    break;
+                case BackgoundMode.BluredImage:
+                    img = m_BluredBackground;
+                    break;
+                case BackgoundMode.BluredDarkImage:
+                    img = m_BlendedBackground;
+                    break;
+                default:
+                case BackgoundMode.None:
+                    break;
+            }
+            if (img != null)
+                args.DrawingSession.DrawImage(img, drawRect, m_BackgroundImage.Bounds);
         }
     }
 }

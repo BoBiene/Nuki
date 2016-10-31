@@ -29,10 +29,10 @@
                         </TransitionCollection>
                 </Setter.Value>
             </Setter>
-            <Setter Property="Background" >
-                <!--   Value="Transparent"   --> <Setter.Value>
+            <Setter Property="Background" Value="Transparent" >
+                <!--     <Setter.Value>
                     <ImageBrush ImageSource="/Assets/setup_bg.jpg" Stretch="UniformToFill" AlignmentY="Bottom" AlignmentX="Center" ></ImageBrush>
-                </Setter.Value>
+                </Setter.Value> -->
             </Setter>
         </Style>
         <Style x:Key="TitleText" TargetType="TextBlock" BasedOn="{StaticResource TitleTextBlockStyle}">

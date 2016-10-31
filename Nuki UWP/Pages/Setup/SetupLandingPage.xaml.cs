@@ -24,6 +24,7 @@ namespace Nuki.Pages.Setup
     {
         public SetupLandingPage()
         {
+            Shell.Current.ViewModel.BackgoundMode = Presentation.BackgoundMode.CleanImage;
             this.InitializeComponent();
         }
 

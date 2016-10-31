@@ -24,6 +24,7 @@ namespace Nuki.Pages.Setup
     {
         public SetupNamePage()
         {
+            Shell.Current.ViewModel.BackgoundMode = Presentation.BackgoundMode.BluredImage;
             this.InitializeComponent();
         }
 
