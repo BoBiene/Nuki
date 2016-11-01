@@ -73,7 +73,7 @@ namespace Nuki
         }
 
         CanvasBitmap m_BackgroundImage = null;
-        GaussianBlurEffect m_BluredBackground = null;
+        BlendEffect m_BluredBackground = null;
         BlendEffect m_BlendedBackground = null;
         private void CreateCanvasResources(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.CanvasCreateResourcesEventArgs args)
         {
@@ -83,17 +83,28 @@ namespace Nuki
         private async Task CreateResourcesAsync(CanvasControl sender)
         {
             m_BackgroundImage = await CanvasBitmap.LoadAsync(sender.Device,new Uri( "ms-appx:///Assets/setup_bg.jpg"));
-            m_BluredBackground = new GaussianBlurEffect()
+            var blured = new GaussianBlurEffect()
             {
                 Source = m_BackgroundImage,
                 BlurAmount = 10.0f,
             };
-            m_BlendedBackground = new BlendEffect()
+
+            m_BluredBackground = new BlendEffect()
             {
-                Background = m_BluredBackground,
+                Background = blured,
                 Foreground = new ColorSourceEffect()
                 {
-                    Color = Windows.UI.Color.FromArgb(125, 0, 0, 0)
+                    Color = Windows.UI.Color.FromArgb(25, 0, 0, 0)
+                },
+                Mode = BlendEffectMode.Darken
+            };
+
+            m_BlendedBackground = new BlendEffect()
+            {
+                Background = blured,
+                Foreground = new ColorSourceEffect()
+                {
+                    Color = Windows.UI.Color.FromArgb(100, 0, 0, 0)
                 },
                 Mode = BlendEffectMode.Darken
             };
@@ -104,7 +115,7 @@ namespace Nuki
             int nTopSpace = 120;
             int nBottomSpace = 180;
             int nNeededSpace = nTopSpace + nBottomSpace;
-            Rect lockRect = new Rect(1080, 778, 344, 630);
+            Rect lockRect = new Rect(1764, 1265, 369, 667);
 
 
             double neededLockHeight = Math.Max(1, sender.ActualHeight - nNeededSpace);
@@ -112,7 +123,7 @@ namespace Nuki
             double drawWidth = m_BackgroundImage.Bounds.Width * factor;
             double drawHeight = m_BackgroundImage.Bounds.Height * factor;
 
-            Rect drawRect = new Rect((float)((sender.ActualWidth / 2d) - (drawWidth / 2d)),
+            Rect drawRect = new Rect((float)((sender.ActualWidth / 2d) - (factor * (lockRect.X + (lockRect.Width / 2d)))),
                                         nTopSpace - (lockRect.Y * factor),
                                         drawWidth, drawHeight);
 

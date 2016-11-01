@@ -5,6 +5,7 @@
              xmlns:Interactivity="using:Microsoft.Xaml.Interactivity" 
              xmlns:Presentation="using:Nuki.Presentation" 
              xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml"
+             xmlns:triggers="using:WindowsStateTriggers"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              mc:Ignorable="d" d:DesignHeight="640" d:DesignWidth="400">
@@ -104,7 +105,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Horizontal" Background="{ThemeResource SystemChromeMediumColor}">
-            <StackPanel Orientation="Horizontal"  Margin="0 25 0 0">
+            <StackPanel x:Name="TopPanel" Orientation="Horizontal"  Margin="0 25 0 0">
                 <Button Visibility="{x:Bind ViewModel.MenuVisibility, Mode=OneWay}" Content="&#xE700;" Command="{x:Bind ViewModel.ToggleSplitViewPaneCommand}" Height="50" Style="{StaticResource IconButtonStyle}" VerticalAlignment="Bottom" />
                 <TextBlock Text="Nuki - inoffizielle Windows UWP-APP" Visibility="{x:Bind ViewModel.MenuVisibility, Mode=OneWay}" Style="{StaticResource AppTitleTextBlockStyle}" VerticalAlignment="Center" />
             </StackPanel>
@@ -124,14 +125,35 @@
                 </ListBox>
             </SplitView.Pane>
             <SplitView.Content>
-                <Grid>
-                    <canvas:CanvasControl x:Name="BackgroundCanvas" CreateResources="CreateCanvasResources" Draw="CanvasDraw"></canvas:CanvasControl>
-                    <Frame x:Name="Frame" SourcePageType="{x:Bind ViewModel.SelectedPageType, Mode=TwoWay}" />
-                </Grid>
+                
+                    <Grid MinHeight="500">
+                        <canvas:CanvasControl x:Name="BackgroundCanvas" CreateResources="CreateCanvasResources" Draw="CanvasDraw"></canvas:CanvasControl>
+                        <Frame x:Name="Frame" SourcePageType="{x:Bind ViewModel.SelectedPageType, Mode=TwoWay}" />
+                    </Grid>
+                
             </SplitView.Content>
         </local:SwipeableSplitView>
 
+        
         <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup >
+                <VisualState x:Name="desktop">
+                    <VisualState.StateTriggers>
+                        <triggers:DeviceFamilyStateTrigger DeviceFamily="Desktop" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TopPanel.Margin" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+                <!--<VisualState x:Name="mobile">
+                    <VisualState.StateTriggers>
+                        <triggers:DeviceFamilyStateTrigger DeviceFamily="Mobile" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+                    </VisualState.Setters>
+                </VisualState> -->
+            </VisualStateGroup>
             <VisualStateGroup x:Name="WindowStates">
                 <VisualState x:Name="WideState">
                     <VisualState.StateTriggers>
