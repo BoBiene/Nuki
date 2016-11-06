@@ -108,14 +108,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\BaseCommand.cs" />
+    <Compile Include="Commands\CrcMissmatchException.cs" />
+    <Compile Include="Commands\MessageParseException.cs" />
+    <Compile Include="Commands\Request\SendBaseCommand.cs" />
     <Compile Include="Commands\CommandTypes.cs" />
-    <Compile Include="Commands\EncryptedBasseCommand.cs" />
+    <Compile Include="Commands\Request\SendBaseCommandEncrypted.cs" />
     <Compile Include="Commands\EnumBitSizeAttribute.cs" />
-    <Compile Include="Commands\RequestDataCommand.cs" />
+    <Compile Include="Commands\Request\SendPublicKeyComand.cs" />
+    <Compile Include="Commands\Request\SendRequestDataCommand.cs" />
+    <Compile Include="Commands\ResponseCommandParser.cs" />
+    <Compile Include="Commands\Response\RecieveBaseCommand.cs" />
+    <Compile Include="Commands\Response\RecieveBaseCommandEncrypted.cs" />
+    <Compile Include="Commands\Response\RecievePublicKey.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\CRC16.cs" />
     <EmbeddedResource Include="Properties\Nuki.Communication.rd.xml" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

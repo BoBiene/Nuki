@@ -20,10 +20,18 @@ namespace Nuki.Communication.Util
 
         public ushort ComputeChecksum(IEnumerable<byte> bytes)
         {
+            return ComputeChecksum(bytes, -1);
+        }
+        public ushort ComputeChecksum(IEnumerable<byte> bytes,int nLength)
+        {
+            int i = 0;
             ushort crc = this.initialValue;
             foreach (byte singleByte in bytes)
             {
-                crc = (ushort)((crc << 8) ^ table[((crc >> 8) ^ (0xff & singleByte))]);
+                if (nLength < 0 || i++ < nLength)
+                    crc = (ushort)((crc << 8) ^ table[((crc >> 8) ^ (0xff & singleByte))]);
+                else
+                    break;
             }
             return crc;
         }

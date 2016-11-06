@@ -1,17 +1,16 @@
-﻿using Nuki.Communication.Util;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Reflection;
 
-namespace Nuki.Communication.Commands.Request
+namespace Nuki.Communication.Commands
 {
-    public abstract class RequestBaseCommand
-    {
+    public abstract class BaseCommand
+    { 
         [Flags]
         protected enum FieldFlags
         {
@@ -24,10 +23,22 @@ namespace Nuki.Communication.Commands.Request
         private DataField[] m_mapByPostion = null;
         public CommandTypes CommandType { get { return GetData<CommandTypes>(nameof(CommandType)); } }
 
-        public RequestBaseCommand(CommandTypes type,int nNumberOfFields)
+        public BaseCommand(CommandTypes type, int nNumberOfFields)
         {
-            m_mapByPostion = new DataField[nNumberOfFields+1];
+            m_mapByPostion = new DataField[nNumberOfFields + 1];
             AddField(nameof(CommandType), type);
+        }
+
+        protected BaseCommand(IEnumerable<DataField> data)
+        {
+            int nPos = -1;
+            foreach (var field in data)
+            {
+                m_mapByFieldName[field.Name] = field;
+                nPos = Math.Max(field.Position, nPos);
+            }
+            m_mapByPostion = m_mapByFieldName.Values.OrderBy((f) => f.Position).ToArray();
+            m_nFieldPointer = nPos;
         }
 
         protected int AddField(string strName, object data)
@@ -37,15 +48,15 @@ namespace Nuki.Communication.Commands.Request
         protected int AddField(string strName, object data, FieldFlags flags)
         {
             int nPos = Interlocked.Increment(ref m_nFieldPointer);
-            DataField field = new DataField(strName, nPos, data,flags);
-            m_mapByPostion[nPos] = field;
-            m_mapByFieldName[strName] = field;
+            DataField field = new DataField(strName, nPos, data, flags);
+            m_mapByPostion[field.Position] = field;
+            m_mapByFieldName[field.Name] = field;
             return nPos;
         }
-
-        protected void SetData(string strName, IEnumerable<byte> byData)
+        
+        protected void SetData(string strName, object objData)
         {
-            m_mapByFieldName[strName].Data = byData;
+            m_mapByFieldName[strName].Data = objData;
         }
 
 
@@ -82,48 +93,6 @@ namespace Nuki.Communication.Commands.Request
                 Data = data;
                 Flags = flags;
             }
-
-            public IEnumerable<byte> Serialize()
-            {
-                if (Data == null)
-                    return new byte[0];
-                else if (Data is Enum)
-                {
-                    int nBitSize = Data.GetType().GetTypeInfo().
-                        GetCustomAttribute<EnumBitSizeAttribute>()?.BitSize ?? 32;
-
-                    
-                    switch (nBitSize)
-                    {
-                        
-                        case 8:
-                            return BitConverter.GetBytes((byte)(Data));
-                        case 16:
-                            return BitConverter.GetBytes((UInt16)(Data));
-                        case 64:
-                            return BitConverter.GetBytes((UInt64)(Data));
-                        case 32:
-                            return BitConverter.GetBytes((UInt32)(Data));
-
-                    }
-                }
-
-                throw new NotImplementedException();
-            }
         }
-
-        
-
-
-        public virtual IEnumerable<byte> Serialize()
-        {
-            List<byte> list = new List<byte>();
-            foreach (var field in GetData(FieldFlags.PartOfMessage))
-                list.AddRange(field.Serialize());
-            
-            list.AddRange(CRC16.NonZero.ComputeChecksumBytes(list));
-            return list;
-        }
-
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Nuki.Communication.Commands.Request
 {
-    public class RequestDataCommand : RequestBaseCommand
+    public class SendRequestDataCommand : SendBaseCommand
     {
         public CommandTypes ReqestedCommand {  get { return GetData<CommandTypes>(nameof(ReqestedCommand)); } }
 
@@ -14,7 +14,7 @@ namespace Nuki.Communication.Commands.Request
         /// Request Data (0x0001) 
         /// </summary>
         /// <param name="requestedCommand">The identifier of the command to be executed by the NukiSmartlock.</param>
-        public RequestDataCommand(CommandTypes requestedCommand)
+        public SendRequestDataCommand(CommandTypes requestedCommand)
             : base(CommandTypes.RequestData,1)
         {
             AddField(nameof(ReqestedCommand), requestedCommand);
