@@ -1,6 +1,3 @@
-[submodule "libsodium-uwp"]
-	path = libsodium-uwp
-	url = https://github.com/charlesportwoodii/libsodium-uwp.git
 [submodule "Semantictypes"]
 	path = Semantictypes
 	url = https://github.com/BoBiene/semantictypes.git
