@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nuki Test", "Nuki Test\Nuki
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nuki.Communication", "Nuki.Communication\Nuki.Communication.csproj", "{C021066A-6586-4D8C-8F7C-97B1A15910AA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThirdParty", "ThirdParty", "{DE48124B-04B7-4327-B0A4-05EC2512B6B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -124,5 +126,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0DDF9CB3-1501-4952-A389-A5459D945E25} = {A935E859-B20D-492B-8726-9BBE0CE91461}
 		{B0448317-E45D-434D-BC9B-FA129A974110} = {A935E859-B20D-492B-8726-9BBE0CE91461}
+		{A935E859-B20D-492B-8726-9BBE0CE91461} = {DE48124B-04B7-4327-B0A4-05EC2512B6B0}
 	EndGlobalSection
 EndGlobal

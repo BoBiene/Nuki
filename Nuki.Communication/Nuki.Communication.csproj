@@ -107,6 +107,24 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Semantictypes\SemanticTypes\SemanticDecimalTypeQualifiedByValue.cs">
+      <Link>SemanticTypes\SemanticDecimalTypeQualifiedByValue.cs</Link>
+    </Compile>
+    <Compile Include="..\Semantictypes\SemanticTypes\SemanticDoubleType.cs">
+      <Link>SemanticTypes\SemanticDoubleType.cs</Link>
+    </Compile>
+    <Compile Include="..\Semantictypes\SemanticTypes\SemanticType.cs">
+      <Link>SemanticTypes\SemanticType.cs</Link>
+    </Compile>
+    <Compile Include="..\Semantictypes\SemanticTypes\SemanticTypeBase.cs">
+      <Link>SemanticTypes\SemanticTypeBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Semantictypes\SemanticTypes\SemanticTypeQualifiedByValue.cs">
+      <Link>SemanticTypes\SemanticTypeQualifiedByValue.cs</Link>
+    </Compile>
+    <Compile Include="..\Semantictypes\SemanticTypes\UncomparableSemanticType.cs">
+      <Link>SemanticTypes\UncomparableSemanticType.cs</Link>
+    </Compile>
     <Compile Include="Commands\BaseCommand.cs" />
     <Compile Include="Commands\CrcMissmatchException.cs" />
     <Compile Include="Commands\MessageParseException.cs" />
