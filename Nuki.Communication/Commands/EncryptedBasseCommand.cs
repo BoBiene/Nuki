@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Nuki.Communication.Commands
 {
-    public abstract class EncryptedBasseCommand : BaseCommand
+    public abstract class RequestBaseCommandEncrypted : RequestBaseCommand
     {
         public byte[] Authenticator { get; private set; }
-        public EncryptedBasseCommand(byte[] byAuthenticator, CommandTypes type, int nNumberOfFields)
+        public RequestBaseCommandEncrypted(byte[] byAuthenticator, CommandTypes type, int nNumberOfFields)
             : base(type, nNumberOfFields + 1)
         {
             Authenticator = byAuthenticator;

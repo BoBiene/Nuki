@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace Nuki.Communication.Commands
 {
-    public abstract class BaseCommand
+    public abstract class RequestBaseCommand
     {
         [Flags]
         protected enum FieldFlags
@@ -24,7 +24,7 @@ namespace Nuki.Communication.Commands
         private DataField[] m_mapByPostion = null;
         public CommandTypes CommandType { get { return GetData<CommandTypes>(nameof(CommandType)); } }
 
-        public BaseCommand(CommandTypes type,int nNumberOfFields)
+        public RequestBaseCommand(CommandTypes type,int nNumberOfFields)
         {
             m_mapByPostion = new DataField[nNumberOfFields+1];
             AddField(nameof(CommandType), type);

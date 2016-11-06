@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Nuki.Communication.Commands
 {
-    public class RequestDataCommand : BaseCommand
+    public class RequestDataCommand : RequestBaseCommand
     {
         public CommandTypes ReqestedCommand {  get { return GetData<CommandTypes>(nameof(ReqestedCommand)); } }
 

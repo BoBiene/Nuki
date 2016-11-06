@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 namespace Nuki.Communication.Util
 {
     public enum InitialCrcValue { Zeros, NonZero1 = 0xffff, NonZero2 = 0x1D0F }
-
+    /// <summary>
+    /// Source: http://www.sanity-free.org/133/crc_16_ccitt_in_csharp.html
+    /// </summary>
     public class CRC16
     {
         public static readonly CRC16 NonZero = new CRC16(InitialCrcValue.NonZero1);
@@ -19,7 +21,6 @@ namespace Nuki.Communication.Util
         public ushort ComputeChecksum(IEnumerable<byte> bytes)
         {
             ushort crc = this.initialValue;
-            // for (int i = 0; i < bytes.Length; ++i)
             foreach (byte singleByte in bytes)
             {
                 crc = (ushort)((crc << 8) ^ table[((crc >> 8) ^ (0xff & singleByte))]);
