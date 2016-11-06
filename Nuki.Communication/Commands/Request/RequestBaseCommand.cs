@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
 
-namespace Nuki.Communication.Commands
+namespace Nuki.Communication.Commands.Request
 {
     public abstract class RequestBaseCommand
     {
