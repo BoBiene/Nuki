@@ -47,8 +47,18 @@ namespace Nuki.Communication.Commands
         }
         protected int AddField(string strName, object data, FieldFlags flags)
         {
+            return AddField((nPos) => new DataFieldObjectValue(strName, nPos, data, flags));
+        }
+
+        protected int AddField(string strName, FieldFlags flags, Func<object> valueGetter)
+        {
+            return AddField((nPos) => new DataFieldAction(strName, nPos,flags,valueGetter));
+        }
+
+        private int AddField(Func<int, DataField> fieldFactroy)
+        {
             int nPos = Interlocked.Increment(ref m_nFieldPointer);
-            DataField field = new DataField(strName, nPos, data, flags);
+            var field = fieldFactroy(nPos);
             m_mapByPostion[field.Position] = field;
             m_mapByFieldName[field.Name] = field;
             return nPos;
@@ -56,19 +66,19 @@ namespace Nuki.Communication.Commands
         
         protected void SetData(string strName, object objData)
         {
-            m_mapByFieldName[strName].Data = objData;
+            m_mapByFieldName[strName].SetData(objData);
         }
 
 
 
         protected T GetData<T>(int nDataPosition)
         {
-            return (T)m_mapByPostion[nDataPosition].Data;
+            return (T)m_mapByPostion[nDataPosition].GetData();
         }
 
         protected T GetData<T>(string strKey)
         {
-            return (T)m_mapByFieldName[strKey].Data;
+            return (T)m_mapByFieldName[strKey].GetData();
         }
 
 
@@ -79,19 +89,60 @@ namespace Nuki.Communication.Commands
                     yield return field;
         }
 
-        protected class DataField
+        protected abstract class DataField
         {
             public string Name { get; private set; }
             public int Position { get; private set; }
-            public object Data { get; set; }
             public FieldFlags Flags { get; private set; }
 
-            public DataField(string strName, int nPositon, object data, FieldFlags flags)
+            public abstract object GetData();
+            public abstract void SetData(object objData);
+
+            public DataField(string strName, int nPositon, FieldFlags flags)
             {
                 Name = strName;
                 Position = nPositon;
-                Data = data;
                 Flags = flags;
+            }
+        }
+
+        protected class DataFieldAction : DataField
+        {
+            public Func<object> ValueGetter { get; private set; }
+            public DataFieldAction(string strName, int nPositon, FieldFlags flags, Func<object> valueGetter) : base(strName, nPositon, flags)
+            {
+                ValueGetter = valueGetter;
+            }
+
+            public override object GetData()
+            {
+                return ValueGetter();
+            }
+
+            public override void SetData(object objData)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        protected class DataFieldObjectValue : DataField
+        {
+            public object Data { get; set; }
+            
+            public DataFieldObjectValue(string strName, int nPositon, object data, FieldFlags flags)
+                : base(strName,nPositon,flags)
+            {
+                Data = data;
+            }
+
+            public override object GetData()
+            {
+                return Data;
+            }
+
+            public override void SetData(object objData)
+            {
+                Data = objData;
             }
         }
     }

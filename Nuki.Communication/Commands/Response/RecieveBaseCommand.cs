@@ -17,17 +17,17 @@ namespace Nuki.Communication.Commands.Response
 
         }
 
-        private static IEnumerable<DataField> BuildFields(CommandTypes type, byte[] data, IEnumerable<FieldParser> fields)
+        private static IEnumerable<DataFieldObjectValue> BuildFields(CommandTypes type, byte[] data, IEnumerable<FieldParser> fields)
         {
             int nArrayParsePos = 0;
             int nFieldPos = 0;
             int nFieldLength = 2;
-            yield return new DataField(nameof(CommandType), nFieldPos++, type, FieldFlags.All);
+            yield return new DataFieldObjectValue(nameof(CommandType), nFieldPos++, type, FieldFlags.All);
             nArrayParsePos += nFieldLength;
 
             foreach (var field in fields)
             {
-                yield return new DataField(field.FieldName, nFieldPos++, field.GetValue(data, nArrayParsePos), FieldFlags.All);
+                yield return new DataFieldObjectValue(field.FieldName, nFieldPos++, field.GetValue(data, nArrayParsePos), FieldFlags.All);
                 nArrayParsePos += field.ByteLength;
             }
 
@@ -36,7 +36,7 @@ namespace Nuki.Communication.Commands.Response
             if (nCrcMessage != nCalculated)
                 throw new CrcMissmatchException();
 
-            yield return new DataField(nameof(CRC), nFieldPos++, nCrcMessage, FieldFlags.All);
+            yield return new DataFieldObjectValue(nameof(CRC), nFieldPos++, nCrcMessage, FieldFlags.All);
             nArrayParsePos += 2;
 
             if (nArrayParsePos != data.Length)

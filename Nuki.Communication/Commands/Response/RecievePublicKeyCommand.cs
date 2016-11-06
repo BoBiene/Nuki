@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Nuki.Communication.Commands.Response
 {
-    public class RecievePublicKey : RecieveBaseCommand
+    public class RecievePublicKeyCommand : RecieveBaseCommand
     {
         public byte[] PublicKey { get { return GetData<byte[]>(nameof(PublicKey)); } }
-        public RecievePublicKey(byte[] data)
+        public RecievePublicKeyCommand(byte[] data)
             : base(CommandTypes.PublicKey, data, InitFields())
         {
         }

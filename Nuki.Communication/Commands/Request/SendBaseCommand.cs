@@ -36,7 +36,7 @@ namespace Nuki.Communication.Commands.Request
 
 
 
-        private static IEnumerable<byte> Serialize(DataField field)
+        private static IEnumerable<byte> Serialize(DataFieldObjectValue field)
         {
             if (field.Data == null)
             {

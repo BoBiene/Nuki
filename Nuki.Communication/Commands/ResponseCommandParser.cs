@@ -17,7 +17,7 @@ namespace Nuki.Communication.Commands
             switch (GetCommandType(data))
             {
                 case CommandTypes.PublicKey:
-                    cmd = new RecievePublicKey(data);
+                    cmd = new RecievePublicKeyCommand(data);
                     break;
             }
 

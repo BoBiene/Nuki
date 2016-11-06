@@ -8,11 +8,16 @@ namespace Nuki.Communication.Commands.Request
 {
     public abstract class SendBaseCommandEncrypted : SendBaseCommand
     {
-        public byte[] Authenticator { get; private set; }
-        public SendBaseCommandEncrypted(byte[] byAuthenticator, CommandTypes type, int nNumberOfFields)
+        public byte[] Authenticator { get { return GetData<byte[]>(nameof(Authenticator)); } }
+        public SendBaseCommandEncrypted(CommandTypes type, int nNumberOfFields)
             : base(type, nNumberOfFields + 1)
         {
-            Authenticator = byAuthenticator;
+            AddField(nameof(Authenticator), FieldFlags.All, CalculateAuthenticator);
+        }
+
+        private byte[] CalculateAuthenticator()
+        {
+            throw new NotImplementedException();
         }
     }
 }

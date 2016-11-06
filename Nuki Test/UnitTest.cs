@@ -68,10 +68,22 @@ namespace Nuki_Test
         public void TestRecievePublicKeyCommand()
         {
             string strMessage = $"0300{SLPublic}9DB9";
-            var Command = new RecievePublicKey(StringToByteArray(strMessage));
+            var Command = new RecievePublicKeyCommand(StringToByteArray(strMessage));
 
 
             Assert.AreEqual(SLPublic, ByteArrayToString(Command.PublicKey));
+        }
+
+
+        [TestMethod]
+        public void TestRecieveChallengeCommand()
+        {
+            string strChallenge = "6CD4163D159050C798553EAA57E278A579AFFCBC56F09FC57FE879E51C42DF17";
+            string strMessage = $"0400{strChallenge}C3DF";
+            var Command = new RecieveChallengeCommand(StringToByteArray(strMessage));
+
+
+            Assert.AreEqual(strChallenge, ByteArrayToString(Command.Nonce));
         }
 
         [TestMethod]
