@@ -92,6 +92,9 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <None Include="..\README.md">
+      <Link>README.md</Link>
+    </None>
     <None Include="Nuki.snk" />
     <None Include="Nuki_TemporaryKey.pfx" />
     <None Include="project.json" />
