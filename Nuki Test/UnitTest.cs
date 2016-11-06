@@ -2,13 +2,16 @@
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using System.Text;
 using System.Linq;
+using Nuki.Communication.Commands;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Nuki_Test
 {
     [TestClass]
     public class UnitTest1
     {
-
+        
         public static byte[] StringToByteArray(string hex)
         {
             return Enumerable.Range(0, hex.Length)
@@ -17,9 +20,9 @@ namespace Nuki_Test
                              .ToArray();
         }
 
-        public static string ByteArrayToString(byte[] ba)
+        public static string ByteArrayToString(IEnumerable< byte> ba)
         {
-            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            StringBuilder hex = new StringBuilder(ba.Count() * 2);
             foreach (byte b in ba)
                 hex.AppendFormat("{0:x2}", b);
             return hex.ToString().ToUpper();
@@ -32,6 +35,16 @@ namespace Nuki_Test
             for (int i = 0; i < NumberChars; i += 2)
                 bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
             return bytes;
+        }
+
+        [TestMethod]
+        public void TestRequestDataCommand()
+        {
+            var Command = new RequestDataCommand(CommandTypes.PublicKey);
+
+            var data = Command.Serialize();
+            string strData = ByteArrayToString(data);
+            Assert.AreEqual("0100030027A7", strData);
         }
 
         [TestMethod]
