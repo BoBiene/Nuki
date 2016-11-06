@@ -18,7 +18,7 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>Nuki_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>75B888705BCF159CA3DA81D2F938D4357F7E6334</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>591BE436630FCFC190523DF30A5D1097A61DF63F</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
