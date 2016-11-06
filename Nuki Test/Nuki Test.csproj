@@ -124,10 +124,6 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\libsodium-uwp\libsodium-uwp\libsodium-uwp.vcxproj">
-      <Project>{0ddf9cb3-1501-4952-a389-a5459d945e25}</Project>
-      <Name>libsodium-uwp</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Nuki.Communication\Nuki.Communication.csproj">
       <Project>{c021066a-6586-4d8c-8f7c-97b1a15910aa}</Project>
       <Name>Nuki.Communication</Name>

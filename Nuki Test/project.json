@@ -1,5 +1,6 @@
 ﻿{
   "dependencies": {
+    "libsodium-uwp": "1.0.0-rc1",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0"
   },
   "frameworks": {

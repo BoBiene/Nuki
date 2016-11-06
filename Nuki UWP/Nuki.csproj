@@ -234,12 +234,6 @@
       <Name>Windows Mobile Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\libsodium-uwp\libsodium-uwp\libsodium-uwp.vcxproj">
-      <Project>{0ddf9cb3-1501-4952-a389-a5459d945e25}</Project>
-      <Name>libsodium-uwp</Name>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

@@ -1,5 +1,6 @@
 ﻿{
   "dependencies": {
+    "libsodium-uwp": "1.0.0-rc1",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2",
     "ObjectStorageHelper": "5.0.0",
     "Win2D.uwp": "1.19.0",
