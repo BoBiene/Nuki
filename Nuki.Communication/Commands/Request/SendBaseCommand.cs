@@ -36,15 +36,16 @@ namespace Nuki.Communication.Commands.Request
 
 
 
-        private static IEnumerable<byte> Serialize(DataFieldObjectValue field)
+        private static IEnumerable<byte> Serialize(DataField field)
         {
-            if (field.Data == null)
+            var fieldData = field.GetData();
+            if (fieldData == null)
             {
                 return new byte[0];
             }
-            else if (field.Data is Enum)
+            else if (fieldData is Enum)
             {
-                int nBitSize = field.Data.GetType().GetTypeInfo().
+                int nBitSize = fieldData.GetType().GetTypeInfo().
                     GetCustomAttribute<EnumBitSizeAttribute>()?.BitSize ?? 32;
 
 
@@ -52,19 +53,19 @@ namespace Nuki.Communication.Commands.Request
                 {
 
                     case 8:
-                        return BitConverter.GetBytes((byte)(field.Data));
+                        return BitConverter.GetBytes((byte)(fieldData));
                     case 16:
-                        return BitConverter.GetBytes((UInt16)(field.Data));
+                        return BitConverter.GetBytes((UInt16)(fieldData));
                     case 64:
-                        return BitConverter.GetBytes((UInt64)(field.Data));
+                        return BitConverter.GetBytes((UInt64)(fieldData));
                     case 32:
-                        return BitConverter.GetBytes((UInt32)(field.Data));
+                        return BitConverter.GetBytes((UInt32)(fieldData));
 
                 }
             }
-            else if (field.Data is byte[])
+            else if (fieldData is byte[])
             {
-                return (byte[])field.Data;
+                return (byte[])fieldData;
             }
 
             throw new NotImplementedException();
