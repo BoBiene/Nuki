@@ -26,7 +26,7 @@ namespace Nuki.Communication.Commands
         public BaseCommand(CommandTypes type, int nNumberOfFields)
         {
             m_mapByPostion = new DataField[nNumberOfFields + 1];
-            AddField(nameof(CommandType), type);
+            AddField(nameof(CommandType), type,FieldFlags.PartOfMessage);
         }
 
         protected BaseCommand(IEnumerable<DataField> data)

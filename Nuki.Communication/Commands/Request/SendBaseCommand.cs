@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
+using Nuki.Communication.SemanticTypes;
 
 namespace Nuki.Communication.Commands.Request
 {
@@ -26,11 +27,16 @@ namespace Nuki.Communication.Commands.Request
 
         public virtual IEnumerable<byte> Serialize()
         {
+            return Serialize(FieldFlags.PartOfMessage,true);
+        }
+        protected virtual IEnumerable<byte> Serialize(FieldFlags flags, bool blnAddCrc)
+        {
             List<byte> list = new List<byte>();
-            foreach (var field in GetData(FieldFlags.PartOfMessage))
+            foreach (var field in GetData(flags))
                 list.AddRange(Serialize(field));
 
-            list.AddRange(CRC16.NonZero.ComputeChecksumBytes(list));
+            if (blnAddCrc)
+                list.AddRange(CRC16.NonZero.ComputeChecksumBytes(list));
             return list;
         }
 
@@ -66,6 +72,10 @@ namespace Nuki.Communication.Commands.Request
             else if (fieldData is byte[])
             {
                 return (byte[])fieldData;
+            }
+            else if (fieldData is SemanticByteArray)
+            {
+                return ((SemanticByteArray)fieldData).Value;
             }
 
             throw new NotImplementedException();

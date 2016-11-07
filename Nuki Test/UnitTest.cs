@@ -7,6 +7,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Nuki.Communication.Commands.Request;
 using Nuki.Communication.Commands.Response;
+using Nuki.Communication.Connection;
 
 namespace Nuki_Test
 {
@@ -41,6 +42,15 @@ namespace Nuki_Test
         private const string CLPrivate = "8CAA54672307BFFDF5EA183FC607158D2011D008ECA6A1088614FF0853A5AA07";
         private const string CLPublic = "F88127CCF48023B5CBE9101D24BAA8A368DA94E8C2E3CDE2DED29CE96AB50C15";
         private const string SLPublic = "2FE57DA347CD62431528DAAC5FBB290730FFF684AFC4CFC2ED90995F58CB3B74";
+        private const string SLNonce = "6CD4163D159050C798553EAA57E278A579AFFCBC56F09FC57FE879E51C42DF17";
+        private const string SharedKey = "217FCB0F18CAF284E9BDEA0B94B83B8D10867ED706BFDEDBD2381F4CB3B8F730";
+        private static IConnectionContext ConnectionContext = new TestConnectionContext
+            (
+            StringToByteArray(CLPublic),
+            StringToByteArray(SharedKey),
+            StringToByteArray(SLNonce),
+            StringToByteArray(SLPublic)
+            );
 
         [TestMethod]
         public void TestSendRequestDataCommand()
@@ -62,6 +72,19 @@ namespace Nuki_Test
             Assert.AreEqual($"0300{CLPublic}9241", strData);
         }
 
+        [TestMethod]
+        public void TestSendAuthorizationAuthenticatorCommand()
+        {
+            
+            var Command = new SendAuthorizationAuthenticatorCommand(ConnectionContext);
+
+            string strAuthValue = "B09A0D3979A029E5FD027B519EAA200BC14AD3E163D3BE4563843E021073BCB1";
+            string strCmdAuthValue = ByteArrayToString(Command.Authenticator);
+            Assert.AreEqual(strCmdAuthValue, strAuthValue);
+            var data = Command.Serialize();
+            string strData = ByteArrayToString(data);
+            Assert.AreEqual($"0500{strAuthValue}C357", strData);
+        }
 
 
         [TestMethod]
@@ -78,12 +101,12 @@ namespace Nuki_Test
         [TestMethod]
         public void TestRecieveChallengeCommand()
         {
-            string strChallenge = "6CD4163D159050C798553EAA57E278A579AFFCBC56F09FC57FE879E51C42DF17";
-            string strMessage = $"0400{strChallenge}C3DF";
+            
+            string strMessage = $"0400{SLNonce}C3DF";
             var Command = new RecieveChallengeCommand(StringToByteArray(strMessage));
 
 
-            Assert.AreEqual(strChallenge, ByteArrayToString(Command.Nonce));
+            Assert.AreEqual(SLNonce, ByteArrayToString(Command.Nonce));
         }
 
         [TestMethod]
@@ -103,10 +126,10 @@ namespace Nuki_Test
             var kdf1 = Sodium.KDF.HSalsa20(_0, byDH1, sigma);
             var strUTF8Kdf1 = ByteArrayToString(kdf1);
 
-            Assert.AreEqual(strUTF8Kdf1, "217FCB0F18CAF284E9BDEA0B94B83B8D10867ED706BFDEDBD2381F4CB3B8F730");
+            Assert.AreEqual(strUTF8Kdf1, SharedKey);
 
-            string strChallenge = "6CD4163D159050C798553EAA57E278A579AFFCBC56F09FC57FE879E51C42DF17";
-            string strR = CLPublic + SLPublic + strChallenge;
+            
+            string strR = CLPublic + SLPublic + SLNonce;
 
             byte[] byA = Sodium.SecretKeyAuth.SignHmacSha256( StringToByteArray(strR), kdf1);
             string strA = ByteArrayToString(byA);

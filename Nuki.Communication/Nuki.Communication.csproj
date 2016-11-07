@@ -108,22 +108,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Semantictypes\SemanticTypes\SemanticDecimalTypeQualifiedByValue.cs">
-      <Link>SemanticTypes\SemanticDecimalTypeQualifiedByValue.cs</Link>
+      <Link>SemanticTypes\Core\SemanticDecimalTypeQualifiedByValue.cs</Link>
     </Compile>
     <Compile Include="..\Semantictypes\SemanticTypes\SemanticDoubleType.cs">
-      <Link>SemanticTypes\SemanticDoubleType.cs</Link>
+      <Link>SemanticTypes\Core\SemanticDoubleType.cs</Link>
     </Compile>
     <Compile Include="..\Semantictypes\SemanticTypes\SemanticType.cs">
-      <Link>SemanticTypes\SemanticType.cs</Link>
+      <Link>SemanticTypes\Core\SemanticType.cs</Link>
     </Compile>
     <Compile Include="..\Semantictypes\SemanticTypes\SemanticTypeBase.cs">
-      <Link>SemanticTypes\SemanticTypeBase.cs</Link>
+      <Link>SemanticTypes\Core\SemanticTypeBase.cs</Link>
     </Compile>
     <Compile Include="..\Semantictypes\SemanticTypes\SemanticTypeQualifiedByValue.cs">
-      <Link>SemanticTypes\SemanticTypeQualifiedByValue.cs</Link>
+      <Link>SemanticTypes\Core\SemanticTypeQualifiedByValue.cs</Link>
     </Compile>
     <Compile Include="..\Semantictypes\SemanticTypes\UncomparableSemanticType.cs">
-      <Link>SemanticTypes\UncomparableSemanticType.cs</Link>
+      <Link>SemanticTypes\Core\UncomparableSemanticType.cs</Link>
     </Compile>
     <Compile Include="Commands\BaseCommand.cs" />
     <Compile Include="Commands\CrcMissmatchException.cs" />
@@ -140,7 +140,14 @@
     <Compile Include="Commands\Response\RecieveBaseCommandEncrypted.cs" />
     <Compile Include="Commands\Response\RecieveChallengeCommand.cs" />
     <Compile Include="Commands\Response\RecievePublicKeyCommand.cs" />
+    <Compile Include="Connection\IConnectionContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SemanticTypes\SharedKey.cs" />
+    <Compile Include="SemanticTypes\SmartLockPublicKey.cs" />
+    <Compile Include="SemanticTypes\ClientPrivateKey.cs" />
+    <Compile Include="SemanticTypes\SmartLockNonce.cs" />
+    <Compile Include="SemanticTypes\ClientPublicKey.cs" />
+    <Compile Include="SemanticTypes\SemanticByteArray.cs" />
     <Compile Include="Util\CRC16.cs" />
     <EmbeddedResource Include="Properties\Nuki.Communication.rd.xml" />
   </ItemGroup>
