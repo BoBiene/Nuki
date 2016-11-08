@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Nuki.Communication.Commands.Request;
 using Nuki.Communication.Commands.Response;
 using Nuki.Communication.Connection;
+using Nuki.Communication.SemanticTypes;
 
 namespace Nuki_Test
 {
@@ -67,7 +68,7 @@ namespace Nuki_Test
         [TestMethod]
         public void TestSendPublicKey()
         {
-            var Command = new SendPublicKeyComand(StringToByteArray(CLPublic));
+            var Command = new SendPublicKeyComand(new ClientPublicKey(StringToByteArray(CLPublic)));
 
             var data = Command.Serialize();
             string strData = ByteArrayToString(data);
@@ -110,7 +111,7 @@ namespace Nuki_Test
             var Command = new RecievePublicKeyCommand(StringToByteArray(strMessage));
 
 
-            Assert.AreEqual(SLPublic, ByteArrayToString(Command.PublicKey));
+            Assert.AreEqual(SLPublic, ByteArrayToString(Command.PublicKey.Value));
         }
 
 
@@ -122,7 +123,7 @@ namespace Nuki_Test
             var Command = new RecieveChallengeCommand(StringToByteArray(strMessage));
 
 
-            Assert.AreEqual(SLNonce, ByteArrayToString(Command.Nonce));
+            Assert.AreEqual(SLNonce, ByteArrayToString(Command.Nonce.Value));
         }
 
         [TestMethod]

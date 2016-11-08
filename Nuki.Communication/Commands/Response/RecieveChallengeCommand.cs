@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Nuki.Communication.SemanticTypes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,15 +9,15 @@ namespace Nuki.Communication.Commands.Response
 {
     public class RecieveChallengeCommand : RecieveBaseCommand
     {
-        public byte[] Nonce { get { return GetData<byte[]>(nameof(Nonce)); } }
+        public SmartLockNonce Nonce { get { return GetData<SmartLockNonce>(nameof(Nonce)); } }
         public RecieveChallengeCommand(byte[] data)
             : base(CommandTypes.Challenge, data, InitFields())
         {
         }
 
-        protected static IEnumerable<FieldParser> InitFields()
+        protected static IEnumerable<FieldParserBase> InitFields()
         {
-            yield return new FieldParser(nameof(Nonce), 32, SubArray);
+            yield return new FieldParser<SmartLockNonce>(nameof(Nonce), 32, SeperateSemanticType((b) => new SmartLockNonce(b)) );
         }
     }
 }

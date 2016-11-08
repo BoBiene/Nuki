@@ -8,7 +8,7 @@ namespace Nuki.Communication.Commands.Response
 {
     public class RecieveBaseCommandEncrypted : RecieveBaseCommand
     {
-        protected RecieveBaseCommandEncrypted(CommandTypes type, byte[] data, IEnumerable<FieldParser> fields)
+        protected RecieveBaseCommandEncrypted(CommandTypes type, byte[] data, IEnumerable<FieldParserBase> fields)
             : base(type, data, fields)
         {
 

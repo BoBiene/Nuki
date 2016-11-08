@@ -17,7 +17,7 @@ namespace Nuki.Communication.SemanticTypes
         {
             return value?.Value;
         }
-
+        
         public int CompareTo(SemanticTypeBase<byte[]> other)
         {
             int nret = 0;

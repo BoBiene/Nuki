@@ -1,22 +1,24 @@
-﻿using System;
+﻿using Nuki.Communication.SemanticTypes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Nuki.Communication.SemanticTypes;
 
 namespace Nuki.Communication.Commands.Response
 {
     public class RecievePublicKeyCommand : RecieveBaseCommand
     {
-        public byte[] PublicKey { get { return GetData<byte[]>(nameof(PublicKey)); } }
+        public SmartLockPublicKey PublicKey { get { return GetData<SmartLockPublicKey>(nameof(PublicKey)); } }
         public RecievePublicKeyCommand(byte[] data)
             : base(CommandTypes.PublicKey, data, InitFields())
         {
         }
 
-        protected static IEnumerable<FieldParser> InitFields()
+        protected static IEnumerable<FieldParserBase> InitFields()
         {
-            yield return new FieldParser(nameof(PublicKey), 32, SubArray);
+            yield return new FieldParser<SmartLockPublicKey> (nameof(PublicKey), 32, SeperateSemanticType((b) => new SmartLockPublicKey(b)));
         }
     }
 }

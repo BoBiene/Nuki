@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Nuki.Communication.SemanticTypes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,12 +9,12 @@ namespace Nuki.Communication.Commands.Request
 {
     public class SendPublicKeyComand : SendBaseCommand
     {
-        public byte[] PublicKey { get { return GetData<byte[]>(nameof(PublicKey)); } }
+        public ClientPublicKey PublicKey { get { return GetData<ClientPublicKey>(nameof(PublicKey)); } }
         /// <summary>
         /// Public Key (0x0003) 
         /// </summary>
         /// <param name="byPublicKey">The public key of the sender. </param>
-        public SendPublicKeyComand(byte[] byPublicKey)
+        public SendPublicKeyComand(ClientPublicKey byPublicKey)
             : base(CommandTypes.PublicKey, 1)
         {
             AddField(nameof(PublicKey), byPublicKey);

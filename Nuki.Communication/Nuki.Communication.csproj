@@ -148,6 +148,7 @@
     <Compile Include="SemanticTypes\ClientNonce.cs" />
     <Compile Include="SemanticTypes\Semantic32ByteArray.cs" />
     <Compile Include="SemanticTypes\SemanticTypeBitSizeAttribute.cs" />
+    <Compile Include="SemanticTypes\SemanticTypeExtentions.cs" />
     <Compile Include="SemanticTypes\UniqueClientID.cs" />
     <Compile Include="SemanticTypes\SharedKey.cs" />
     <Compile Include="SemanticTypes\SmartLockPublicKey.cs" />

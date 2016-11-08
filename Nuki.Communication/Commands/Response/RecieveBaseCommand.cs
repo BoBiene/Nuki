@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.Util;
+﻿using Nuki.Communication.SemanticTypes;
+using Nuki.Communication.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +12,13 @@ namespace Nuki.Communication.Commands.Response
     public class RecieveBaseCommand : BaseCommand
     {
         public UInt16 CRC { get { return GetData<UInt16>(nameof(CRC)); } }
-        protected RecieveBaseCommand(CommandTypes type, byte[] data, IEnumerable<FieldParser> fields)
+        protected RecieveBaseCommand(CommandTypes type, byte[] data, IEnumerable<FieldParserBase> fields)
             : base(BuildFields(type,data, fields))
         {
 
         }
 
-        private static IEnumerable<DataField> BuildFields(CommandTypes type, byte[] data, IEnumerable<FieldParser> fields)
+        private static IEnumerable<DataField> BuildFields(CommandTypes type, byte[] data, IEnumerable<FieldParserBase> fields)
         {
             int nArrayParsePos = 0;
             int nFieldPos = 0;
@@ -43,7 +44,7 @@ namespace Nuki.Communication.Commands.Response
                 throw new MessageParseException();
         }
 
-        public static byte[] SubArray(byte[] data, int nStart, int nLength)
+        public static byte[] SeperateByteArray(byte[] data, int nStart, int nLength)
         {
             byte[] b = new byte[nLength];
             for(int i=0; i< nLength;++i)
@@ -53,25 +54,45 @@ namespace Nuki.Communication.Commands.Response
 
             return b;
         }
-
-        protected class FieldParser
+        protected static FieldParser<T>.ParseValueDelegate SeperateSemanticType<T>(Func<byte[], T> factory)
+            where T: SemanticByteArray
         {
-            public delegate object ParseValueDelegate(byte[] data, int start, int length);
+            return (data, nStart, nLength) => factory(SeperateByteArray(data, nStart, nLength));
+        }
+
+
+
+        protected abstract class FieldParserBase
+        {
+            
             public virtual int ByteLength { get; private set; }
-            protected ParseValueDelegate ParseValue { get; private set; }
+            
             public string FieldName { get; private set; }
 
-            public FieldParser(string strName, int nByteLength, ParseValueDelegate parseValue )
+            public FieldParserBase(string strName, int nByteLength )
             {
                 FieldName = strName;
                 ByteLength = nByteLength;
-                ParseValue = parseValue;
             }
 
-            public object GetValue(byte[] data, int nOffset)
+            public abstract object GetValue(byte[] data, int nOffset);
+    
+        }
+        protected class FieldParser<T> : FieldParserBase
+        {
+            public delegate T ParseValueDelegate(byte[] data, int start, int length);
+            protected ParseValueDelegate ParseValue { get; private set; }
+            public FieldParser(string strName, int nByteLength, ParseValueDelegate parseValue)
+                : base(strName,nByteLength)
+
+            {
+                ParseValue = parseValue;
+            }
+            public override object GetValue(byte[] data, int nOffset)
             {
                 return ParseValue(data, nOffset, ByteLength);
             }
         }
+    
     }
 }
