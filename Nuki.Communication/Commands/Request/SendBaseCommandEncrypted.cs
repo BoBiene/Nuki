@@ -1,26 +1,23 @@
-﻿using Nuki.Communication.Connection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Nuki.Communication.Connection;
+using Nuki.Communication.SemanticTypes;
 
 namespace Nuki.Communication.Commands.Request
 {
-    public abstract class SendBaseCommandEncrypted : SendBaseCommand
+    public class SendBaseCommandEncrypted : SendBaseCommandAuthenticated
     {
-        public IConnectionContext ConnectionContext { get; private set; }
-        public byte[] Authenticator { get { return GetData<byte[]>(nameof(Authenticator)); } }
-        public SendBaseCommandEncrypted(CommandTypes type, IConnectionContext connectionContext, int nNumberOfFields)
-            : base(type, nNumberOfFields + 1)
-        {
-            ConnectionContext = connectionContext;
-            AddField(nameof(Authenticator), FieldFlags.PartOfMessage, CalculateAuthenticator);
-        }
+        public SmartLockNonce SmartLockNonce {  get { return GetData<SmartLockNonce>(nameof(SmartLockNonce)); } }
+        public ClientNonce ClientNonce { get { return GetData<ClientNonce>(nameof(ClientNonce)); } }
 
-        private byte[] CalculateAuthenticator()
+        public SendBaseCommandEncrypted(CommandTypes type, IConnectionContext connectionContext, int nNumberOfFields) :
+            base(type, connectionContext, nNumberOfFields +2)
         {
-            return Sodium.SecretKeyAuth.SignHmacSha256(Serialize(FieldFlags.PartOfAuthentication,false).ToArray(), ConnectionContext.SharedKey);
+            AddField(nameof(ClientNonce), connectionContext.CreateNonce(), FieldFlags.All);
+            AddField(nameof(SmartLockNonce), connectionContext.SmartLockNonce, FieldFlags.PartOfAuthentication);
         }
     }
 }

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Nuki.Communication.SemanticTypes
 {
-    public class SharedKey : SemanticByteArray
+    public class SharedKey : Semantic32ByteArray
     {
         public SharedKey(byte[] clientPublicKey)
-            : base(clientPublicKey,32)
+            : base(clientPublicKey)
         {
 
         }

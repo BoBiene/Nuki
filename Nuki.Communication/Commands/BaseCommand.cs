@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Nuki.Communication.SemanticTypes;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,18 +43,22 @@ namespace Nuki.Communication.Commands
             m_nFieldPointer = nPos;
         }
 
-        protected int AddField(string strName, object data)
+        protected int AddField<T>(string strName, T data)
         {
             return AddField(strName, data, FieldFlags.All);
         }
-        protected int AddField(string strName, object data, FieldFlags flags)
+        protected int AddField<T>(string strName, T data, FieldFlags flags)
         {
-            return AddField((nPos) => new DataFieldObjectValue(strName, nPos, data, flags));
+            return AddField((nPos) => new DataFieldTypedValue<T>(strName, nPos, data, flags));
+        }
+        protected int AddField<T>(string strName, T data, int nFieldByteLength, FieldFlags flags)
+        {
+            return AddField((nPos) => new DataFieldTypedValue<T>(strName, nPos, data, flags));
         }
 
-        protected int AddField(string strName, FieldFlags flags, Func<object> valueGetter)
+        protected int AddField<T>(string strName, Func<T> valueGetter,int nFieldByteLength, FieldFlags flags)
         {
-            return AddField((nPos) => new DataFieldAction(strName, nPos,flags,valueGetter));
+            return AddField((nPos) => new DataFieldAction<T>(strName, nPos,flags, nFieldByteLength, valueGetter));
         }
 
         private int AddField(Func<int, DataField> fieldFactroy)
@@ -94,7 +100,7 @@ namespace Nuki.Communication.Commands
             public string Name { get; private set; }
             public int Position { get; private set; }
             public FieldFlags Flags { get; private set; }
-
+            public abstract int ByteLength { get; }
             public abstract object GetData();
             public abstract void SetData(object objData);
 
@@ -106,12 +112,19 @@ namespace Nuki.Communication.Commands
             }
         }
 
-        protected class DataFieldAction : DataField
-        {
-            public Func<object> ValueGetter { get; private set; }
-            public DataFieldAction(string strName, int nPositon, FieldFlags flags, Func<object> valueGetter) : base(strName, nPositon, flags)
+        protected class DataFieldAction<T> : DataField
+        { 
+            private int m_nByteLength = 0;
+            public Func<T> ValueGetter { get; private set; }
+            public override int ByteLength
             {
+                get { return m_nByteLength; }
+            }
+            public DataFieldAction(string strName, int nPositon, FieldFlags flags, int nByteLength, Func<T> valueGetter) : base(strName, nPositon, flags)
+            {
+
                 ValueGetter = valueGetter;
+                m_nByteLength = nByteLength;
             }
 
             public override object GetData()
@@ -125,15 +138,71 @@ namespace Nuki.Communication.Commands
             }
         }
 
-        protected class DataFieldObjectValue : DataField
+        protected class DataFieldTypedValue<T> : DataField
         {
-            public object Data { get; set; }
-            
-            public DataFieldObjectValue(string strName, int nPositon, object data, FieldFlags flags)
-                : base(strName,nPositon,flags)
+            private int m_nByteLength = 0;
+            public T Data { get; set; }
+
+            public override int ByteLength
+            {
+                get
+                {
+                    return m_nByteLength;
+                }
+            }
+            public DataFieldTypedValue(string strName, int nPositon, T data, FieldFlags flags)
+                :this(strName,nPositon,data,FieldSize(),flags)
+            {
+
+            }
+            public DataFieldTypedValue(string strName, int nPositon, T data, int nFieldSize, FieldFlags flags)
+                : base(strName, nPositon, flags)
             {
                 Data = data;
+                m_nByteLength = nFieldSize;
+            
             }
+
+            private static int FieldSize()
+            {
+                if (typeof(T) == typeof(Semantic32ByteArray))
+                    return 32;
+                else
+                    return Marshal.SizeOf<T>();
+            }
+
+            public override object GetData()
+            {
+                return Data;
+            }
+
+            public override void SetData(object objData)
+            {
+                Data =(T) objData;
+            }
+        }
+
+
+        protected class DataFieldObjectValue: DataField
+        {
+            private int m_nByteLength = 0;
+            public object Data { get; set; }
+
+            public override int ByteLength
+            {
+                get
+                {
+                    return m_nByteLength;
+                }
+            }
+            public DataFieldObjectValue(string strName, int nPositon, object data, int nFieldSize, FieldFlags flags)
+                : base(strName, nPositon, flags)
+            {
+                Data = data;
+                m_nByteLength = nFieldSize;
+
+            }
+
 
             public override object GetData()
             {

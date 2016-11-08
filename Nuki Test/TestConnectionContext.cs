@@ -30,12 +30,25 @@ namespace Nuki_Test
             get; private set;
         }
 
+        public UniqueClientID UniqueClientID
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public TestConnectionContext(byte[] clientPublicKey, byte[] sharedKey, byte[] smartLockNonce, byte[] smartLockPublicKey)
         {
             ClientPublicKey = new ClientPublicKey(clientPublicKey);
             SharedKey = new SharedKey(sharedKey);
             SmartLockNonce = new SmartLockNonce(smartLockNonce);
             SmartLockPublicKey = new SmartLockPublicKey(smartLockPublicKey);
+        }
+
+        public ClientNonce CreateNonce()
+        {
+            return new ClientNonce(new byte[32]);
         }
     }
 }

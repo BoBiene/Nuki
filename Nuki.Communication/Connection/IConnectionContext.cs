@@ -13,5 +13,8 @@ namespace Nuki.Communication.Connection
         SmartLockPublicKey SmartLockPublicKey { get; }
         SharedKey SharedKey { get; }
         SmartLockNonce SmartLockNonce { get;}
+
+        UniqueClientID UniqueClientID { get; }
+        ClientNonce CreateNonce();
     }
 }

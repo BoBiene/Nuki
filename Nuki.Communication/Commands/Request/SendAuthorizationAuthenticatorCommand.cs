@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Nuki.Communication.Commands.Request
 {
-    public class SendAuthorizationAuthenticatorCommand : SendBaseCommandEncrypted
+    public class SendAuthorizationAuthenticatorCommand : SendBaseCommandAuthenticated
     {
         public ClientPublicKey ClientPublicKey { get { return GetData<ClientPublicKey>(nameof(ClientPublicKey)); } }
         public SmartLockPublicKey SmartLockPublicKey { get { return GetData<SmartLockPublicKey>(nameof(SmartLockPublicKey)); } }

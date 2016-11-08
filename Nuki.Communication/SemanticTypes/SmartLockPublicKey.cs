@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Nuki.Communication.SemanticTypes
 {
-    public class SmartLockPublicKey : SemanticByteArray
+    public class SmartLockPublicKey : Semantic32ByteArray
     {
         public SmartLockPublicKey(byte[] clientPublicKey)
-            : base(clientPublicKey,32)
+            : base(clientPublicKey)
         {
 
         }
