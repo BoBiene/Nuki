@@ -22,7 +22,7 @@ namespace Nuki_Test
 
         public SmartLockNonce SmartLockNonce
         {
-            get; private set;
+            get;  set;
         }
 
         public SmartLockPublicKey SmartLockPublicKey
@@ -34,21 +34,23 @@ namespace Nuki_Test
         {
             get
             {
-                throw new NotImplementedException();
+                return new UniqueClientID(0);
             }
         }
 
-        public TestConnectionContext(byte[] clientPublicKey, byte[] sharedKey, byte[] smartLockNonce, byte[] smartLockPublicKey)
+        private Func<byte[]> m_delCreateNonce = null;
+        public TestConnectionContext(byte[] clientPublicKey, byte[] sharedKey, byte[] smartLockNonce, byte[] smartLockPublicKey,Func< byte[] > creatNonce)
         {
             ClientPublicKey = new ClientPublicKey(clientPublicKey);
             SharedKey = new SharedKey(sharedKey);
             SmartLockNonce = new SmartLockNonce(smartLockNonce);
             SmartLockPublicKey = new SmartLockPublicKey(smartLockPublicKey);
+            m_delCreateNonce = creatNonce;
         }
 
         public ClientNonce CreateNonce()
         {
-            return new ClientNonce(new byte[32]);
+            return new ClientNonce(m_delCreateNonce() );
         }
     }
 }

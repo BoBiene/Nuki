@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
 using Nuki.Communication.SemanticTypes;
+using SemanticTypes;
 
 namespace Nuki.Communication.Commands.Request
 {
@@ -45,6 +46,9 @@ namespace Nuki.Communication.Commands.Request
         private static IEnumerable<byte> Serialize(DataField field)
         {
             var fieldData = field.GetData();
+            if (fieldData is ISemanticType)
+                fieldData = ((ISemanticType)fieldData).GetValue();
+
             if (fieldData == null)
             {
                 return new byte[0];
@@ -59,7 +63,7 @@ namespace Nuki.Communication.Commands.Request
                 {
 
                     case 8:
-                        return BitConverter.GetBytes((byte)(fieldData));
+                        return new byte[] { (byte)(fieldData) };
                     case 16:
                         return BitConverter.GetBytes((UInt16)(fieldData));
                     case 64:
@@ -73,9 +77,42 @@ namespace Nuki.Communication.Commands.Request
             {
                 return (byte[])fieldData;
             }
-            else if (fieldData is SemanticByteArray)
+            else if(fieldData is string)
             {
-                return ((SemanticByteArray)fieldData).Value;
+                string strValue = string.Format("{0}", fieldData);
+                strValue = strValue.Substring(0, Math.Min(strValue.Length, field.ByteLength));
+
+
+                byte[] byRet = Encoding.ASCII.GetBytes(strValue);
+
+                if (byRet.Length != field.ByteLength)
+                    Array.Resize(ref byRet, field.ByteLength);
+
+                return byRet;
+            }
+            else if(fieldData is UInt16)
+            {
+                return BitConverter.GetBytes((UInt16)fieldData);
+            }
+            else if (fieldData is UInt32)
+            {
+                return BitConverter.GetBytes((UInt32)fieldData);
+            }
+            else if (fieldData is UInt64)
+            {
+                return BitConverter.GetBytes((UInt64)fieldData);
+            }
+            else if (fieldData is Int16)
+            {
+                return BitConverter.GetBytes((Int16)fieldData);
+            }
+            else if (fieldData is Int32)
+            {
+                return BitConverter.GetBytes((Int32)fieldData);
+            }
+            else if (fieldData is Int64)
+            {
+                return BitConverter.GetBytes((Int64)fieldData);
             }
 
             throw new NotImplementedException();

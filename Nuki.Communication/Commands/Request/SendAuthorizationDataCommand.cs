@@ -20,13 +20,13 @@ namespace Nuki.Communication.Commands.Request
         public ClientNonce ClientNonce { get { return GetData<ClientNonce>(nameof(ClientNonce)); } }
 
         public SendAuthorizationDataCommand(string strName, IConnectionContext connectionContext) :
-            base(CommandTypes.AuthorizationData, connectionContext, 6)
+            base(CommandTypes.AuthorizationData, connectionContext, 5)
         {
             AddField(nameof(ClientIDType), NukiClientTypeID.App);
             AddField(nameof(UniqueClientID), connectionContext.UniqueClientID);
             AddField(nameof(ClientName), strName, 32, FieldFlags.All);
             AddField(nameof(ClientNonce), connectionContext.CreateNonce());
-            AddField(nameof(SmartLockNonce), SmartLockNonce,FieldFlags.PartOfAuthentication);
+            AddField(nameof(SmartLockNonce), connectionContext.SmartLockNonce, FieldFlags.PartOfAuthentication);
 
         }
 

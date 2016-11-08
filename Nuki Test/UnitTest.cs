@@ -40,16 +40,18 @@ namespace Nuki_Test
             return bytes;
         }
         private const string CLPrivate = "8CAA54672307BFFDF5EA183FC607158D2011D008ECA6A1088614FF0853A5AA07";
-        private const string CLPublic = "F88127CCF48023B5CBE9101D24BAA8A368DA94E8C2E3CDE2DED29CE96AB50C15";
-        private const string SLPublic = "2FE57DA347CD62431528DAAC5FBB290730FFF684AFC4CFC2ED90995F58CB3B74";
-        private const string SLNonce = "6CD4163D159050C798553EAA57E278A579AFFCBC56F09FC57FE879E51C42DF17";
+        private const string CLPublic =  "F88127CCF48023B5CBE9101D24BAA8A368DA94E8C2E3CDE2DED29CE96AB50C15";
+        private const string SLPublic =  "2FE57DA347CD62431528DAAC5FBB290730FFF684AFC4CFC2ED90995F58CB3B74";
+        private const string SLNonce =   "6CD4163D159050C798553EAA57E278A579AFFCBC56F09FC57FE879E51C42DF17";
+        private const string SLNonce2 =  "E0742CFEA39CB46109385BF91286A3C02F40EE86B0B62FC34033094DE41E2C0D";
         private const string SharedKey = "217FCB0F18CAF284E9BDEA0B94B83B8D10867ED706BFDEDBD2381F4CB3B8F730";
-        private static IConnectionContext ConnectionContext = new TestConnectionContext
+        private static TestConnectionContext ConnectionContext = new TestConnectionContext
             (
             StringToByteArray(CLPublic),
             StringToByteArray(SharedKey),
             StringToByteArray(SLNonce),
-            StringToByteArray(SLPublic)
+            StringToByteArray(SLPublic),
+            () => StringToByteArray("52AFE0A664B4E9B56DC6BD4CB718A6C9FED6BE17A7411072AA0D315378140577")
             );
 
         [TestMethod]
@@ -84,6 +86,20 @@ namespace Nuki_Test
             var data = Command.Serialize();
             string strData = ByteArrayToString(data);
             Assert.AreEqual($"0500{strAuthValue}C357", strData);
+        }
+
+        [TestMethod]
+        public void TestSendAuthorizationDataCommand()
+        {
+            ConnectionContext.SmartLockNonce = new Nuki.Communication.SemanticTypes.SmartLockNonce(StringToByteArray(SLNonce2));
+            var Command = new SendAuthorizationDataCommand("Marc (Test)",ConnectionContext);
+
+            string strAuthValue = "CF1B9E7801E3196E6594E76D57908EE500AAD5C33F4B6E0BBEA0DDEF82967BFC";
+            string strCmdAuthValue = ByteArrayToString(Command.Authenticator);
+            Assert.AreEqual(strCmdAuthValue, strAuthValue);
+            var data = Command.Serialize();
+            string strData = ByteArrayToString(data);
+            Assert.AreEqual(strData,"0600CF1B9E7801E3196E6594E76D57908EE500AAD5C33F4B6E0BBEA0DDEF82967BFC00000000004D6172632028546573742900000000000000000000000000000000000000000052AFE0A664B4E9B56DC6BD4CB718A6C9FED6BE17A7411072AA0D31537814057769F2");
         }
 
 

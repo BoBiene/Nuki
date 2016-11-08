@@ -1,4 +1,5 @@
 ﻿using Nuki.Communication.SemanticTypes;
+using SemanticTypes;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -53,7 +54,7 @@ namespace Nuki.Communication.Commands
         }
         protected int AddField<T>(string strName, T data, int nFieldByteLength, FieldFlags flags)
         {
-            return AddField((nPos) => new DataFieldTypedValue<T>(strName, nPos, data, flags));
+            return AddField((nPos) => new DataFieldTypedValue<T>(strName, nPos, data,nFieldByteLength, flags));
         }
 
         protected int AddField<T>(string strName, Func<T> valueGetter,int nFieldByteLength, FieldFlags flags)
@@ -91,7 +92,7 @@ namespace Nuki.Communication.Commands
         protected IEnumerable<DataField> GetData(FieldFlags flag)
         {
             foreach (var field in m_mapByPostion)
-                if (field.Flags.HasFlag(flag))
+                if (field?.Flags.HasFlag(flag) == true)
                     yield return field;
         }
 
@@ -163,12 +164,32 @@ namespace Nuki.Communication.Commands
             
             }
 
+            private static int? s_FieldSize = null;
             private static int FieldSize()
             {
-                if (typeof(T) == typeof(Semantic32ByteArray))
-                    return 32;
-                else
-                    return Marshal.SizeOf<T>();
+                if (s_FieldSize == null)
+                {
+                    var typeInfo = typeof(T).GetTypeInfo();
+                    if (typeof(T) == typeof(Semantic32ByteArray))
+                    {
+                        s_FieldSize = 32;
+                    }
+                    else if (typeInfo.IsEnum)
+                    {
+                        s_FieldSize = (typeInfo.GetCustomAttribute<EnumBitSizeAttribute>()?.BitSize ?? 32) / 8;
+                    }
+                    else if (typeInfo.ImplementedInterfaces.Contains(typeof(ISemanticType)))
+                    {
+                        s_FieldSize = (typeInfo.GetCustomAttribute<SemanticTypeByteSizeAttribute>()?.ByteSize ?? 4);
+                    }
+                    else
+                    {
+                        s_FieldSize = Marshal.SizeOf<T>();
+                    }
+                }
+                else { }
+
+                return s_FieldSize.Value;
             }
 
             public override object GetData()
