@@ -128,6 +128,7 @@
     <ProjectReference Include="..\Nuki.Communication\Nuki.Communication.csproj">
       <Project>{c021066a-6586-4d8c-8f7c-97b1a15910aa}</Project>
       <Name>Nuki.Communication</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
