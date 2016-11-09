@@ -11,11 +11,12 @@ namespace Nuki.Communication.Commands.Response
 
     public class RecieveBaseCommand : BaseCommand
     {
+        protected byte[] Data { get; private set; }
         public UInt16 CRC { get { return GetData<UInt16>(nameof(CRC)); } }
         protected RecieveBaseCommand(CommandTypes type, byte[] data, IEnumerable<FieldParserBase> fields)
             : base(BuildFields(type,data, fields))
         {
-
+            Data = data;
         }
 
         private static IEnumerable<DataField> BuildFields(CommandTypes type, byte[] data, IEnumerable<FieldParserBase> fields)
@@ -59,7 +60,10 @@ namespace Nuki.Communication.Commands.Response
         {
             return (data, nStart, nLength) => factory(SeperateByteArray(data, nStart, nLength));
         }
-
+        public virtual bool IsValid()
+        {
+            return true; //TODO Validate CRC
+        }
 
 
         protected abstract class FieldParserBase
@@ -69,6 +73,7 @@ namespace Nuki.Communication.Commands.Response
             
             public string FieldName { get; private set; }
 
+            public FieldFlags FieldFlags { get; set; } = FieldFlags.All;
             public FieldParserBase(string strName, int nByteLength )
             {
                 FieldName = strName;

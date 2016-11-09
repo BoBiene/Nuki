@@ -1,4 +1,5 @@
 ﻿using Nuki.Communication.Connection;
+using Nuki.Communication.SemanticTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Nuki.Communication.Commands.Request
     public abstract class SendBaseCommandAuthenticated : SendBaseCommand
     {
         public IConnectionContext ConnectionContext { get; private set; }
-        public byte[] Authenticator { get { return GetData<byte[]>(nameof(Authenticator)); } }
+        public MessageAuthentication Authenticator { get { return GetData<MessageAuthentication>(nameof(Authenticator)); } }
         public SendBaseCommandAuthenticated(CommandTypes type, IConnectionContext connectionContext, int nNumberOfFields)
             : base(type, nNumberOfFields + 1)
         {
@@ -18,9 +19,9 @@ namespace Nuki.Communication.Commands.Request
             AddField(nameof(Authenticator), CalculateAuthenticator,32, FieldFlags.PartOfMessage);
         }
 
-        private byte[] CalculateAuthenticator()
+        private MessageAuthentication CalculateAuthenticator()
         {
-            return Sodium.SecretKeyAuth.SignHmacSha256(Serialize(FieldFlags.PartOfAuthentication,false).ToArray(), ConnectionContext.SharedKey);
+            return new MessageAuthentication(Sodium.SecretKeyAuth.SignHmacSha256(Serialize(FieldFlags.PartOfAuthentication, false).ToArray(), ConnectionContext.SharedKey));
         }
     }
 }
