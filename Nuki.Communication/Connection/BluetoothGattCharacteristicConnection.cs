@@ -19,7 +19,7 @@ namespace Nuki.Communication.Connection
         private TaskCompletionSource<RecieveBaseCommand> m_responseWaitHandle = null;
         private ResponseCommandParser m_commandParser = new ResponseCommandParser();
         private ConcurrentQueue<RecieveBaseCommand> m_recieveQueue = new ConcurrentQueue<RecieveBaseCommand>();
-
+        private RecieveBaseCommand m_cmdInProgress = null;
         public BluetoothGattCharacteristicConnection(GattCharacteristic characteristic)
         {
             m_GattCharacteristic = characteristic;
@@ -30,25 +30,32 @@ namespace Nuki.Communication.Connection
         private void M_GattCharacteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
             var recieveBuffer = args.CharacteristicValue;
-            byte[] byData = new byte[recieveBuffer.Length];
-            DataReader.FromBuffer(recieveBuffer).ReadBytes(byData);
-
-            Debug.WriteLine("Got response: " + ByteHelper.ByteArrayToString(byData));
-            var cmd  = m_commandParser.Parse(byData);
-            if (cmd != null)
+            
+            lock (this)
             {
-                if (m_responseWaitHandle != null)
+                
+                var reader = DataReader.FromBuffer(recieveBuffer);
+                reader.ByteOrder = ByteOrder.LittleEndian;
+                if (m_cmdInProgress == null)
+                    m_cmdInProgress = m_commandParser.Parse(reader);
+
+                if (m_cmdInProgress != null)
                 {
-                    m_responseWaitHandle?.SetResult(cmd);
+                    m_cmdInProgress.ProcessRecievedData(reader);
+                    if (m_cmdInProgress.Complete)
+                    {
+                        var cmd = m_cmdInProgress;
+                        m_cmdInProgress = null;
+                        m_responseWaitHandle?.SetResult(m_cmdInProgress);
+                    }
+                    else
+                    {
+                    }
                 }
                 else
                 {
-                    m_recieveQueue.Enqueue(cmd);
+                    Debug.WriteLine("Recieved unknown command");
                 }
-            }
-            else
-            {
-                Debug.WriteLine("Recieved unknown command");
             }
         }
 

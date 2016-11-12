@@ -11,8 +11,8 @@ namespace Nuki.Communication.Commands.Response
     public abstract class RecieveBaseCommandAuthenticated : RecieveBaseCommand
     {
         public MessageAuthentication Authentication { get { return GetData<MessageAuthentication>(nameof(Authentication)); } }
-        protected RecieveBaseCommandAuthenticated(CommandTypes type, byte[] data, IEnumerable<FieldParserBase> fields)
-            : base(type, data, InitFields(fields))
+        protected RecieveBaseCommandAuthenticated(CommandTypes type,IEnumerable<FieldParserBase> fields)
+            : base(type, InitFields(fields))
         {
 
         }
@@ -26,20 +26,27 @@ namespace Nuki.Communication.Commands.Response
 
         public bool IsValid(IConnectionContext connectionContext, ClientNonce nonce)
         {
-            byte[] byToSign = new byte[Data.Length 
-                                                    - 2 //Remove CRC
-                                                    - 2 ]; //Remove Command Ident
+            if (Complete)
+            {
+                byte[] byToSign = new byte[Data.Length
+                                                        - 2 //Remove CRC
+                                                        - 2]; //Remove Command Ident
 
 
-            Array.Copy(Data, 34, byToSign, 0, byToSign.Length - 32); //Remove Authentication,CommandIdent and CRC
+                Array.Copy(Data, 34, byToSign, 0, byToSign.Length - 32); //Remove Authentication,CommandIdent and CRC
 
-            Array.Copy(nonce.Value, 0, byToSign, byToSign.Length - 32, nonce.Value.Length);
+                Array.Copy(nonce.Value, 0, byToSign, byToSign.Length - 32, nonce.Value.Length);
 
-            MessageAuthentication calculatedAuth = new MessageAuthentication(
-                Sodium.SecretKeyAuth.SignHmacSha256(
-                byToSign, connectionContext.SharedKey));
+                MessageAuthentication calculatedAuth = new MessageAuthentication(
+                    Sodium.SecretKeyAuth.SignHmacSha256(
+                    byToSign, connectionContext.SharedKey));
 
-            return base.IsValid() && Authentication == calculatedAuth;
+                return base.IsValid() && Authentication == calculatedAuth;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

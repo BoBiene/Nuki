@@ -10,8 +10,8 @@ namespace Nuki.Communication.Commands.Response
     public class RecieveChallengeCommand : RecieveBaseCommand
     {
         public SmartLockNonce Nonce { get { return GetData<SmartLockNonce>(nameof(Nonce)); } }
-        public RecieveChallengeCommand(byte[] data)
-            : base(CommandTypes.Challenge, data, InitFields())
+        public RecieveChallengeCommand()
+            : base(CommandTypes.Challenge, InitFields())
         {
         }
 

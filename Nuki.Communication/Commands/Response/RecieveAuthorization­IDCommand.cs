@@ -12,8 +12,8 @@ namespace Nuki.Communication.Commands.Response
         public UniqueClientID UniqueClientID { get { return GetData<UniqueClientID>(nameof(UniqueClientID)); } }
         public SmartLockUUID SmartLockUUID { get { return GetData<SmartLockUUID>(nameof(SmartLockUUID)); } }
         public SmartLockNonce SmartLockNonce { get { return GetData<SmartLockNonce>(nameof(SmartLockNonce)); } }
-        public RecieveAuthorization­IDCommand(byte[] data)
-                : base(CommandTypes.AuthorizationID, data, InitFields())
+        public RecieveAuthorization­IDCommand()
+                : base(CommandTypes.AuthorizationID, InitFields())
         {
         }
 

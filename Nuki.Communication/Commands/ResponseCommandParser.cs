@@ -5,20 +5,21 @@ using System.Text;
 using System.Threading.Tasks;
 using Nuki.Communication.Commands.Response;
 using System.Diagnostics;
+using Windows.Storage.Streams;
 
 namespace Nuki.Communication.Commands
 {
     public class ResponseCommandParser
     {
 
-        public RecieveBaseCommand Parse(byte[] data)
+        public RecieveBaseCommand Parse(IDataReader reader)
         {
             RecieveBaseCommand cmd = null;
-            CommandTypes cmdType = GetCommandType(data);
+            CommandTypes cmdType =(CommandTypes) reader.ReadUInt16();
             switch (cmdType)
             {
                 case CommandTypes.PublicKey:
-                    cmd = new RecievePublicKeyCommand(data);
+                    cmd = new RecievePublicKeyCommand();
                     break;
                 default:
                     Debug.WriteLine($"Command {cmdType} is not handelt!");

@@ -25,7 +25,7 @@ namespace Nuki.Communication.Commands
         private ConcurrentDictionary<string, DataField> m_mapByFieldName = new ConcurrentDictionary<string, DataField>(StringComparer.OrdinalIgnoreCase);
         private DataField[] m_mapByPostion = null;
         public CommandTypes CommandType { get { return GetData<CommandTypes>(nameof(CommandType)); } }
-
+        protected int FieldPointer => m_nFieldPointer;
         public BaseCommand(CommandTypes type, int nNumberOfFields)
         {
             m_mapByPostion = new DataField[nNumberOfFields + 1];
@@ -69,6 +69,18 @@ namespace Nuki.Communication.Commands
             m_mapByPostion[field.Position] = field;
             m_mapByFieldName[field.Name] = field;
             return nPos;
+        }
+
+        protected void AddFields(IEnumerable<DataField> fields)
+        {
+            int nMax = m_nFieldPointer;
+            foreach(var field in fields)
+            {
+                nMax = Math.Max(nMax, m_nFieldPointer);
+                m_mapByPostion[field.Position] = field;
+                m_mapByFieldName[field.Name] = field;
+            }
+            m_nFieldPointer = nMax;
         }
         
         protected void SetData(string strName, object objData)

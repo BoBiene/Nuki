@@ -11,8 +11,8 @@ namespace Nuki.Communication.Commands.Response
     public class RecievePublicKeyCommand : RecieveBaseCommand
     {
         public SmartLockPublicKey PublicKey { get { return GetData<SmartLockPublicKey>(nameof(PublicKey)); } }
-        public RecievePublicKeyCommand(byte[] data)
-            : base(CommandTypes.PublicKey, data, InitFields())
+        public RecievePublicKeyCommand()
+            : base(CommandTypes.PublicKey, InitFields())
         {
         }
 
