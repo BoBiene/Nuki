@@ -146,6 +146,7 @@
     <Compile Include="Commands\Response\RecieveChallengeCommand.cs" />
     <Compile Include="Commands\Response\RecievePublicKeyCommand.cs" />
     <Compile Include="Connection\BluetoothConnection.cs" />
+    <Compile Include="Connection\BluetoothGattCharacteristicConnection.cs" />
     <Compile Include="Connection\BluetoothImplementation.cs" />
     <Compile Include="Connection\IConnectionContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

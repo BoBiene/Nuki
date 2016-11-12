@@ -11,6 +11,7 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
+using Windows.Foundation;
 using Windows.Storage.Streams;
 
 namespace Nuki.Communication.Connection
@@ -22,62 +23,108 @@ namespace Nuki.Communication.Connection
         public static readonly BluetoothServiceUUID KeyTurnerService = new BluetoothServiceUUID("a92ee200550111e4916c0800200c9a66");
 
         public static readonly BluetoothCharacteristic KeyTurnerPairingGDIO = new BluetoothCharacteristic("a92ee101550111e4916c0800200c9a66");
+        public static readonly BluetoothCharacteristic KeyTurnerGDIO = new BluetoothCharacteristic("a92ee201550111e4916c0800200c9a66");
+        public static readonly BluetoothCharacteristic KeyTurnerUGDIO = new BluetoothCharacteristic("a92ee202550111e4916c0800200c9a66");
 
         private TaskCompletionSource<bool> m_blnEneumerationResult = new TaskCompletionSource<bool>();
-        public string DeviceID { get; private set; }
-        
-        private GattDeviceService m_deviceService = null;
 
-        public BluetoothConnection(string strDeviceID)
+        private BluetoothGattCharacteristicConnection m_pairingGDIO = null;
+        private GattCharacteristic m_GDIO = null;
+        private GattCharacteristic m_UGDIO = null;
+
+
+        public BluetoothConnection()
         {
-            DeviceID = strDeviceID;
         }
 
-        public async Task<bool> Connect()
+        public async Task<bool> Connect(string strDeviceID)
         {
-            if(m_deviceService == null)
-                m_deviceService = await GattDeviceService.FromIdAsync(DeviceID);
-            return m_deviceService != null;
-        }
-
-        public async Task<bool> PairDevice()
-        {
-            bool blnRet = false;
-            if (m_deviceService.Uuid != KeyTurnerPairingService.Value)
+            var deviceService = await GattDeviceService.FromIdAsync(strDeviceID);
+            if (deviceService != null)
             {
-                throw new InvalidOperationException("The service is not valid for pairing!");
-            }
-            else if (await Connect())
-            {
-                GattCharacteristic gdio = m_deviceService.GetCharacteristics(KeyTurnerPairingGDIO.Value).FirstOrDefault();
-                if(gdio != null)
+                foreach (var character in deviceService.GetAllCharacteristics())
                 {
-                    var writer = new DataWriter();
+                    if (character.Uuid == KeyTurnerGDIO.Value)
+                        m_GDIO = character;
+                    else if (character.Uuid == KeyTurnerPairingGDIO.Value)
+                        m_pairingGDIO = new BluetoothGattCharacteristicConnection(character);
+                    else if (character.Uuid == KeyTurnerUGDIO.Value)
+                        m_UGDIO = character;
+                }
+            }
+            else { }
+
+
+            return deviceService != null;
+        }
+
+        public enum PairStatus : byte
+        {
+            NoCharateristic = 0,
+            MissingCharateristic = 1,
+            Successfull = 2,
+            Failed = 255,
+            Timeout = 3,
+        }
+
+        private async Task<IBuffer> RecieveResponse(GattCharacteristic character, int nTimeout)
+        {
+            TaskCompletionSource<IBuffer> responseAwait = new TaskCompletionSource<IBuffer>();
+            TypedEventHandler<GattCharacteristic, GattValueChangedEventArgs> processResponse = (c, args) =>
+            {
+                responseAwait.SetResult(args.CharacteristicValue);
+            };
+            character.ValueChanged += processResponse;
+         Task completedTask =   await Task.WhenAny(responseAwait.Task, Task.Delay(nTimeout));
+            character.ValueChanged -= processResponse;
+
+            if (completedTask == responseAwait.Task)
+                return responseAwait.Task.Result;
+            else
+                return null; //Timeout
+        }
+
+        public async Task<PairStatus> PairDevice()
+        {
+            PairStatus status = PairStatus.Failed;
+            try
+            {
+                if (m_pairingGDIO != null &&
+                    m_GDIO != null &&
+                    m_UGDIO != null)
+                {
+
                     SendRequestDataCommand cmd = new SendRequestDataCommand(CommandTypes.PublicKey);
-                    writer.WriteBytes(ByteHelper.StringToByteArray("​0100030027A7"));
-                    await gdio.WriteValueAsync(writer.DetachBuffer());
-                    var response = await gdio.ReadValueAsync(BluetoothCacheMode.Uncached);
-                    if (response.Status == GattCommunicationStatus.Success)
+
+                    if (await m_pairingGDIO.Send(cmd))
                     {
-                        byte[] byDate = new byte[response.Value.Length];
-                        DataReader.FromBuffer(response.Value).ReadBytes(byDate);
-
-                        Debug.WriteLine("Got response: " +  ByteHelper.ByteArrayToString(byDate));
-
-                        blnRet = true;
+                        var response = await m_pairingGDIO.Recieve(2000);
+                        if (response != null)
+                        {
+                            status = PairStatus.Successfull;
+                        }
+                        else
+                        {
+                            status = PairStatus.Timeout;
+                        }
                     }
                     else
                     {
-
+                        status = PairStatus.Failed;
                     }
                 }
-                else { }
+                else
+                {
+                    if (m_UGDIO != null || m_pairingGDIO != null || m_GDIO != null)
+                        status = PairStatus.MissingCharateristic;
+                }
             }
-            else
+            catch(Exception ex)
             {
+                Debug.WriteLine("Error in pairing: {0}", ex);
+                status = PairStatus.Failed;
             }
-
-            return blnRet;
+            return status;
         }
         
     }

@@ -265,21 +265,26 @@ namespace Nuki.Pages.Setup
         //Watcher for Bluetooth LE Services
         private void StartBLEWatcher()
         {
+            BluetoothConnection blCon = new BluetoothConnection();
             // Hook up handlers for the watcher events before starting the watcher
             OnBLEAdded = async (watcher, deviceInfo) =>
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                  {
                      Debug.WriteLine("OnBLEAdded: " + deviceInfo.Id);
-                     BluetoothConnection blCon = new BluetoothConnection(deviceInfo.Id);
 
-                     if (await blCon.Connect())
+                     if (await blCon.Connect(deviceInfo.Id))
                      {
-                         if(await blCon.PairDevice())
+                         var status = await blCon.PairDevice();
+                         if (status == BluetoothConnection.PairStatus.Successfull)
                          {
                              btnProceed.IsEnabled = true;
                              StatusText.Text = "Pairing erfolgreich";
                              progressRing.IsActive = false;
+                         }
+                         else if(status == BluetoothConnection.PairStatus.MissingCharateristic)
+                         {
+                             //Wait
                          }
                          else
                          {
@@ -313,8 +318,11 @@ namespace Nuki.Pages.Setup
 
                  });
             };
+            string strPairing = GattDeviceService.GetDeviceSelectorFromUuid(BluetoothConnection.KeyTurnerPairingService.Value);
+            string strService = GattDeviceService.GetDeviceSelectorFromUuid(BluetoothConnection.KeyTurnerService.Value);
+            string aqs = $"({strPairing}) OR ({strService})";
 
-            blewatcher = DeviceInformation.CreateWatcher(GattDeviceService.GetDeviceSelectorFromUuid(BluetoothConnection.KeyTurnerPairingService.Value));
+            blewatcher = DeviceInformation.CreateWatcher(aqs);
             blewatcher.Added += OnBLEAdded;
             blewatcher.Updated += OnBLEUpdated;
             blewatcher.Removed += OnBLERemoved;

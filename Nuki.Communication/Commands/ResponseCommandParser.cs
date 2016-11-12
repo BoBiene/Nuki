@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Nuki.Communication.Commands.Response;
+using System.Diagnostics;
 
 namespace Nuki.Communication.Commands
 {
@@ -13,10 +14,14 @@ namespace Nuki.Communication.Commands
         public RecieveBaseCommand Parse(byte[] data)
         {
             RecieveBaseCommand cmd = null;
-            switch (GetCommandType(data))
+            CommandTypes cmdType = GetCommandType(data);
+            switch (cmdType)
             {
                 case CommandTypes.PublicKey:
                     cmd = new RecievePublicKeyCommand(data);
+                    break;
+                default:
+                    Debug.WriteLine($"Command {cmdType} is not handelt!");
                     break;
             }
 
