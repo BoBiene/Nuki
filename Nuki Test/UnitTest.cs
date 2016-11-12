@@ -142,6 +142,13 @@ namespace Nuki_Test
             Assert.IsTrue(Command.IsValid(ConnectionContext, ConnectionContext.CreateNonce()));
         }
         [TestMethod]
+        public void TestBluetoothConnection()
+        {
+
+
+            Assert.IsTrue(new BluetoothConnection().PairDevice().Result);
+        }
+        [TestMethod]
         public void TestMethod1()
         {
             

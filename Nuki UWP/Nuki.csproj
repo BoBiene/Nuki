@@ -107,17 +107,20 @@
     <Compile Include="Pages\NukiSettings.xaml.cs">
       <DependentUpon>NukiSettings.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\Setup\SetupConfirmInstallation.xaml.cs">
-      <DependentUpon>SetupConfirmInstallation.xaml</DependentUpon>
+    <Compile Include="Pages\Setup\Setup02ConfirmInstallation.xaml.cs">
+      <DependentUpon>Setup02ConfirmInstallation.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Setup\Setup04PairDevice.xaml.cs">
+      <DependentUpon>Setup04PairDevice.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Setup\SetupIconPage.xaml.cs">
       <DependentUpon>SetupIconPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\Setup\SetupLandingPage.xaml.cs">
-      <DependentUpon>SetupLandingPage.xaml</DependentUpon>
+    <Compile Include="Pages\Setup\Setup01LandingPage.xaml.cs">
+      <DependentUpon>Setup01LandingPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\Setup\SetupNamePage.xaml.cs">
-      <DependentUpon>SetupNamePage.xaml</DependentUpon>
+    <Compile Include="Pages\Setup\Setup03NamePage.xaml.cs">
+      <DependentUpon>Setup03NamePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings\NukiAppSettings.cs" />
     <Compile Include="Settings\NukiDeviceSetting.cs" />
@@ -150,6 +153,7 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\bluetooth.png" />
     <Content Include="Assets\nuki-logo-white.png" />
     <Content Include="Assets\setup_bg.jpg" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
@@ -182,7 +186,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\Setup\SetupConfirmInstallation.xaml">
+    <Page Include="Pages\Setup\Setup02ConfirmInstallation.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Setup\Setup04PairDevice.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -190,11 +198,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\Setup\SetupLandingPage.xaml">
+    <Page Include="Pages\Setup\Setup01LandingPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\Setup\SetupNamePage.xaml">
+    <Page Include="Pages\Setup\Setup03NamePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

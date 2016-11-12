@@ -21,6 +21,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 using System.Threading.Tasks;
+using Nuki.Communication.Connection;
 
 namespace Nuki
 {
@@ -33,7 +34,7 @@ namespace Nuki
             
             var vm = new ShellViewModel();
             
-            vm.MenuItems.Add(new MenuItem { Icon = (char)0xE115, Title = "Einrichten", PageType = typeof(Pages.Setup.SetupLandingPage) });
+            vm.MenuItems.Add(new MenuItem { Icon = (char)0xE115, Title = "Einrichten", PageType = typeof(Pages.Setup.Setup01LandingPage) });
             vm.MenuItems.Add(new MenuItem { Icon = '', Title = "Page 1", PageType = typeof(Page1), LeftMargin = 20 });
             vm.MenuItems.Add(new MenuItem { Icon = '', Title = "Page 2", PageType = typeof(Page2) });
             vm.MenuItems.Add(new MenuItem { Icon = '', Title = "Page 3", PageType = typeof(Page3) });
@@ -42,7 +43,6 @@ namespace Nuki
             vm.SelectedMenuItem = vm.MenuItems.First();
 
             this.ViewModel = vm;
-
             // add entry animations
             var transitions = new TransitionCollection { };
             var transition = new NavigationThemeTransition { };

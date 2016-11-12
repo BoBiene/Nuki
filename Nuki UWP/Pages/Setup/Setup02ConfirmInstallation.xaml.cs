@@ -20,9 +20,9 @@ namespace Nuki.Pages.Setup
     /// <summary>
     /// Eine leere Seite, die eigenständig verwendet oder zu der innerhalb eines Rahmens navigiert werden kann.
     /// </summary>
-    public sealed partial class SetupConfirmInstallation : Page
+    public sealed partial class Setup02ConfirmInstallation : Page
     {
-        public SetupConfirmInstallation()
+        public Setup02ConfirmInstallation()
         {
             Shell.Current.ViewModel.BackgoundMode = Presentation.BackgoundMode.BluredImage;
             this.InitializeComponent();
@@ -30,7 +30,7 @@ namespace Nuki.Pages.Setup
 
         private void NukiConfirmed(object sender, RoutedEventArgs e)
         {
-            Shell.Current.ViewModel.SelectedPageType = typeof(SetupNamePage);
+            Shell.Current.ViewModel.SelectedPageType = typeof(Setup03NamePage);
         }
 
         private void GoBack(object sender, RoutedEventArgs e)
