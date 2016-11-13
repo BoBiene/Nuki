@@ -29,11 +29,10 @@ namespace Nuki.Communication.Commands.Response
             if (Complete)
             {
                 byte[] byToSign = new byte[Data.Length
-                                                        - 2 //Remove CRC
-                                                        - 2]; //Remove Command Ident
+                                                        - 2 ];//Remove CRC
 
 
-                Array.Copy(Data, 34, byToSign, 0, byToSign.Length - 32); //Remove Authentication,CommandIdent and CRC
+                Array.Copy(Data, 32, byToSign, 0, byToSign.Length - 32); //Remove Authentication,CommandIdent and CRC
 
                 Array.Copy(nonce.Value, 0, byToSign, byToSign.Length - 32, nonce.Value.Length);
 

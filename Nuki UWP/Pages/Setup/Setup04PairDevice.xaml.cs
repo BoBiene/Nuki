@@ -544,7 +544,7 @@ namespace Nuki.Pages.Setup
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
-            Shell.Current.ViewModel.SelectedPageType = typeof(Setup01LandingPage);
+            Shell.Current.RootFrame.GoBack();
         }
     }
 }

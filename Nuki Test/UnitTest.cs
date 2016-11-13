@@ -114,11 +114,12 @@ namespace Nuki_Test
             DataWriter w = new DataWriter();
             w.WriteBytes(StringToByteArray(strHexMessage));
             DataReader r =DataReader.FromBuffer(w.DetachBuffer());
-
+            r.ByteOrder = ByteOrder.LittleEndian;
             T retCmd = ResponseCommandParser.Parse(r) as T;
             Assert.IsNotNull(retCmd,$"Failed to create command-type {typeof(T)} from {strHexMessage}");
             retCmd?.ProcessRecievedData(r);
             Assert.IsTrue(retCmd.Complete, $"Command {retCmd.CommandType} is not completed");
+            Assert.AreEqual((uint)0, r.UnconsumedBufferLength, $"Buffer is not parsed complete for message {retCmd.CommandType}");
             return retCmd;
         }
 
