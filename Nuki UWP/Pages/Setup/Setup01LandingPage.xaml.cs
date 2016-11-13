@@ -25,6 +25,7 @@ namespace Nuki.Pages.Setup
         public Setup01LandingPage()
         {
             Shell.Current.ViewModel.BackgoundMode = Presentation.BackgoundMode.CleanImage;
+            Shell.Current.RootFrame.BackStack.Clear();
             this.InitializeComponent();
         }
 

@@ -265,7 +265,7 @@ namespace Nuki.Pages.Setup
         //Watcher for Bluetooth LE Services
         private void StartBLEWatcher()
         {
-            BluetoothConnection blCon = new BluetoothConnection();
+
             // Hook up handlers for the watcher events before starting the watcher
             OnBLEAdded = async (watcher, deviceInfo) =>
             {
@@ -273,23 +273,35 @@ namespace Nuki.Pages.Setup
                  {
                      Debug.WriteLine("OnBLEAdded: " + deviceInfo.Id);
 
+                     var blCon = BluetoothConnection.Connections[deviceInfo.Id];
+
                      if (await blCon.Connect(deviceInfo.Id))
                      {
                          var status = await blCon.PairDevice();
-                         if (status == BluetoothConnection.PairStatus.Successfull)
+
+                         switch (status)
                          {
-                             btnProceed.IsEnabled = true;
-                             StatusText.Text = "Pairing erfolgreich";
-                             progressRing.IsActive = false;
-                         }
-                         else if(status == BluetoothConnection.PairStatus.MissingCharateristic)
-                         {
-                             //Wait
-                         }
-                         else
-                         {
-                             StatusText.Text = "Pairing fehlgeschlagen";
-                             EnableRetry();
+                             case BluetoothConnection.PairStatus.Successfull:
+                                 btnProceed.IsEnabled = true;
+                                 StatusText.Text = "Pairing erfolgreich";
+                                 progressRing.IsActive = false;
+                                 break;
+                             case BluetoothConnection.PairStatus.Failed:
+                             case BluetoothConnection.PairStatus.Timeout:
+                             case BluetoothConnection.PairStatus.NoCharateristic:
+
+                                 StatusText.Text = "Pairing fehlgeschlagen";
+                                 EnableRetry();
+                                 break;
+                             case BluetoothConnection.PairStatus.PairingNotActive:
+                                 StatusText.Text = "Pairing am Lock nicht Aktiv!";
+                                 EnableRetry();
+                                 break;
+                             case BluetoothConnection.PairStatus.MissingCharateristic:
+                                 //Wait for next Charateristic
+                                 break;
+                             default:
+                                 break;
                          }
                      }
                      else
@@ -518,7 +530,7 @@ namespace Nuki.Pages.Setup
             if ("retry" == (sender as Button)?.Tag as string)
             {
                 btnProceed.Tag = null;
-                btnProceed.IsEnabled = true;
+                btnProceed.IsEnabled = false;
                 btnProceed.Content = "Weiter";
                 StatusText.Text = "Suche Smart Lock...";
                 progressRing.IsActive = true;

@@ -9,15 +9,24 @@ using Windows.Storage.Streams;
 
 namespace Nuki.Communication.Commands
 {
-    public class ResponseCommandParser
+    public static class ResponseCommandParser
     {
 
-        public RecieveBaseCommand Parse(IDataReader reader)
+        public static RecieveBaseCommand Parse(IDataReader reader)
         {
             RecieveBaseCommand cmd = null;
             CommandTypes cmdType =(CommandTypes) reader.ReadUInt16();
             switch (cmdType)
             {
+                case CommandTypes.AuthorizationID:
+                    cmd = new RecieveAuthorizationIDCommand();
+                    break;
+                case CommandTypes.Challenge:
+                    cmd = new RecieveChallengeCommand();
+                    break;
+                case CommandTypes.ErrorReport:
+                    cmd = new RecieveErrorReportCommand();
+                    break;
                 case CommandTypes.PublicKey:
                     cmd = new RecievePublicKeyCommand();
                     break;

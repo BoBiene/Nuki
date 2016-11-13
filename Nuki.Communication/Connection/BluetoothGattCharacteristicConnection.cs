@@ -17,27 +17,36 @@ namespace Nuki.Communication.Connection
     {
         private GattCharacteristic m_GattCharacteristic = null;
         private TaskCompletionSource<RecieveBaseCommand> m_responseWaitHandle = null;
-        private ResponseCommandParser m_commandParser = new ResponseCommandParser();
         private ConcurrentQueue<RecieveBaseCommand> m_recieveQueue = new ConcurrentQueue<RecieveBaseCommand>();
         private RecieveBaseCommand m_cmdInProgress = null;
-        public BluetoothGattCharacteristicConnection(GattCharacteristic characteristic)
+        public BluetoothGattCharacteristicConnection()
         {
+        }
+        public bool IsValid => m_GattCharacteristic != null;
+       
+        internal void SetConnection(GattCharacteristic characteristic)
+        {
+            if (m_GattCharacteristic != null)
+                m_GattCharacteristic.ValueChanged -= M_GattCharacteristic_ValueChanged;
             m_GattCharacteristic = characteristic;
             m_GattCharacteristic.ValueChanged += M_GattCharacteristic_ValueChanged;
+        }
 
+        ~BluetoothGattCharacteristicConnection()
+        {
+            m_GattCharacteristic.ValueChanged -= M_GattCharacteristic_ValueChanged;
         }
 
         private void M_GattCharacteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
             var recieveBuffer = args.CharacteristicValue;
             
-            lock (this)
+            lock (sender)
             {
-                
                 var reader = DataReader.FromBuffer(recieveBuffer);
                 reader.ByteOrder = ByteOrder.LittleEndian;
                 if (m_cmdInProgress == null)
-                    m_cmdInProgress = m_commandParser.Parse(reader);
+                    m_cmdInProgress = ResponseCommandParser.Parse(reader);
 
                 if (m_cmdInProgress != null)
                 {
@@ -46,7 +55,11 @@ namespace Nuki.Communication.Connection
                     {
                         var cmd = m_cmdInProgress;
                         m_cmdInProgress = null;
-                        m_responseWaitHandle?.SetResult(m_cmdInProgress);
+                        if(m_responseWaitHandle?.TrySetResult(cmd) != true)
+                        {
+                            Debug.WriteLine($"Recieved Command {cmd} is not handlet...");
+                        }
+                        else { }
                     }
                     else
                     {
@@ -80,14 +93,12 @@ namespace Nuki.Communication.Connection
 
                 if (completedTask == m_responseWaitHandle.Task)
                 {
-                    var recieveBuffer = m_responseWaitHandle.Task.Result;
+                    retCommand = m_responseWaitHandle.Task.Result;
                 }
                 else
                 {
                     //Timeout
                 }
-
-                m_responseWaitHandle = null;
             }
             else
             {

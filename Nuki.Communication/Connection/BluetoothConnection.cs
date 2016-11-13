@@ -1,11 +1,14 @@
 ﻿using Nuki.Communication.Commands;
 using Nuki.Communication.Commands.Request;
+using Nuki.Communication.Commands.Response;
 using Nuki.Communication.SemanticTypes;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
@@ -25,37 +28,82 @@ namespace Nuki.Communication.Connection
         public static readonly BluetoothCharacteristic KeyTurnerPairingGDIO = new BluetoothCharacteristic("a92ee101550111e4916c0800200c9a66");
         public static readonly BluetoothCharacteristic KeyTurnerGDIO = new BluetoothCharacteristic("a92ee201550111e4916c0800200c9a66");
         public static readonly BluetoothCharacteristic KeyTurnerUGDIO = new BluetoothCharacteristic("a92ee202550111e4916c0800200c9a66");
-
-        private TaskCompletionSource<bool> m_blnEneumerationResult = new TaskCompletionSource<bool>();
-
+       
         private BluetoothGattCharacteristicConnection m_pairingGDIO = null;
-        private GattCharacteristic m_GDIO = null;
-        private GattCharacteristic m_UGDIO = null;
-
-
-        public BluetoothConnection()
+        private BluetoothGattCharacteristicConnection m_GDIO = null;
+        private BluetoothGattCharacteristicConnection m_UGDIO = null;
+        public string DeviceID { get; private set; }
+        public static Collection Connections => Collection.Instance;
+        public class Collection
         {
-        }
-
-        public async Task<bool> Connect(string strDeviceID)
-        {
-            var deviceService = await GattDeviceService.FromIdAsync(strDeviceID);
-            if (deviceService != null)
+            public static Regex regex = new Regex(
+      "\\{(?<GUID>\\w{8}\\-\\w{4}-\\w{4}-\\w{4}-\\w{12})\\}",
+    RegexOptions.CultureInvariant
+    | RegexOptions.Compiled
+    );
+            public static Collection Instance { get; } = new Collection();
+            private static ConcurrentDictionary<string, BluetoothConnection> s_Connections = new ConcurrentDictionary<string, BluetoothConnection>(StringComparer.OrdinalIgnoreCase);
+            private static HashSet<string> ServiceIDsToRemove = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { KeyTurnerPairingService.Value.ToString(), KeyTurnerInitializingService.Value.ToString(), KeyTurnerService.Value.ToString() };
+            private Collection()
             {
-                foreach (var character in deviceService.GetAllCharacteristics())
+
+            }
+            private string RemoveServiceID(string strDeviceID)
+            {
+                var matches = regex.Matches(strDeviceID);
+                return matches[matches.Count - 1]?.Groups["GUID"]?.Value ?? strDeviceID;
+            }
+            public BluetoothConnection this[string strDeviceID]
+            {
+                get
                 {
-                    if (character.Uuid == KeyTurnerGDIO.Value)
-                        m_GDIO = character;
-                    else if (character.Uuid == KeyTurnerPairingGDIO.Value)
-                        m_pairingGDIO = new BluetoothGattCharacteristicConnection(character);
-                    else if (character.Uuid == KeyTurnerUGDIO.Value)
-                        m_UGDIO = character;
+                    BluetoothConnection connection = null;
+                    string strUniqueID = RemoveServiceID(strDeviceID);
+                    if (!s_Connections.TryGetValue(strUniqueID, out connection))
+                    {
+                        s_Connections.TryAdd(strUniqueID, new BluetoothConnection(strUniqueID));
+                        s_Connections.TryGetValue(strUniqueID, out connection);
+                    }
+                    else { }
+                    return connection;
                 }
             }
-            else { }
+        }
 
+        private BluetoothConnection(string strUniqeDeviceID)
+        {
+            DeviceID = strUniqeDeviceID;
 
-            return deviceService != null;
+            m_pairingGDIO = new BluetoothGattCharacteristicConnection();
+            m_GDIO = new BluetoothGattCharacteristicConnection();
+            m_UGDIO = new BluetoothGattCharacteristicConnection();
+        }
+        public async Task<bool> Connect(string strDeviceID)
+        {
+            bool blnRet = false;
+            try
+            {
+                var deviceService = await GattDeviceService.FromIdAsync(strDeviceID);
+                if (deviceService != null)
+                {
+                    foreach (var character in deviceService.GetAllCharacteristics())
+                    {
+                        if (character.Uuid == KeyTurnerGDIO.Value)
+                            m_GDIO.SetConnection(character);
+                        else if (character.Uuid == KeyTurnerPairingGDIO.Value)
+                            m_pairingGDIO.SetConnection(character);
+                        else if (character.Uuid == KeyTurnerUGDIO.Value)
+                            m_UGDIO.SetConnection(character);
+                    }
+                }
+                else { }
+                blnRet = deviceService != null;
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine("Connect failed: {0}",ex);
+            }
+            return blnRet;
         }
 
         public enum PairStatus : byte
@@ -65,23 +113,7 @@ namespace Nuki.Communication.Connection
             Successfull = 2,
             Failed = 255,
             Timeout = 3,
-        }
-
-        private async Task<IBuffer> RecieveResponse(GattCharacteristic character, int nTimeout)
-        {
-            TaskCompletionSource<IBuffer> responseAwait = new TaskCompletionSource<IBuffer>();
-            TypedEventHandler<GattCharacteristic, GattValueChangedEventArgs> processResponse = (c, args) =>
-            {
-                responseAwait.SetResult(args.CharacteristicValue);
-            };
-            character.ValueChanged += processResponse;
-         Task completedTask =   await Task.WhenAny(responseAwait.Task, Task.Delay(nTimeout));
-            character.ValueChanged -= processResponse;
-
-            if (completedTask == responseAwait.Task)
-                return responseAwait.Task.Result;
-            else
-                return null; //Timeout
+            PairingNotActive = 4,
         }
 
         public async Task<PairStatus> PairDevice()
@@ -89,19 +121,39 @@ namespace Nuki.Communication.Connection
             PairStatus status = PairStatus.Failed;
             try
             {
-                if (m_pairingGDIO != null &&
-                    m_GDIO != null &&
-                    m_UGDIO != null)
+                if (m_pairingGDIO.IsValid &&
+                    m_GDIO.IsValid &&
+                    m_UGDIO.IsValid)
                 {
 
                     SendRequestDataCommand cmd = new SendRequestDataCommand(CommandTypes.PublicKey);
 
-                    if (await m_pairingGDIO.Send(cmd))
+                    if (await m_pairingGDIO.Send(cmd)) //3. 
                     {
-                        var response = await m_pairingGDIO.Recieve(2000);
+                        var response = await m_pairingGDIO.Recieve(2000); //4. 
                         if (response != null)
                         {
-                            status = PairStatus.Successfull;
+                            switch (response.CommandType)
+                            {
+                                case CommandTypes.PublicKey:
+                                    //Continue
+                                    status = PairStatus.Successfull;
+                                    break;
+                                case CommandTypes.ErrorReport:
+                                    switch (((RecieveErrorReportCommand)response).ErrorCode)
+                                    {
+                                        case NukiErrorCode.P_ERROR_NOT_PAIRING:
+                                            status = PairStatus.PairingNotActive;
+                                            break;
+                                        default:
+                                            status = PairStatus.Failed;
+                                            break;
+                                    }
+                                    break;
+                                default:
+                                    status = PairStatus.Failed;
+                                    break;
+                            }
                         }
                         else
                         {
@@ -115,7 +167,7 @@ namespace Nuki.Communication.Connection
                 }
                 else
                 {
-                    if (m_UGDIO != null || m_pairingGDIO != null || m_GDIO != null)
+                    if (m_UGDIO.IsValid || m_pairingGDIO.IsValid || m_GDIO.IsValid)
                         status = PairStatus.MissingCharateristic;
                 }
             }

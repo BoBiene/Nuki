@@ -9,6 +9,7 @@ using Nuki.Communication.Commands.Request;
 using Nuki.Communication.Commands.Response;
 using Nuki.Communication.Connection;
 using Nuki.Communication.SemanticTypes;
+using Windows.Storage.Streams;
 
 namespace Nuki_Test
 {
@@ -107,26 +108,35 @@ namespace Nuki_Test
             Assert.AreEqual(strData,"0600CF1B9E7801E3196E6594E76D57908EE500AAD5C33F4B6E0BBEA0DDEF82967BFC00000000004D6172632028546573742900000000000000000000000000000000000000000052AFE0A664B4E9B56DC6BD4CB718A6C9FED6BE17A7411072AA0D31537814057769F2");
         }
 
+        private T CreateCommand<T>(string strHexMessage)
+            where T : RecieveBaseCommand
+        {
+            DataWriter w = new DataWriter();
+            w.WriteBytes(StringToByteArray(strHexMessage));
+            DataReader r =DataReader.FromBuffer(w.DetachBuffer());
+
+            T retCmd = ResponseCommandParser.Parse(r) as T;
+            Assert.IsNotNull(retCmd,$"Failed to create command-type {typeof(T)} from {strHexMessage}");
+            retCmd?.ProcessRecievedData(r);
+            Assert.IsTrue(retCmd.Complete, $"Command {retCmd.CommandType} is not completed");
+            return retCmd;
+        }
 
         [TestMethod]
         public void TestRecievePublicKeyCommand()
         {
-            string strMessage = $"0300{SLPublic}9DB9";
-            var Command = new RecievePublicKeyCommand(StringToByteArray(strMessage));
-
-
-            Assert.AreEqual(SLPublic, ByteArrayToString(Command.PublicKey));
+            var cmd = CreateCommand<RecievePublicKeyCommand>($"0300{SLPublic}9DB9");
+       
+            Assert.AreEqual(SLPublic, ByteArrayToString(cmd.PublicKey));
         }
 
 
         [TestMethod]
         public void TestRecieveChallengeCommand()
         {
-            
-            string strMessage = $"0400{SLNonce}C3DF";
-            var Command = new RecieveChallengeCommand(StringToByteArray(strMessage));
 
-
+            var Command = CreateCommand<RecieveChallengeCommand>($"0400{SLNonce}C3DF");
+     
             Assert.AreEqual(SLNonce, ByteArrayToString(Command.Nonce.Value));
         }
 
@@ -135,19 +145,13 @@ namespace Nuki_Test
         {
 
             string strMessage = $"07003A270A2E453443C3790E657CEBE634B03F0102F45681B4067C661D46E6E15EDF0200000083B33643C6D97EF77ED51C02A277CBF7EA479915982F13C61D997A56678AD77791BFA7E95229A3DD34F87132BF3E3C97DB9F";
-            var Command = new RecieveAuthorizationIDCommand(StringToByteArray(strMessage));
+            var Command = CreateCommand < RecieveAuthorizationIDCommand>(strMessage);
 
 
             Assert.AreEqual((UInt32)2, Command.UniqueClientID.Value);
             Assert.IsTrue(Command.IsValid(ConnectionContext, ConnectionContext.CreateNonce()));
         }
-        [TestMethod]
-        public void TestBluetoothConnection()
-        {
-
-
-            Assert.IsTrue(new BluetoothConnection().PairDevice().Result);
-        }
+     
         [TestMethod]
         public void TestMethod1()
         {

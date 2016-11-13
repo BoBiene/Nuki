@@ -155,6 +155,8 @@
   <ItemGroup>
     <Content Include="Assets\bluetooth.png" />
     <Content Include="Assets\nuki-logo-white.png" />
+    <Content Include="Assets\nuki_initial.jpg" />
+    <Content Include="Assets\nuki_initial.png" />
     <Content Include="Assets\setup_bg.jpg" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
     <Content Include="Assets\SplashScreen.scale-125.png" />

@@ -53,18 +53,27 @@ namespace Nuki.Communication.Commands.Response
             {
                 byte[] buffer = new byte[(int)reader.UnconsumedBufferLength];
                 reader.ReadBytes(buffer);
+                ProcessRecievedData(buffer);
+              
+            }
+            else { }
+        }
 
+        public void ProcessRecievedData(byte[] buffer)
+        {
+            if (!Complete)
+            {
                 Array.Copy(buffer, 0, m_byData, m_nRecievePointer, Math.Min(buffer.Length, m_byData.Length - m_nRecievePointer));
                 m_nRecievePointer += buffer.Length;
                 if (Complete)
                 {
                     AddFields(BuildFields(FieldPointer, m_byData, m_fields));
+
                 }
                 else { }
             }
             else { }
         }
-
         private static IEnumerable<DataField> BuildFields(int nFieldPos, byte[] data, IEnumerable<FieldParserBase> fields)
         {
             int nArrayParsePos = 0;

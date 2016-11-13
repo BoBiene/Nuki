@@ -22,6 +22,7 @@ using Windows.UI.Xaml.Navigation;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 using System.Threading.Tasks;
 using Nuki.Communication.Connection;
+using Windows.UI.Core;
 
 namespace Nuki
 {
@@ -73,16 +74,37 @@ namespace Nuki
         }
 
         CanvasBitmap m_BackgroundImage = null;
+        CanvasBitmap m_BackgroundImageInitial = null;
+        CanvasBitmap m_BackgroundImageInitialAlpha = null;
         BlendEffect m_BluredBackground = null;
         BlendEffect m_BlendedBackground = null;
+        BlendEffect m_ExtremeBlendedBackground = null;
+
+        private byte m_nFadein = 200;
+        private ImageLoadStatus m_ImageStatus = ImageLoadStatus.Initial;
+        private  enum ImageLoadStatus
+        {
+            Initial,
+            LoadRequested,
+            Fading,
+            Complete
+        }
         private void CreateCanvasResources(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.CanvasCreateResourcesEventArgs args)
         {
-            args.TrackAsyncAction(CreateResourcesAsync(sender).AsAsyncAction());
+            args.TrackAsyncAction(CreateInitialResourcesAsync(sender).AsAsyncAction());
+          
+        }
+
+        private async Task CreateInitialResourcesAsync(CanvasControl sender)
+        {
+            m_BackgroundImageInitial = await CanvasBitmap.LoadAsync(sender.Device, new Uri("ms-appx:///Assets/nuki_initial.jpg"));
+         
         }
 
         private async Task CreateResourcesAsync(CanvasControl sender)
         {
             m_BackgroundImage = await CanvasBitmap.LoadAsync(sender.Device,new Uri( "ms-appx:///Assets/setup_bg.jpg"));
+            m_BackgroundImageInitialAlpha = await CanvasBitmap.LoadAsync(sender.Device, new Uri("ms-appx:///Assets/nuki_initial.png"));
             var blured = new GaussianBlurEffect()
             {
                 Source = m_BackgroundImage,
@@ -108,44 +130,113 @@ namespace Nuki
                 },
                 Mode = BlendEffectMode.Darken
             };
+            m_ImageStatus = ImageLoadStatus.Fading;
+            sender.Invalidate();
         }
 
         private void CanvasDraw(CanvasControl sender, CanvasDrawEventArgs args)
         {
+            if (m_ImageStatus == ImageLoadStatus.Fading)
+            {
+                CanvasFadeInLoadedImage(sender, args);
+            }
+            else
+            {
+                CanvasDrawBrackground(sender, args);
+            }
+        }
+
+        private void CanvasFadeInLoadedImage(CanvasControl sender, CanvasDrawEventArgs args)
+        {
+            var drawRectSmall = GetDrawRect(sender, m_BackgroundImageInitial);
+            var drawRectBig = GetDrawRect(sender, m_BackgroundImage);
+            var blendEffect = new BlendEffect()
+            {
+                Background = m_BackgroundImage,
+                Foreground = new ColorSourceEffect()
+                {
+                    Color = Windows.UI.Color.FromArgb(m_nFadein, 0, 0, 0)
+                },
+                Mode = BlendEffectMode.Darken
+            };
+
+            args.DrawingSession.DrawImage(blendEffect, drawRectBig, m_BackgroundImage.Bounds);
+            args.DrawingSession.DrawImage(m_BackgroundImageInitialAlpha, drawRectSmall, m_BackgroundImageInitialAlpha.Bounds);
+            m_nFadein -= 50;
+            if (m_nFadein <= 0)
+                m_ImageStatus = ImageLoadStatus.Complete;
+            Task.Delay(25).ContinueWith((t) => Dispatcher.RunAsync(CoreDispatcherPriority.Low, sender.Invalidate));
+        }
+
+        private void CanvasDrawBrackground(CanvasControl sender, CanvasDrawEventArgs args)
+        {
+            ICanvasImage img = null;
+
+            Rect drawRect, imageBounds;
+            if (m_BackgroundImage == null)
+            {
+                if (m_ImageStatus == ImageLoadStatus.Initial)
+                {
+                    m_ImageStatus = ImageLoadStatus.LoadRequested;
+                    CreateResourcesAsync(sender);
+                }
+                else { }
+                drawRect = GetDrawRect(sender, m_BackgroundImageInitial);
+                img = m_BackgroundImageInitial;
+                imageBounds = m_BackgroundImageInitial.Bounds;
+            }
+            else
+            {
+
+                switch (ViewModel.BackgoundMode)
+                {
+                    case BackgoundMode.CleanImage:
+                        img = m_BackgroundImage;
+                        break;
+                    case BackgoundMode.BluredImage:
+                        img = m_BluredBackground;
+                        break;
+                    case BackgoundMode.BluredDarkImage:
+                        img = m_BlendedBackground;
+                        break;
+                    default:
+                    case BackgoundMode.None:
+                        break;
+                }
+
+                imageBounds = m_BackgroundImage.Bounds;
+                drawRect = GetDrawRect(sender, m_BackgroundImage);
+            }
+
+            if (img != null)
+            {
+                args.DrawingSession.DrawImage(img, drawRect, imageBounds);
+            }
+            else { }
+        }
+
+        private Rect GetDrawRect(CanvasControl sender, CanvasBitmap bmp)
+        {
+          
+
             int nTopSpace = 120;
             int nBottomSpace = 180;
             int nNeededSpace = nTopSpace + nBottomSpace;
+
             Rect lockRect = new Rect(1764, 1265, 369, 667);
+            if (bmp == m_BackgroundImageInitial)
+                lockRect = new Rect(169,98, 369, 667);
 
 
             double neededLockHeight = Math.Max(1, sender.ActualHeight - nNeededSpace);
             double factor = neededLockHeight / lockRect.Height;
-            double drawWidth = m_BackgroundImage.Bounds.Width * factor;
-            double drawHeight = m_BackgroundImage.Bounds.Height * factor;
+            double drawWidth = bmp.Bounds.Width * factor;
+            double drawHeight = bmp.Bounds.Height * factor;
 
             Rect drawRect = new Rect((float)((sender.ActualWidth / 2d) - (factor * (lockRect.X + (lockRect.Width / 2d)))),
                                         nTopSpace - (lockRect.Y * factor),
                                         drawWidth, drawHeight);
-
-            ICanvasImage img = null;
-            switch (ViewModel.BackgoundMode)
-            {
-
-                case BackgoundMode.CleanImage:
-                    img = m_BackgroundImage;
-                    break;
-                case BackgoundMode.BluredImage:
-                    img = m_BluredBackground;
-                    break;
-                case BackgoundMode.BluredDarkImage:
-                    img = m_BlendedBackground;
-                    break;
-                default:
-                case BackgoundMode.None:
-                    break;
-            }
-            if (img != null)
-                args.DrawingSession.DrawImage(img, drawRect, m_BackgroundImage.Bounds);
+            return drawRect;
         }
     }
 }

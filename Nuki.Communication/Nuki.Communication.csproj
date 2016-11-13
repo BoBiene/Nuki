@@ -129,6 +129,7 @@
     <Compile Include="Commands\BaseCommand.cs" />
     <Compile Include="Commands\ByteHelper.cs" />
     <Compile Include="Commands\CrcMissmatchException.cs" />
+    <Compile Include="Commands\NukiErrorCode.cs" />
     <Compile Include="Commands\MessageParseException.cs" />
     <Compile Include="Commands\Request\SendAuthorizationDataCommand.cs" />
     <Compile Include="Commands\Request\SendBaseCommand.cs" />
@@ -144,6 +145,7 @@
     <Compile Include="Commands\Response\RecieveBaseCommand.cs" />
     <Compile Include="Commands\Response\RecieveBaseCommandAuthenticated.cs" />
     <Compile Include="Commands\Response\RecieveChallengeCommand.cs" />
+    <Compile Include="Commands\Response\RecieveErrorReportCommand.cs" />
     <Compile Include="Commands\Response\RecievePublicKeyCommand.cs" />
     <Compile Include="Connection\BluetoothConnection.cs" />
     <Compile Include="Connection\BluetoothGattCharacteristicConnection.cs" />

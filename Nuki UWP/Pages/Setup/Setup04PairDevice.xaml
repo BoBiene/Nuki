@@ -155,7 +155,7 @@
         </StackPanel>
         <Grid VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="40" Width="240">
             <Button Style="{StaticResource SetupPageButton}" Click="btnCancel_Click" HorizontalAlignment="Left" Width="100">Abbrechen</Button>
-            <Button x:Name="btnProceed" Style="{StaticResource SetupPageButton}" IsEnabled="False" HorizontalAlignment="Right" Width="100" Click="Weiter_Click">Weiter</Button>
+            <Button x:Name="btnProceed" Style="{StaticResource SetupPageButton}" IsEnabled="False" HorizontalAlignment="Right" Width="120" Click="Weiter_Click">Weiter</Button>
         </Grid>
     </Grid>
 </Page>
