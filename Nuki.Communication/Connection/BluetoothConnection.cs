@@ -211,13 +211,14 @@ namespace Nuki.Communication.Connection
 
                                                         if (response?.CommandType == CommandTypes.AuthorizationID) //19
                                                         {
+                                                            this.UniqueClientID = ((RecieveAuthorizationIDCommand)response).UniqueClientID;
                                                             this.SmartLockUUID = ((RecieveAuthorizationIDCommand)response).SmartLockUUID;
                                                             this.SmartLockNonce = ((RecieveAuthorizationIDCommand)response).SmartLockNonce;
-                                                            cmd = new SendAuthorization­IDConfirmationCommand( SmartLockUUID, this);
+                                                            cmd = new SendAuthorization­IDConfirmationCommand(UniqueClientID, this);
 
                                                             if (await m_pairingGDIO.Send(cmd)) //21
                                                             {
-                                                                response = await m_pairingGDIO.Recieve(5000);
+                                                                response = await m_pairingGDIO.Recieve(3000);
 
                                                                 if (response?.CommandType == CommandTypes.Status) //19
                                                                 {

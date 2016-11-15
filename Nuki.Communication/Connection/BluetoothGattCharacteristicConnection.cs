@@ -18,15 +18,15 @@ namespace Nuki.Communication.Connection
         private object syncroot = new object();
         private GattCharacteristic m_GattCharacteristic = null;
         private TaskCompletionSource<RecieveBaseCommand> m_responseWaitHandle = null;
-        private ConcurrentQueue<RecieveBaseCommand> m_recieveQueue = new ConcurrentQueue<RecieveBaseCommand>();
         private RecieveBaseCommand m_cmdInProgress = null;
         public BluetoothGattCharacteristicConnection()
         {
         }
         public bool IsValid => m_GattCharacteristic != null;
-       
+
         internal void SetConnection(GattCharacteristic characteristic)
         {
+            Debug.WriteLine("SetConnection");
             if (m_GattCharacteristic != null)
                 m_GattCharacteristic.ValueChanged -= M_GattCharacteristic_ValueChanged;
             m_GattCharacteristic = characteristic;
@@ -41,7 +41,7 @@ namespace Nuki.Communication.Connection
         private void M_GattCharacteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
             var recieveBuffer = args.CharacteristicValue;
-            
+            Debug.WriteLine("M_GattCharacteristic_ValueChanged");
             lock (syncroot)
             {
                 var reader = DataReader.FromBuffer(recieveBuffer);
@@ -61,10 +61,14 @@ namespace Nuki.Communication.Connection
                         {
                             Debug.WriteLine($"Recieved Command {cmd} is not handlet...");
                         }
-                        else { }
+                        else
+                        {
+                            Debug.WriteLine("m_responseWaitHandle set");
+                        }
                     }
                     else
                     {
+                        Debug.WriteLine("Command not complete...");
                     }
                 }
                 else
@@ -74,7 +78,7 @@ namespace Nuki.Communication.Connection
             }
         }
 
-        public  Task<bool> Send(SendBaseCommand cmd)
+        public Task<bool> Send(SendBaseCommand cmd)
         {
             return Send(cmd, 2000);
         }
@@ -82,8 +86,6 @@ namespace Nuki.Communication.Connection
         public async Task<bool> Send(SendBaseCommand cmd, int nTimeout)
         {
             m_responseWaitHandle = new TaskCompletionSource<RecieveBaseCommand>();
-            if (m_recieveQueue.Count > 0)
-                m_recieveQueue = new ConcurrentQueue<RecieveBaseCommand>();
 
             Debug.WriteLine($"Send Command {cmd}...");
             var writer = new DataWriter();
@@ -96,23 +98,20 @@ namespace Nuki.Communication.Connection
         public async Task<RecieveBaseCommand> Recieve(int nTimeout)
         {
             RecieveBaseCommand retCommand = null;
-            if (m_recieveQueue.Count <= 0)
-            {
-                Task completedTask = await Task.WhenAny(m_responseWaitHandle.Task, Task.Delay(nTimeout));
+            Debug.WriteLine("Await response...");
+            Task completedTask = await Task.WhenAny(m_responseWaitHandle.Task, Task.Delay(nTimeout));
 
-                if (completedTask == m_responseWaitHandle.Task)
-                {
-                    retCommand = m_responseWaitHandle.Task.Result;
-                }
-                else
-                {
-                    //Timeout
-                }
+            if (completedTask == m_responseWaitHandle.Task)
+            {
+                Debug.WriteLine("Recieved command...");
+                retCommand = m_responseWaitHandle.Task.Result;
             }
             else
             {
-                m_recieveQueue.TryDequeue(out retCommand);
+                Debug.WriteLine("Recieve timed out...");
+                //Timeout
             }
+
             return retCommand;
         }
     }
