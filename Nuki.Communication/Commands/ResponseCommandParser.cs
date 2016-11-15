@@ -30,6 +30,9 @@ namespace Nuki.Communication.Commands
                 case CommandTypes.PublicKey:
                     cmd = new RecievePublicKeyCommand();
                     break;
+                case CommandTypes.Status:
+                    cmd = new RecieveStatusCommand();
+                    break;
                 default:
                     Debug.WriteLine($"Command {cmdType} is not handelt!");
                     break;

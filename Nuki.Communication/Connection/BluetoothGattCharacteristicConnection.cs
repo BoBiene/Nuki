@@ -15,6 +15,7 @@ namespace Nuki.Communication.Connection
 {
     internal class BluetoothGattCharacteristicConnection
     {
+        private object syncroot = new object();
         private GattCharacteristic m_GattCharacteristic = null;
         private TaskCompletionSource<RecieveBaseCommand> m_responseWaitHandle = null;
         private ConcurrentQueue<RecieveBaseCommand> m_recieveQueue = new ConcurrentQueue<RecieveBaseCommand>();
@@ -41,7 +42,7 @@ namespace Nuki.Communication.Connection
         {
             var recieveBuffer = args.CharacteristicValue;
             
-            lock (sender)
+            lock (syncroot)
             {
                 var reader = DataReader.FromBuffer(recieveBuffer);
                 reader.ByteOrder = ByteOrder.LittleEndian;
@@ -55,7 +56,8 @@ namespace Nuki.Communication.Connection
                     {
                         var cmd = m_cmdInProgress;
                         m_cmdInProgress = null;
-                        if(m_responseWaitHandle?.TrySetResult(cmd) != true)
+                        Debug.WriteLine($"Recieved Command {cmd}...");
+                        if (m_responseWaitHandle?.TrySetResult(cmd) != true)
                         {
                             Debug.WriteLine($"Recieved Command {cmd} is not handlet...");
                         }
@@ -72,11 +74,18 @@ namespace Nuki.Communication.Connection
             }
         }
 
-        public async Task<bool> Send(SendBaseCommand cmd)
+        public  Task<bool> Send(SendBaseCommand cmd)
+        {
+            return Send(cmd, 2000);
+        }
+
+        public async Task<bool> Send(SendBaseCommand cmd, int nTimeout)
         {
             m_responseWaitHandle = new TaskCompletionSource<RecieveBaseCommand>();
             if (m_recieveQueue.Count > 0)
                 m_recieveQueue = new ConcurrentQueue<RecieveBaseCommand>();
+
+            Debug.WriteLine($"Send Command {cmd}...");
             var writer = new DataWriter();
             writer.WriteBytes(cmd.Serialize().ToArray());
             var result = await m_GattCharacteristic.WriteValueAsync(writer.DetachBuffer());

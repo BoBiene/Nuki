@@ -19,7 +19,7 @@ namespace Nuki.Communication.Commands.Request
             AddField(nameof(Authenticator), CalculateAuthenticator,32, FieldFlags.PartOfMessage);
         }
 
-        private MessageAuthentication CalculateAuthenticator()
+        protected virtual MessageAuthentication CalculateAuthenticator()
         {
             return new MessageAuthentication(Sodium.SecretKeyAuth.SignHmacSha256(Serialize(FieldFlags.PartOfAuthentication, false).ToArray(), ConnectionContext.SharedKey));
         }

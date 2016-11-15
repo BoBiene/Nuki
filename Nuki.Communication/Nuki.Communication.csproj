@@ -132,6 +132,7 @@
     <Compile Include="Commands\NukiErrorCode.cs" />
     <Compile Include="Commands\MessageParseException.cs" />
     <Compile Include="Commands\Request\SendAuthorizationDataCommand.cs" />
+    <Compile Include="Commands\Request\SendAuthorization­IDConfirmationCommand.cs" />
     <Compile Include="Commands\Request\SendBaseCommand.cs" />
     <Compile Include="Commands\CommandTypes.cs" />
     <Compile Include="Commands\Request\SendBaseCommandAuthenticated.cs" />
@@ -147,6 +148,7 @@
     <Compile Include="Commands\Response\RecieveChallengeCommand.cs" />
     <Compile Include="Commands\Response\RecieveErrorReportCommand.cs" />
     <Compile Include="Commands\Response\RecievePublicKeyCommand.cs" />
+    <Compile Include="Commands\Response\RecieveStatusCommand.cs" />
     <Compile Include="Connection\BluetoothConnection.cs" />
     <Compile Include="Connection\BluetoothGattCharacteristicConnection.cs" />
     <Compile Include="Connection\BluetoothImplementation.cs" />

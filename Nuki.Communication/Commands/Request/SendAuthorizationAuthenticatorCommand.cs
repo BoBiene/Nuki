@@ -25,5 +25,13 @@ namespace Nuki.Communication.Commands.Request
             AddField(nameof(SmartLockPublicKey), context.SmartLockPublicKey, FieldFlags.PartOfAuthentication);
             AddField(nameof(ChallengeNonce), context.SmartLockNonce, FieldFlags.PartOfAuthentication);
         }
+
+        protected override MessageAuthentication CalculateAuthenticator()
+        {
+            var joined = ConnectionContext.ClientPublicKey.Value.Concat(SmartLockPublicKey.Value).Concat(ConnectionContext.SmartLockNonce.Value);
+            byte[] byA = Sodium.SecretKeyAuth.SignHmacSha256(joined.ToArray(), ConnectionContext.SharedKey.Value);
+
+            return new MessageAuthentication(byA);
+        }
     }
 }

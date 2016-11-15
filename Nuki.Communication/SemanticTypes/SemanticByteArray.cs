@@ -1,4 +1,5 @@
-﻿using SemanticTypes;
+﻿using Nuki.Communication.Commands;
+using SemanticTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,11 @@ namespace Nuki.Communication.SemanticTypes
                     nret = this.Value[i].CompareTo(other.Value[i]);
             }
             return nret;
+        }
+
+        public override string ToString()
+        {
+            return ByteHelper.ByteArrayToString(Value);
         }
 
         public override bool Equals(SemanticTypeBase<byte[]> other)

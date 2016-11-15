@@ -32,6 +32,24 @@ namespace Nuki.Communication.Commands
             AddField(nameof(CommandType), type,FieldFlags.PartOfMessage);
         }
 
+        public override string ToString()
+        {
+            StringBuilder sbCmd = new StringBuilder();
+
+            foreach (var field in m_mapByPostion)
+            {
+                if (field != null)
+                {
+                    object objValue = field.GetData();
+                    if (objValue is byte[])
+                        objValue = ByteHelper.ByteArrayToString(objValue as byte[]);
+                    sbCmd.Append(field.Name).Append("=").Append(objValue).Append(" ");
+                }
+                else { }
+            }
+            return sbCmd.ToString();
+        }
+
         protected BaseCommand(IEnumerable<DataField> data)
         {
             int nPos = -1;

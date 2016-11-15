@@ -83,8 +83,7 @@ namespace Nuki.Pages.Setup
             //for bluetooth LE Devices
             aqsFilter = "System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\"";
 
-            const string NUKI_ID = "BluetoothLE#BluetoothLE20:62:74:65:7f:0e";
-
+         
             deviceWatcher = DeviceInformation.CreateWatcher(
                 aqsFilter,
                 requestedProperties,
@@ -106,10 +105,11 @@ namespace Nuki.Pages.Setup
                          Debug.WriteLine($"{keyValue.Key} = {keyValue.Value}");
                      }
 
-                     if (deviceInfo.Id.StartsWith(NUKI_ID) && 
+                     if (deviceInfo.Name.StartsWith("Nuki_",StringComparison.OrdinalIgnoreCase) && 
                      !ResultCollection.Contains(deviceInfo) && 
                      !string.IsNullOrEmpty(deviceInfo.Name))
                      {
+                         StatusText.Text = $"{deviceInfo.Name} gefunden, starte pairing...";
                          if (await TryToPairDevice(deviceInfo))
                              ResultCollection.Add(deviceInfo);
                      }
