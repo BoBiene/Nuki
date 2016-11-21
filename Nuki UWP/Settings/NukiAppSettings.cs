@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace Nuki.Settings
             if (s_Settings != null)
                 return Task.FromResult(s_Settings);
             else
-                return s_StorageHelper.LoadAsync().ContinueWith((t) => t.Result ?? new NukiAppSettings());
+                return s_StorageHelper.LoadAsync().ContinueWith((t) => (!t.IsFaulted) ? t.Result : null ?? new NukiAppSettings());
         }
 
         public Task Save()
@@ -28,10 +29,10 @@ namespace Nuki.Settings
         #endregion
 
 
-        public List<NukiDeviceSetting> PairdLocks
+        public ObservableCollection<NukiDeviceSetting> PairdLocks
         {
             get; private set;
-        } = new List<NukiDeviceSetting>();
+        } = new ObservableCollection<NukiDeviceSetting>();
 
         public NukiAppSettings()
         {

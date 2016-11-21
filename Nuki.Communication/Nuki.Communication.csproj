@@ -150,9 +150,12 @@
     <Compile Include="Commands\Response\RecievePublicKeyCommand.cs" />
     <Compile Include="Commands\Response\RecieveStatusCommand.cs" />
     <Compile Include="Connection\BluetoothConnection.cs" />
+    <Compile Include="Connection\BluetoothConnectionInfo.cs" />
     <Compile Include="Connection\BluetoothGattCharacteristicConnection.cs" />
     <Compile Include="Connection\BluetoothImplementation.cs" />
+    <Compile Include="Connection\BluetoothPairResult.cs" />
     <Compile Include="Connection\IConnectionContext.cs" />
+    <Compile Include="Connection\BlutoothPairStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SemanticTypes\BluetoothCharacteristic.cs" />
     <Compile Include="SemanticTypes\BluetoothServiceUUID.cs" />

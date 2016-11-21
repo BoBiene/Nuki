@@ -15,5 +15,10 @@ namespace Nuki.Communication.SemanticTypes
         {
 
         }
+        private UniqueClientID()
+            : this(0)
+        {
+
+        }
     }
 }

@@ -13,5 +13,10 @@ namespace Nuki.Communication.SemanticTypes
         {
 
         }
+        private SmartLockPublicKey()
+            : base(new byte[32])
+        {
+
+        }
     }
 }

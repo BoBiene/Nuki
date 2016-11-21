@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.Collections.ObjectModel;
 using Nuki.Communication.Connection;
 using System.Threading.Tasks;
+using Nuki.Settings;
 
 namespace Nuki.Pages.Setup
 {
@@ -277,27 +278,31 @@ namespace Nuki.Pages.Setup
 
                      if (await blCon.Connect(deviceInfo.Id))
                      {
-                         var status = await blCon.PairDevice();
+                         var pairResult = await blCon.PairDevice();
+                         var status = pairResult.Status;
 
                          switch (status)
                          {
-                             case BluetoothConnection.PairStatus.Successfull:
+                             case BlutoothPairStatus.Successfull:
                                  btnProceed.IsEnabled = true;
                                  StatusText.Text = "Pairing erfolgreich";
                                  progressRing.IsActive = false;
+                                 var settings = await  NukiAppSettings.Load();
+                                 settings.PairdLocks.Add(new NukiDeviceSetting { Name = "New Lock", ConnectionInfo = pairResult.ConnectionInfo });
+                                 await settings.Save();
                                  break;
-                             case BluetoothConnection.PairStatus.Failed:
-                             case BluetoothConnection.PairStatus.Timeout:
-                             case BluetoothConnection.PairStatus.NoCharateristic:
+                             case BlutoothPairStatus.Failed:
+                             case BlutoothPairStatus.Timeout:
+                             case BlutoothPairStatus.NoCharateristic:
 
                                  StatusText.Text = "Pairing fehlgeschlagen";
                                  EnableRetry();
                                  break;
-                             case BluetoothConnection.PairStatus.PairingNotActive:
+                             case BlutoothPairStatus.PairingNotActive:
                                  StatusText.Text = "Pairing am Lock nicht Aktiv!";
                                  EnableRetry();
                                  break;
-                             case BluetoothConnection.PairStatus.MissingCharateristic:
+                             case BlutoothPairStatus.MissingCharateristic:
                                  //Wait for next Charateristic
                                  break;
                              default:
@@ -330,6 +335,7 @@ namespace Nuki.Pages.Setup
 
                  });
             };
+            
             string strPairing = GattDeviceService.GetDeviceSelectorFromUuid(BluetoothConnection.KeyTurnerPairingService.Value);
             string strService = GattDeviceService.GetDeviceSelectorFromUuid(BluetoothConnection.KeyTurnerService.Value);
             string aqs = $"({strPairing}) OR ({strService})";

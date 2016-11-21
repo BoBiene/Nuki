@@ -34,40 +34,17 @@ namespace Nuki.Communication.Connection
         private BluetoothGattCharacteristicConnection m_UGDIO = null;
         public string DeviceID { get; private set; }
         public static Collection Connections => Collection.Instance;
-
-        public ClientPublicKey ClientPublicKey
-        {
-            get;
-            private set;
-        }
-
-        public SmartLockPublicKey SmartLockPublicKey
-        {
-            get;
-            private set;
-        }
-
-        public SharedKey SharedKey
-        {
-            get;
-            private set;
-        }
+        private BluetoothConnectionInfo connectionInfo = new BluetoothConnectionInfo();
+        public ClientPublicKey ClientPublicKey => connectionInfo.ClientPublicKey;
+        public SmartLockPublicKey SmartLockPublicKey => connectionInfo.SmartLockPublicKey;
+        public SharedKey SharedKey => connectionInfo.SharedKey;
+        public UniqueClientID UniqueClientID => connectionInfo.UniqueClientID;
+        public SmartLockUUID SmartLockUUID => connectionInfo.SmartLockUUID;
 
         public SmartLockNonce SmartLockNonce
         {
             get;
             private set;
-        }
-
-        public UniqueClientID UniqueClientID
-        {
-            get;
-            private set;
-        }
-
-        public SmartLockUUID SmartLockUUID
-        {
-            get; private set;
         }
 
         public class Collection
@@ -109,7 +86,7 @@ namespace Nuki.Communication.Connection
         private BluetoothConnection(string strUniqeDeviceID)
         {
             DeviceID = strUniqeDeviceID;
-            this.UniqueClientID = new UniqueClientID(5);
+            connectionInfo.UniqueClientID = new UniqueClientID(5);
             m_pairingGDIO = new BluetoothGattCharacteristicConnection();
             m_GDIO = new BluetoothGattCharacteristicConnection();
             m_UGDIO = new BluetoothGattCharacteristicConnection();
@@ -125,14 +102,25 @@ namespace Nuki.Communication.Connection
                     foreach (var character in deviceService.GetAllCharacteristics())
                     {
                         if (character.Uuid == KeyTurnerGDIO.Value)
+                        {
                             m_GDIO.SetConnection(character);
+                            connectionInfo.DeviceID = strDeviceID;
+                        }
                         else if (character.Uuid == KeyTurnerPairingGDIO.Value)
+                        {
                             m_pairingGDIO.SetConnection(character);
+                        }
                         else if (character.Uuid == KeyTurnerUGDIO.Value)
+                        {
+                            connectionInfo.DeviceID = strDeviceID;
                             m_UGDIO.SetConnection(character);
+                        }
                     }
                 }
-                else { }
+                else
+                {
+                    Debug.WriteLine($"Unable to get GattDeviceService.FromIdAsync(\"{strDeviceID}\");");
+                }
                 blnRet = deviceService != null;
             }
             catch(Exception ex)
@@ -142,19 +130,13 @@ namespace Nuki.Communication.Connection
             return blnRet;
         }
 
-        public enum PairStatus : byte
-        {
-            NoCharateristic = 0,
-            MissingCharateristic = 1,
-            Successfull = 2,
-            Failed = 255,
-            Timeout = 3,
-            PairingNotActive = 4,
-        }
 
-        public async Task<PairStatus> PairDevice()
+
+
+
+        public async Task<BluetoothPairResult> PairDevice()
         {
-            PairStatus status = PairStatus.Failed;
+            BlutoothPairStatus status = BlutoothPairStatus.Failed;
             try
             {
                 if (m_pairingGDIO.IsValid &&
@@ -164,7 +146,7 @@ namespace Nuki.Communication.Connection
 
                     SendBaseCommand cmd = new SendRequestDataCommand(CommandTypes.PublicKey);
                     Sodium.KeyPair keyPair = Sodium.PublicKeyBox.GenerateKeyPair();
-                    this.ClientPublicKey = new ClientPublicKey(keyPair.Public);
+                    connectionInfo.ClientPublicKey = new ClientPublicKey(keyPair.Public);
                     if (await m_pairingGDIO.Send(cmd)) //3. 
                     {
                         var response = await m_pairingGDIO.Recieve(2000); //4. 
@@ -178,12 +160,12 @@ namespace Nuki.Communication.Connection
 
                                     if (await m_pairingGDIO.Send(cmd)) //6.
                                     {
-                                         SmartLockPublicKey = ((RecievePublicKeyCommand)response).PublicKey;
+                                        connectionInfo.SmartLockPublicKey = ((RecievePublicKeyCommand)response).PublicKey;
 
                                         byte[] byDH1 = Sodium.ScalarMult.Mult(keyPair.Secret, SmartLockPublicKey);
                                         var _0 = new byte[16];
                                         var sigma = System.Text.Encoding.UTF8.GetBytes("expand 32-byte k");
-                                        this.SharedKey = new SharedKey(Sodium.KDF.HSalsa20(_0, byDH1, sigma)); //8
+                                        connectionInfo.SharedKey = new SharedKey(Sodium.KDF.HSalsa20(_0, byDH1, sigma)); //8
 
                                         response = await m_pairingGDIO.Recieve(2000);
 
@@ -191,7 +173,7 @@ namespace Nuki.Communication.Connection
                                         {
                                             this.SmartLockNonce = ((RecieveChallengeCommand)response).Nonce;
 
-                                          
+
 
                                             cmd = new SendAuthorizationAuthenticatorCommand(this);
 
@@ -211,8 +193,8 @@ namespace Nuki.Communication.Connection
 
                                                         if (response?.CommandType == CommandTypes.AuthorizationID) //19
                                                         {
-                                                            this.UniqueClientID = ((RecieveAuthorizationIDCommand)response).UniqueClientID;
-                                                            this.SmartLockUUID = ((RecieveAuthorizationIDCommand)response).SmartLockUUID;
+                                                            connectionInfo.UniqueClientID = ((RecieveAuthorizationIDCommand)response).UniqueClientID;
+                                                            connectionInfo.SmartLockUUID = ((RecieveAuthorizationIDCommand)response).SmartLockUUID;
                                                             this.SmartLockNonce = ((RecieveAuthorizationIDCommand)response).SmartLockNonce;
                                                             cmd = new SendAuthorization­IDConfirmationCommand(UniqueClientID, this);
 
@@ -224,7 +206,7 @@ namespace Nuki.Communication.Connection
                                                                 {
                                                                     if (((RecieveStatusCommand)response).StatusCode == NukiErrorCode.COMPLETE)
                                                                     {
-                                                                        status = PairStatus.Successfull;
+                                                                        status = BlutoothPairStatus.Successfull;
                                                                     }
                                                                     else
                                                                     {
@@ -274,40 +256,40 @@ namespace Nuki.Communication.Connection
                                     switch (((RecieveErrorReportCommand)response).ErrorCode)
                                     {
                                         case NukiErrorCode.P_ERROR_NOT_PAIRING:
-                                            status = PairStatus.PairingNotActive;
+                                            status = BlutoothPairStatus.PairingNotActive;
                                             break;
                                         default:
-                                            status = PairStatus.Failed;
+                                            status = BlutoothPairStatus.Failed;
                                             break;
                                     }
                                     break;
                                 default:
-                                    status = PairStatus.Failed;
+                                    status = BlutoothPairStatus.Failed;
                                     break;
                             }
                         }
                         else
                         {
-                            status = PairStatus.Timeout;
+                            status = BlutoothPairStatus.Timeout;
                         }
                     }
                     else
                     {
-                        status = PairStatus.Failed;
+                        status = BlutoothPairStatus.Failed;
                     }
                 }
                 else
                 {
                     if (m_UGDIO.IsValid || m_pairingGDIO.IsValid || m_GDIO.IsValid)
-                        status = PairStatus.MissingCharateristic;
+                        status = BlutoothPairStatus.MissingCharateristic;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine("Error in pairing: {0}", ex);
-                status = PairStatus.Failed;
+                status = BlutoothPairStatus.Failed;
             }
-            return status;
+            return new BluetoothPairResult(status, (status == BlutoothPairStatus.Successfull) ? connectionInfo : null);
         }
 
         public ClientNonce CreateNonce()

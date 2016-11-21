@@ -12,5 +12,11 @@ namespace Nuki.Communication.SemanticTypes
         public SmartLockUUID(byte[] value) : base(value,16)
         {
         }
+        private SmartLockUUID()
+            : this(new byte[16])
+        {
+
+        }
+
     }
 }

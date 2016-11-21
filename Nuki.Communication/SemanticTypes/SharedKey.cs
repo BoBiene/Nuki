@@ -13,5 +13,10 @@ namespace Nuki.Communication.SemanticTypes
         {
 
         }
+        private SharedKey()
+            : base(new byte[32])
+        {
+
+        }
     }
 }
