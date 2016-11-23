@@ -106,8 +106,8 @@ namespace Nuki.Pages.Setup
                          Debug.WriteLine($"{keyValue.Key} = {keyValue.Value}");
                      }
 
-                     if (deviceInfo.Name.StartsWith("Nuki_",StringComparison.OrdinalIgnoreCase) && 
-                     !ResultCollection.Contains(deviceInfo) && 
+                     if (deviceInfo.Name.StartsWith("Nuki_", StringComparison.OrdinalIgnoreCase) &&
+                     !ResultCollection.Contains(deviceInfo) &&
                      !string.IsNullOrEmpty(deviceInfo.Name))
                      {
                          StatusText.Text = $"{deviceInfo.Name} gefunden, starte pairing...";
@@ -200,6 +200,7 @@ namespace Nuki.Pages.Setup
                 if (deviceInfo.Pairing.IsPaired != true)
                 {
                     paired = false;
+                    
                     DevicePairingKinds ceremoniesSelected = DevicePairingKinds.ConfirmOnly | DevicePairingKinds.DisplayPin | DevicePairingKinds.ProvidePin | DevicePairingKinds.ConfirmPinMatch;
                     DevicePairingProtectionLevel protectionLevel = DevicePairingProtectionLevel.Default;
 
@@ -272,13 +273,13 @@ namespace Nuki.Pages.Setup
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                  {
-                     Debug.WriteLine("OnBLEAdded: " + deviceInfo.Id);
+                     Debug.WriteLine("OnBLEAdded: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
 
-                     var blCon = BluetoothConnection.Connections[deviceInfo.Id];
+                     var blCon = BluetoothConnection.Connections[deviceInfo.Name];
 
                      if (await blCon.Connect(deviceInfo.Id))
                      {
-                         var pairResult = await blCon.PairDevice();
+                         var pairResult = await blCon.PairDevice("MyLock");
                          var status = pairResult.Status;
 
                          switch (status)
@@ -287,9 +288,8 @@ namespace Nuki.Pages.Setup
                                  btnProceed.IsEnabled = true;
                                  StatusText.Text = "Pairing erfolgreich";
                                  progressRing.IsActive = false;
-                                 var settings = await  NukiAppSettings.Load();
-                                 settings.PairdLocks.Add(new NukiDeviceSetting { Name = "New Lock", ConnectionInfo = pairResult.ConnectionInfo });
-                                 await settings.Save();
+                                 Shell.Current.AppSettings.PairdLocks.Add(  pairResult.ConnectionInfo );
+                                 await Shell.Current.AppSettings.Save();
                                  break;
                              case BlutoothPairStatus.Failed:
                              case BlutoothPairStatus.Timeout:

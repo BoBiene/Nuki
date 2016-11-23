@@ -73,7 +73,7 @@ namespace Nuki
             if (shell == null) {
                 // Create a Shell which navigates to the first page
                 shell = new Shell();
-
+                shell.BeginLoad();
                 // hook-up shell root frame navigation events
                 shell.RootFrame.NavigationFailed += OnNavigationFailed;
                 shell.RootFrame.Navigated += OnNavigated;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Nuki.Communication.Connection;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -29,10 +30,10 @@ namespace Nuki.Settings
         #endregion
 
 
-        public ObservableCollection<NukiDeviceSetting> PairdLocks
+        public ObservableCollection<BluetoothConnectionInfo> PairdLocks
         {
             get; private set;
-        } = new ObservableCollection<NukiDeviceSetting>();
+        } = new ObservableCollection<BluetoothConnectionInfo>();
 
         public NukiAppSettings()
         {

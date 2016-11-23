@@ -151,6 +151,7 @@
     <Compile Include="Commands\Response\RecieveStatusCommand.cs" />
     <Compile Include="Connection\BluetoothConnection.cs" />
     <Compile Include="Connection\BluetoothConnectionInfo.cs" />
+    <Compile Include="Connection\BluetoothConnectionMonitor.cs" />
     <Compile Include="Connection\BluetoothGattCharacteristicConnection.cs" />
     <Compile Include="Connection\BluetoothImplementation.cs" />
     <Compile Include="Connection\BluetoothPairResult.cs" />
@@ -173,6 +174,7 @@
     <Compile Include="SemanticTypes\ClientPublicKey.cs" />
     <Compile Include="SemanticTypes\SemanticByteArray.cs" />
     <Compile Include="Util\CRC16.cs" />
+    <Compile Include="Util\NotifyPropertyChanged.cs" />
     <EmbeddedResource Include="Properties\Nuki.Communication.rd.xml" />
   </ItemGroup>
   <ItemGroup />

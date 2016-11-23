@@ -23,12 +23,14 @@ using Microsoft.Graphics.Canvas.UI.Xaml;
 using System.Threading.Tasks;
 using Nuki.Communication.Connection;
 using Windows.UI.Core;
+using Nuki.Settings;
 
 namespace Nuki
 {
 
     public sealed partial class Shell : UserControl
     {
+        public NukiAppSettings AppSettings { get; private set; }
         public Shell()
         {
             this.InitializeComponent();
@@ -50,6 +52,27 @@ namespace Nuki
             transitions.Add(transition);
             this.Frame.ContentTransitions = transitions;
             this.ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+            base.Loading += Shell_Loading;
+        }
+
+        private async void Shell_Loading(FrameworkElement sender, object args)
+        {
+            await BeginLoad();
+        }
+
+        private Task m_initTask = null;
+        public Task BeginLoad()
+        {
+            if (m_initTask == null)
+            {
+                m_initTask = Task.Run(async () =>
+                {
+                    AppSettings = await NukiAppSettings.Load();
+                    BluetoothConnectionMonitor.Start(AppSettings.PairdLocks);
+                });
+            }
+            else { }
+            return m_initTask;
         }
 
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
