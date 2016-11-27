@@ -19,8 +19,10 @@ namespace Nuki.Communication.Connection
         private GattCharacteristic m_GattCharacteristic = null;
         private TaskCompletionSource<RecieveBaseCommand> m_responseWaitHandle = null;
         private RecieveBaseCommand m_cmdInProgress = null;
-        public BluetoothGattCharacteristicConnection()
+        public BluetoothConnection Connection { get; private set; }
+        public BluetoothGattCharacteristicConnection(BluetoothConnection connection)
         {
+            Connection = connection;
         }
         public bool IsValid => m_GattCharacteristic != null;
 
@@ -99,6 +101,7 @@ namespace Nuki.Communication.Connection
             m_responseWaitHandle = new TaskCompletionSource<RecieveBaseCommand>();
             Debug.WriteLine($"Send Command {cmd}...");
             var writer = new DataWriter();
+            writer.ByteOrder = ByteOrder.LittleEndian;
             if (await Send(cmd, writer))
             {
                 var result = await m_GattCharacteristic.WriteValueAsync(writer.DetachBuffer());

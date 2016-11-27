@@ -89,9 +89,9 @@ namespace Nuki.Communication.Connection
         {
             m_connectionInfo.DeviceName = strDeviceName;
             m_connectionInfo.UniqueClientID = new UniqueClientID(5);
-            m_pairingGDIO = new BluetoothGattCharacteristicConnection();
-            m_GDIO = new BluetoothGattCharacteristicConnection();
-            m_UGDIO = new BluetoothGattCharacteristicConnection();
+            m_pairingGDIO = new BluetoothGattCharacteristicConnectionPlain(this);
+            m_GDIO = new BluetoothGattCharacteristicConnectionEncrypted(this);
+            m_UGDIO = new BluetoothGattCharacteristicConnectionEncrypted(this);
         }
         public async Task<bool> Connect(string strDeviceID, BluetoothConnectionInfo connectionInfo = null)
         {
@@ -140,6 +140,12 @@ namespace Nuki.Communication.Connection
         private void M_bleDevice_ConnectionStatusChanged(BluetoothLEDevice sender, object args)
         {
             Debug.Write($"Connection changed to {sender.ConnectionStatus}");
+
+            if(sender.ConnectionStatus == BluetoothConnectionStatus.Connected)
+            {
+                m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Status));
+            }
+            else { }
         }
 
         public async Task<BluetoothPairResult> PairDevice(string strConnectionName)

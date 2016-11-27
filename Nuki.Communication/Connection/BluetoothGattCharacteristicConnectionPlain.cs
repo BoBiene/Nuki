@@ -10,6 +10,12 @@ namespace Nuki.Communication.Connection
 {
     internal class BluetoothGattCharacteristicConnectionPlain : BluetoothGattCharacteristicConnection
     {
+        public BluetoothGattCharacteristicConnectionPlain(BluetoothConnection connection)
+            : base(connection)
+        {
+
+        }
+
         protected override bool TryGetRecieveBuffer(IBuffer value, out DataReader reader)
         {
             reader = DataReader.FromBuffer(value);

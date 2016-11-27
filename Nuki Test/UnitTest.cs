@@ -154,6 +154,26 @@ namespace Nuki_Test
         }
      
         [TestMethod]
+        public void TestEncryption()
+        {
+
+            var Command = new SendRequestDataCommand(CommandTypes.Challenge);
+
+
+            //byte[] byNonce = Sodium.Core.GetRandomBytes(24);
+            //writer.WriteBytes(byNonce);
+            //writer.WriteUInt32(Connection.UniqueClientID.Value);
+
+            //byte[] byDecryptedMessage = cmd.Serialize().ToArray();
+            //byte[] byEncryptedMessage = Sodium.SecretBox.Create(byDecryptedMessage, byNonce, Connection.SharedKey);
+
+            //writer.WriteUInt16((UInt16)byEncryptedMessage.Length);
+            //writer.WriteBytes(byEncryptedMessage);
+
+        }
+
+
+        [TestMethod]
         public void TestMethod1()
         {
             
