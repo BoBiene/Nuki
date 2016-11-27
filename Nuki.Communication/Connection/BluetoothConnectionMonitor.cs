@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
 using Windows.UI.Core;
@@ -65,9 +66,7 @@ namespace Nuki.Communication.Connection
                 foreach (var connectionInfo in s_connectionsToMonitor)
                     s_connectionInfoMap[connectionInfo.DeviceName] = connectionInfo;
 
-                //System.Devices.Aep.IsPaired
-                string aqs = "((" + string.Join(") OR (", s_connectionInfoMap.Keys.Select(k => $"System.ItemNameDisplay:=\"{k}\"").ToArray()) + "))";
-
+             
                 OnBLEAdded = async (watcher, deviceInfo) =>
                  {
                      Debug.WriteLine("OnBLEAdded: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
@@ -107,6 +106,11 @@ namespace Nuki.Communication.Connection
                 };
                 string[] requestedProperties = { "System.Devices.Aep.IsPaired" };
 
+                //System.Devices.Aep.IsPaired
+                string aqs = "((" + string.Join(") OR (", s_connectionInfoMap.Keys.Select(k => $"System.ItemNameDisplay:=\"{k}\"").ToArray()) + "))";
+                string strService = GattDeviceService.GetDeviceSelectorFromUuid(BluetoothConnection.KeyTurnerService.Value);
+
+                aqs = $"({strService}) AND {aqs}";
 
                 s_Watcher = DeviceInformation.CreateWatcher(aqs, requestedProperties);
                 s_Watcher.Added += OnBLEAdded;

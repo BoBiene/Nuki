@@ -32,6 +32,9 @@ namespace Nuki.Communication.Connection
         private BluetoothGattCharacteristicConnection m_pairingGDIO = null;
         private BluetoothGattCharacteristicConnection m_GDIO = null;
         private BluetoothGattCharacteristicConnection m_UGDIO = null;
+
+        private BluetoothLEDevice m_bleDevice = null;
+        
         public string DeviceName => m_connectionInfo.DeviceName;
         public static Collection Connections => Collection.Instance;
         private BluetoothConnectionInfo m_connectionInfo = new BluetoothConnectionInfo();
@@ -112,16 +115,20 @@ namespace Nuki.Communication.Connection
                         }
                         else if (character.Uuid == KeyTurnerUGDIO.Value)
                         {
-                           
+
                             m_UGDIO.SetConnection(character);
                         }
                     }
+                    if (m_bleDevice != null)
+                        m_bleDevice.ConnectionStatusChanged -= M_bleDevice_ConnectionStatusChanged;
+                    m_bleDevice = deviceService.Device;
+                    m_bleDevice.ConnectionStatusChanged += M_bleDevice_ConnectionStatusChanged;
                 }
                 else
                 {
                     Debug.WriteLine($"Unable to get GattDeviceService.FromIdAsync(\"{strDeviceID}\");");
                 }
-                blnRet = deviceService != null;
+                blnRet = m_bleDevice?.ConnectionStatus == BluetoothConnectionStatus.Connected;
             }
             catch(Exception ex)
             {
@@ -130,9 +137,10 @@ namespace Nuki.Communication.Connection
             return blnRet;
         }
 
-
-
-
+        private void M_bleDevice_ConnectionStatusChanged(BluetoothLEDevice sender, object args)
+        {
+            Debug.Write($"Connection changed to {sender.ConnectionStatus}");
+        }
 
         public async Task<BluetoothPairResult> PairDevice(string strConnectionName)
         {

@@ -13,7 +13,7 @@ using Windows.Storage.Streams;
 
 namespace Nuki.Communication.Connection
 {
-    internal class BluetoothGattCharacteristicConnection
+    internal abstract class BluetoothGattCharacteristicConnection
     {
         private object syncroot = new object();
         private GattCharacteristic m_GattCharacteristic = null;
@@ -38,42 +38,50 @@ namespace Nuki.Communication.Connection
             m_GattCharacteristic.ValueChanged -= M_GattCharacteristic_ValueChanged;
         }
 
+        protected abstract bool TryGetRecieveBuffer(IBuffer value,out DataReader reader);
+
         private void M_GattCharacteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
             var recieveBuffer = args.CharacteristicValue;
             Debug.WriteLine("M_GattCharacteristic_ValueChanged");
             lock (syncroot)
             {
-                var reader = DataReader.FromBuffer(recieveBuffer);
-                reader.ByteOrder = ByteOrder.LittleEndian;
-                if (m_cmdInProgress == null)
-                    m_cmdInProgress = ResponseCommandParser.Parse(reader);
-
-                if (m_cmdInProgress != null)
+                DataReader reader = null;
+                if (TryGetRecieveBuffer(recieveBuffer, out reader))
                 {
-                    m_cmdInProgress.ProcessRecievedData(reader);
-                    if (m_cmdInProgress.Complete)
+                    if (m_cmdInProgress == null)
+                        m_cmdInProgress = ResponseCommandParser.Parse(reader);
+
+                    if (m_cmdInProgress != null)
                     {
-                        var cmd = m_cmdInProgress;
-                        m_cmdInProgress = null;
-                        Debug.WriteLine($"Recieved Command {cmd}...");
-                        if (m_responseWaitHandle?.TrySetResult(cmd) != true)
+                        m_cmdInProgress.ProcessRecievedData(reader);
+                        if (m_cmdInProgress.Complete)
                         {
-                            Debug.WriteLine($"Recieved Command {cmd} is not handlet...");
+                            var cmd = m_cmdInProgress;
+                            m_cmdInProgress = null;
+                            Debug.WriteLine($"Recieved Command {cmd}...");
+                            if (m_responseWaitHandle?.TrySetResult(cmd) != true)
+                            {
+                                Debug.WriteLine($"Recieved Command {cmd} is not handlet...");
+                            }
+                            else
+                            {
+                                Debug.WriteLine("m_responseWaitHandle set");
+                            }
                         }
                         else
                         {
-                            Debug.WriteLine("m_responseWaitHandle set");
+                            Debug.WriteLine("Command not complete...");
                         }
                     }
                     else
                     {
-                        Debug.WriteLine("Command not complete...");
+                        Debug.WriteLine("Recieved unknown command");
                     }
                 }
                 else
                 {
-                    Debug.WriteLine("Recieved unknown command");
+
                 }
             }
         }
@@ -83,17 +91,25 @@ namespace Nuki.Communication.Connection
             return Send(cmd, 2000);
         }
 
+
+
         public async Task<bool> Send(SendBaseCommand cmd, int nTimeout)
         {
+            bool blnRet = false;
             m_responseWaitHandle = new TaskCompletionSource<RecieveBaseCommand>();
-
             Debug.WriteLine($"Send Command {cmd}...");
             var writer = new DataWriter();
-            writer.WriteBytes(cmd.Serialize().ToArray());
-            var result = await m_GattCharacteristic.WriteValueAsync(writer.DetachBuffer());
-
-            return result == GattCommunicationStatus.Success;
+            if (await Send(cmd, writer))
+            {
+                var result = await m_GattCharacteristic.WriteValueAsync(writer.DetachBuffer());
+                blnRet = result == GattCommunicationStatus.Success;
+            }
+            else { }
+            return blnRet;
         }
+
+        protected abstract Task<bool> Send(SendBaseCommand cmd, DataWriter writer);
+        
 
         public async Task<RecieveBaseCommand> Recieve(int nTimeout)
         {

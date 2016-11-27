@@ -67,7 +67,7 @@ namespace Nuki
             {
                 m_initTask = Task.Run(async () =>
                 {
-                    AppSettings = await NukiAppSettings.Load();
+                    AppSettings = await NukiAppSettings.Load() ?? new NukiAppSettings();
                     BluetoothConnectionMonitor.Start(AppSettings.PairdLocks);
                 });
             }
