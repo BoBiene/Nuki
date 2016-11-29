@@ -50,18 +50,6 @@ namespace Nuki.Communication.Commands
             return sbCmd.ToString();
         }
 
-        protected BaseCommand(IEnumerable<DataField> data)
-        {
-            int nPos = -1;
-            foreach (var field in data)
-            {
-                m_mapByFieldName[field.Name] = field;
-                nPos = Math.Max(field.Position, nPos);
-            }
-            m_mapByPostion = m_mapByFieldName.Values.OrderBy((f) => f.Position).ToArray();
-            m_nFieldPointer = nPos;
-        }
-
         protected int AddField<T>(string strName, T data)
         {
             return AddField(strName, data, FieldFlags.All);
@@ -91,14 +79,12 @@ namespace Nuki.Communication.Commands
 
         protected void AddFields(IEnumerable<DataField> fields)
         {
-            int nMax = m_nFieldPointer;
-            foreach(var field in fields)
+            foreach(var field in fields.OrderBy((f) => f.Position))
             {
-                nMax = Math.Max(nMax, m_nFieldPointer);
-                m_mapByPostion[field.Position] = field;
+                int nPos = Interlocked.Increment(ref m_nFieldPointer);
+                m_mapByPostion[nPos] = field;
                 m_mapByFieldName[field.Name] = field;
             }
-            m_nFieldPointer = nMax;
         }
         
         protected void SetData(string strName, object objData)

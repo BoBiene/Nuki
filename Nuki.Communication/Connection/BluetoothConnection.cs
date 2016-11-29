@@ -139,11 +139,11 @@ namespace Nuki.Communication.Connection
 
         private void M_bleDevice_ConnectionStatusChanged(BluetoothLEDevice sender, object args)
         {
-            Debug.Write($"Connection changed to {sender.ConnectionStatus}");
+            Debug.WriteLine($"Connection changed to {sender.ConnectionStatus}");
 
             if(sender.ConnectionStatus == BluetoothConnectionStatus.Connected)
             {
-                m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Status));
+                m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge));
             }
             else { }
         }

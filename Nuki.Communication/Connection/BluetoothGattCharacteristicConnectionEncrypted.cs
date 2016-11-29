@@ -7,39 +7,33 @@ using Nuki.Communication.Commands.Request;
 using Windows.Storage.Streams;
 using System.IO;
 using Nuki.Communication.SemanticTypes;
+using System.Diagnostics;
 
 namespace Nuki.Communication.Connection
 {
     internal class BluetoothGattCharacteristicConnectionEncrypted : BluetoothGattCharacteristicConnection
     {
-        private RecieveState m_RecieveState = RecieveState.ReadHeader;
         private RecieveBuffer m_RecieveBuffer = null;
         private class RecieveBuffer
         {
-            private MemoryStream m_EncryptedInputBuffer = new MemoryStream();
-            public SmartLockNonce Nonce { get; private set; }
-            public MessageAuthentication Authentication { get; private set; }
+            private List<byte> m_bufferPDATA = new List<byte>();
+            private byte[] m_bufferADATA = new byte[30];
+            private byte m_nADATABufferPointer = 0;
+
+            public ADATANonce Nonce { get; private set; }
+            public UniqueClientID UniqueClientID { get; private set; }
             public UInt16 Length { get; private set; }
 
-            public bool Complete => Length <= m_EncryptedInputBuffer.Length;
+            public bool Complete => Length <= m_bufferPDATA.Count && HeaderComplete;
+
+
+            public int Recieved => m_bufferPDATA.Count;
+            public bool HeaderComplete => m_nADATABufferPointer == m_bufferADATA.Length;
+
 
             public RecieveBuffer(IBuffer value)
             {
-                using (var reader = DataReader.FromBuffer(value))
-                {
-                    reader.ByteOrder = ByteOrder.LittleEndian;
-                    byte[] byNonce = new byte[24];
-                    reader.ReadBytes(byNonce);
-                    Nonce = new SmartLockNonce(byNonce);
-
-                    byte[] byAuth = new byte[4];
-                    reader.ReadBytes(byAuth);
-                    Authentication = new MessageAuthentication(byAuth);
-
-                    Length = reader.ReadUInt16();
-
-                    Consume(reader);
-                }
+                Consume(value);
             }
 
             public void Consume(IBuffer value)
@@ -54,7 +48,42 @@ namespace Nuki.Communication.Connection
             {
                 byte[] byRemain = new byte[reader.UnconsumedBufferLength];
                 reader.ReadBytes(byRemain);
-                m_EncryptedInputBuffer.Write(byRemain, 0, byRemain.Length);
+                int nRemainBytes = byRemain.Length;
+
+                if(m_nADATABufferPointer < m_bufferADATA.Length)
+                {
+                    int nLenToCopy = Math.Min(byRemain.Length, m_bufferADATA.Length - m_nADATABufferPointer);
+                    Array.Copy(byRemain, 0, m_bufferADATA, m_nADATABufferPointer, nLenToCopy);
+                    m_nADATABufferPointer += (byte)nLenToCopy;
+                    nRemainBytes -= nLenToCopy;
+
+                    if (m_nADATABufferPointer == m_bufferADATA.Length)
+                    {
+                        //Header Complete -> read
+
+                        byte[] byNonce = new byte[24];
+                        Array.Copy(m_bufferADATA, 0, byNonce, 0, 24);
+                        Nonce = new ADATANonce(byNonce);
+
+                     
+                        UniqueClientID = new UniqueClientID(BitConverter.ToUInt32(m_bufferADATA,24));
+
+                        Length = BitConverter.ToUInt16(m_bufferADATA,28);
+                    }
+                    else { }
+                }
+                else { }
+
+
+
+
+                if(nRemainBytes > 0)
+                {
+                    m_bufferPDATA.AddRange(byRemain.Skip(byRemain.Length - nRemainBytes));
+                }
+                else { }
+
+                //m_EncryptedInputBuffer.Write(byRemain, 0, byRemain.Length);
 
             }
 
@@ -62,7 +91,7 @@ namespace Nuki.Communication.Connection
             {
                 if (Complete)
                 {
-                    byte[] message = m_EncryptedInputBuffer.ToArray();
+                    byte[] message = m_bufferPDATA.ToArray();
                     byte[] decryptedMessage = Sodium.SecretBox.Open(message, Nonce, connection.SharedKey);
 
                     using (DataWriter w = new DataWriter())
@@ -70,18 +99,14 @@ namespace Nuki.Communication.Connection
                         w.WriteBytes(decryptedMessage);
                         return DataReader.FromBuffer(w.DetachBuffer());
                     }
-                }
+                }   
                 else
                 {
                     throw new InvalidOperationException("Recieved Buffer is not completed...");
                 }
             }
         }
-        private enum RecieveState
-        {
-            ReadHeader,
-            ReadContent,
-        }
+    
 
         public BluetoothGattCharacteristicConnectionEncrypted(BluetoothConnection connection) 
             : base(connection)
@@ -91,18 +116,18 @@ namespace Nuki.Communication.Connection
         protected override Task<bool> Send(SendBaseCommand cmd, DataWriter writer)
         {
             bool blnRet = false;
-            m_RecieveState = RecieveState.ReadHeader;
+            m_RecieveBuffer = null;
 
             byte[] byNonce = Sodium.Core.GetRandomBytes(24);
             writer.WriteBytes(byNonce);
             writer.WriteUInt32(Connection.UniqueClientID.Value);
 
-            byte[] byDecryptedMessage = cmd.Serialize().ToArray();
+            byte[] byDecryptedMessage = cmd.Serialize(BitConverter.GetBytes(Connection.UniqueClientID.Value)).ToArray();
             byte[] byEncryptedMessage = Sodium.SecretBox.Create(byDecryptedMessage, byNonce, Connection.SharedKey);
 
             writer.WriteUInt16((UInt16)byEncryptedMessage.Length);
             writer.WriteBytes(byEncryptedMessage);
-
+            blnRet = true;
 
             return Task.FromResult(blnRet);
         }
@@ -120,7 +145,7 @@ namespace Nuki.Communication.Connection
         {
             bool blnRet = false;
             reader = null;
-            if (m_RecieveState == RecieveState.ReadHeader)
+            if (m_RecieveBuffer == null)
             {
                 m_RecieveBuffer = new RecieveBuffer(value);
             }
@@ -131,10 +156,33 @@ namespace Nuki.Communication.Connection
 
             if (m_RecieveBuffer?.Complete == true)
             {
-                reader = m_RecieveBuffer.Decrypt(Connection);
-                blnRet = true;
+                if (m_RecieveBuffer.UniqueClientID == this.Connection.UniqueClientID)
+                {
+                    reader = m_RecieveBuffer.Decrypt(Connection);
+                    reader.ByteOrder = ByteOrder.LittleEndian;
+
+                    if (reader.ReadUInt32() == this.Connection.UniqueClientID.Value)
+                    {
+                        blnRet = true;
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Decryption of message failed (PDATA has wrong UniqueClientID)!");
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Recieved message for wron ClientID?!");
+                }
             }
-            else { }
+            else
+            {
+                Debug.WriteLine($"Nonce: {m_RecieveBuffer.Nonce}");
+                Debug.WriteLine($"UniqueClientID: {m_RecieveBuffer.UniqueClientID}");
+                Debug.WriteLine($"Length: {m_RecieveBuffer.Length}");
+                Debug.WriteLine($"HeaderComplete: {m_RecieveBuffer.HeaderComplete}");
+                Debug.WriteLine($"Recieved: {m_RecieveBuffer.Recieved}");
+            }
 
             return blnRet;
         }

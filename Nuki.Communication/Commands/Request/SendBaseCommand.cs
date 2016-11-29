@@ -14,7 +14,7 @@ namespace Nuki.Communication.Commands.Request
 {
     public abstract class SendBaseCommand : BaseCommand
     {
-
+        private static readonly byte[] EmptyBytes = new byte[0];
 
         public SendBaseCommand(CommandTypes type, int nNumberOfFields)
             : base(type, nNumberOfFields)
@@ -24,15 +24,23 @@ namespace Nuki.Communication.Commands.Request
 
 
 
-
-
         public virtual IEnumerable<byte> Serialize()
         {
-            return Serialize(FieldFlags.PartOfMessage,true);
+            return Serialize(prefixData:EmptyBytes);
+        }
+
+        public virtual IEnumerable<byte> Serialize(IEnumerable<byte> prefixData)
+        {
+            return Serialize(prefixData,FieldFlags.PartOfMessage,true);
         }
         protected virtual IEnumerable<byte> Serialize(FieldFlags flags, bool blnAddCrc)
         {
+            return Serialize(prefixData: EmptyBytes, flags:flags, blnAddCrc:blnAddCrc);
+        }
+        protected virtual IEnumerable<byte> Serialize(IEnumerable<byte> prefixData,FieldFlags flags, bool blnAddCrc)
+        {
             List<byte> list = new List<byte>();
+            list.AddRange (prefixData);
             foreach (var field in GetData(flags))
                 list.AddRange(Serialize(field));
 
