@@ -90,7 +90,7 @@ namespace Nuki.Communication.Connection
             public DataReader Decrypt(IConnectionContext connection)
             {
                 if (Complete)
-                {
+                {  
                     byte[] message = m_bufferPDATA.ToArray();
                     byte[] decryptedMessage = Sodium.SecretBox.Open(message, Nonce, connection.SharedKey);
 
@@ -144,46 +144,52 @@ namespace Nuki.Communication.Connection
         protected override bool TryGetRecieveBuffer(IBuffer value, out DataReader reader)
         {
             bool blnRet = false;
+
             reader = null;
-            if (m_RecieveBuffer == null)
+            try
             {
-                m_RecieveBuffer = new RecieveBuffer(value);
-            }
-            else
-            {
-                m_RecieveBuffer?.Consume(value);
-            }
-
-            if (m_RecieveBuffer?.Complete == true)
-            {
-                if (m_RecieveBuffer.UniqueClientID == this.Connection.UniqueClientID)
+                if (m_RecieveBuffer == null)
                 {
-                    reader = m_RecieveBuffer.Decrypt(Connection);
-                    reader.ByteOrder = ByteOrder.LittleEndian;
+                    m_RecieveBuffer = new RecieveBuffer(value);
+                }
+                else
+                {
+                    m_RecieveBuffer?.Consume(value);
+                }
 
-                    if (reader.ReadUInt32() == this.Connection.UniqueClientID.Value)
+                if (m_RecieveBuffer?.Complete == true)
+                {
+                    if (m_RecieveBuffer.UniqueClientID == this.Connection.UniqueClientID)
                     {
-                        blnRet = true;
+                        reader = m_RecieveBuffer.Decrypt(Connection);
+                        reader.ByteOrder = ByteOrder.LittleEndian;
+                        m_RecieveBuffer = null;
+                        if (reader.ReadUInt32() == this.Connection.UniqueClientID.Value)
+                        {
+                            blnRet = true;
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Decryption of message failed (PDATA has wrong UniqueClientID)!");
+                        }
                     }
                     else
                     {
-                        Debug.WriteLine("Decryption of message failed (PDATA has wrong UniqueClientID)!");
+                        Debug.WriteLine("Recieved message for wron ClientID?!");
                     }
                 }
                 else
                 {
-                    Debug.WriteLine("Recieved message for wron ClientID?!");
+                    Debug.WriteLine($"Nonce: {m_RecieveBuffer.Nonce}");
+                    Debug.WriteLine($"UniqueClientID: {m_RecieveBuffer.UniqueClientID}");
+                    Debug.WriteLine($"Length: {m_RecieveBuffer.Length}");
+                    Debug.WriteLine($"HeaderComplete: {m_RecieveBuffer.HeaderComplete}");
+                    Debug.WriteLine($"Recieved: {m_RecieveBuffer.Recieved}");
                 }
-            }
-            else
+            }catch(Exception ex)
             {
-                Debug.WriteLine($"Nonce: {m_RecieveBuffer.Nonce}");
-                Debug.WriteLine($"UniqueClientID: {m_RecieveBuffer.UniqueClientID}");
-                Debug.WriteLine($"Length: {m_RecieveBuffer.Length}");
-                Debug.WriteLine($"HeaderComplete: {m_RecieveBuffer.HeaderComplete}");
-                Debug.WriteLine($"Recieved: {m_RecieveBuffer.Recieved}");
+                Debug.WriteLine("Exception in TryRecieve: " + ex.ToString());
             }
-
             return blnRet;
         }
     }

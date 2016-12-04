@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.Commands;
+﻿using Nuki.Communication.API;
+using Nuki.Communication.Commands;
 using Nuki.Communication.Commands.Request;
 using Nuki.Communication.Commands.Response;
 using Nuki.Communication.SemanticTypes;
@@ -47,7 +48,7 @@ namespace Nuki.Communication.Connection
         public SmartLockNonce SmartLockNonce
         {
             get;
-            private set;
+            internal set;
         }
 
         public class Collection
@@ -137,13 +138,27 @@ namespace Nuki.Communication.Connection
             return blnRet;
         }
 
-        private void M_bleDevice_ConnectionStatusChanged(BluetoothLEDevice sender, object args)
+        private async void M_bleDevice_ConnectionStatusChanged(BluetoothLEDevice sender, object args)
         {
             Debug.WriteLine($"Connection changed to {sender.ConnectionStatus}");
 
-            if(sender.ConnectionStatus == BluetoothConnectionStatus.Connected)
+            m_pairingGDIO?.Reset();
+            m_GDIO?.Reset();
+            m_UGDIO?.Reset();
+
+            if (sender.ConnectionStatus == BluetoothConnectionStatus.Connected)
             {
-                m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge));
+                if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))
+                {
+                    RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
+
+                    if (await m_UGDIO.Send(new SendRequestConfigCommand(this)))
+                    {
+                        Debug.WriteLine("Send request Config command...");
+                    }
+                    else { }
+                }
+                else { }
             }
             else { }
         }
@@ -186,10 +201,6 @@ namespace Nuki.Communication.Connection
 
                                         if (response?.CommandType == CommandTypes.Challenge)
                                         {
-                                            this.SmartLockNonce = ((RecieveChallengeCommand)response).Nonce;
-
-
-
                                             cmd = new SendAuthorizationAuthenticatorCommand(this);
 
                                             if (await m_pairingGDIO.Send(cmd)) //13

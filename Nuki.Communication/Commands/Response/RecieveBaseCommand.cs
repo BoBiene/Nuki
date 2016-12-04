@@ -44,6 +44,8 @@ namespace Nuki.Communication.Commands.Response
             m_byData = new byte[nBytesCount];
         }
 
+        public int BytesRecieved => m_nRecievePointer;
+        public int BytesTotal => m_byData.Length;
         public bool Complete => m_nRecievePointer >= m_byData.Length;
         protected byte[] Data => m_byData;
 

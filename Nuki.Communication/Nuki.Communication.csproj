@@ -125,7 +125,16 @@
     <Compile Include="..\Semantictypes\SemanticTypes\UncomparableSemanticType.cs">
       <Link>SemanticTypes\Core\UncomparableSemanticType.cs</Link>
     </Compile>
+    <Compile Include="API\NukiConfig.cs" />
+    <Compile Include="API\NukiDSTSetting.cs" />
+    <Compile Include="API\NukiFobAction.cs" />
+    <Compile Include="API\NukiLockActionFlags.cs" />
     <Compile Include="API\NukiClientTypeID.cs" />
+    <Compile Include="API\NukiLockAction.cs" />
+    <Compile Include="API\NukiLockState.cs" />
+    <Compile Include="API\NukiLockStateChangeTrigger.cs" />
+    <Compile Include="API\NukiState.cs" />
+    <Compile Include="API\NukiTimeStamp.cs" />
     <Compile Include="Commands\BaseCommand.cs" />
     <Compile Include="Commands\ByteHelper.cs" />
     <Compile Include="Commands\CrcMissmatchException.cs" />
@@ -138,14 +147,19 @@
     <Compile Include="Commands\Request\SendBaseCommandAuthenticated.cs" />
     <Compile Include="Commands\EnumBitSizeAttribute.cs" />
     <Compile Include="Commands\Request\SendAuthorizationAuthenticatorCommand.cs" />
+    <Compile Include="Commands\Request\SendBaseCommandWithContext.cs" />
+    <Compile Include="Commands\Request\SendLockActionCommand.cs" />
     <Compile Include="Commands\Request\SendPublicKeyComand.cs" />
     <Compile Include="Commands\Request\SendRequestDataCommand.cs" />
+    <Compile Include="Commands\Request\SendRequestConfigCommand.cs" />
     <Compile Include="Commands\ResponseCommandParser.cs" />
     <Compile Include="Commands\Response\RecieveAuthorization­IDCommand.cs" />
     <Compile Include="Commands\Response\RecieveBaseCommand.cs" />
     <Compile Include="Commands\Response\RecieveBaseCommandAuthenticated.cs" />
     <Compile Include="Commands\Response\RecieveChallengeCommand.cs" />
+    <Compile Include="Commands\Response\RecieveConfigCommand.cs" />
     <Compile Include="Commands\Response\RecieveErrorReportCommand.cs" />
+    <Compile Include="Commands\Response\RecieveNukiStatesCommand.cs" />
     <Compile Include="Commands\Response\RecievePublicKeyCommand.cs" />
     <Compile Include="Commands\Response\RecieveStatusCommand.cs" />
     <Compile Include="Connection\BluetoothConnection.cs" />

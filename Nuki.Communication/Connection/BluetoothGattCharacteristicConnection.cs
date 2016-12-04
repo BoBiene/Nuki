@@ -73,7 +73,7 @@ namespace Nuki.Communication.Connection
                         }
                         else
                         {
-                            Debug.WriteLine("Command not complete...");
+                            Debug.WriteLine($"Command {m_cmdInProgress.CommandType} not complete (Recieved {m_cmdInProgress.BytesRecieved} from {m_cmdInProgress.BytesTotal})...");
                         }
                     }
                     else
@@ -93,6 +93,10 @@ namespace Nuki.Communication.Connection
             return Send(cmd, 2000);
         }
 
+        public virtual void Reset()
+        {
+            m_cmdInProgress = null;
+        }
 
 
         public async Task<bool> Send(SendBaseCommand cmd, int nTimeout)
@@ -124,6 +128,8 @@ namespace Nuki.Communication.Connection
             {
                 Debug.WriteLine("Recieved command...");
                 retCommand = m_responseWaitHandle.Task.Result;
+                if (retCommand is RecieveChallengeCommand)
+                    this.Connection.SmartLockNonce = ((RecieveChallengeCommand)retCommand).Nonce;
             }
             else
             {

@@ -33,6 +33,12 @@ namespace Nuki.Communication.Commands
                 case CommandTypes.Status:
                     cmd = new RecieveStatusCommand();
                     break;
+                case CommandTypes.NukiStates:
+                    cmd = new RecieveNukiStatesCommand();
+                    break;
+                case CommandTypes.Config:
+                    cmd = new RecieveConfigCommand();
+                    break;
                 default:
                     Debug.WriteLine($"Command {cmdType} is not handelt!");
                     break;

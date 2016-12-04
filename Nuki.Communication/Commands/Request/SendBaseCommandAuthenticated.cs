@@ -8,14 +8,13 @@ using System.Threading.Tasks;
 
 namespace Nuki.Communication.Commands.Request
 {
-    public abstract class SendBaseCommandAuthenticated : SendBaseCommand
+    public abstract class SendBaseCommandAuthenticated : SendBaseCommandWithContext
     {
-        public IConnectionContext ConnectionContext { get; private set; }
+     
         public MessageAuthentication Authenticator { get { return GetData<MessageAuthentication>(nameof(Authenticator)); } }
         public SendBaseCommandAuthenticated(CommandTypes type, IConnectionContext connectionContext, int nNumberOfFields)
-            : base(type, nNumberOfFields + 1)
+            : base(type,connectionContext, nNumberOfFields + 1)
         {
-            ConnectionContext = connectionContext;
             AddField(nameof(Authenticator), CalculateAuthenticator,32, FieldFlags.PartOfMessage);
         }
 
