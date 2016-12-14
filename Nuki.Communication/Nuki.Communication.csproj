@@ -125,7 +125,6 @@
     <Compile Include="..\Semantictypes\SemanticTypes\UncomparableSemanticType.cs">
       <Link>SemanticTypes\Core\UncomparableSemanticType.cs</Link>
     </Compile>
-    <Compile Include="API\NukiConfig.cs" />
     <Compile Include="API\NukiDSTSetting.cs" />
     <Compile Include="API\NukiFobAction.cs" />
     <Compile Include="API\NukiLockActionFlags.cs" />

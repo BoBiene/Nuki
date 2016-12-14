@@ -27,18 +27,23 @@ namespace Nuki.Communication.Connection
         public static readonly BluetoothServiceUUID KeyTurnerService = new BluetoothServiceUUID("a92ee200550111e4916c0800200c9a66");
 
         public static readonly BluetoothCharacteristic KeyTurnerPairingGDIO = new BluetoothCharacteristic("a92ee101550111e4916c0800200c9a66");
+
+       
+
         public static readonly BluetoothCharacteristic KeyTurnerGDIO = new BluetoothCharacteristic("a92ee201550111e4916c0800200c9a66");
         public static readonly BluetoothCharacteristic KeyTurnerUGDIO = new BluetoothCharacteristic("a92ee202550111e4916c0800200c9a66");
        
         private BluetoothGattCharacteristicConnection m_pairingGDIO = null;
-        private BluetoothGattCharacteristicConnection m_GDIO = null;
+        //private BluetoothGattCharacteristicConnection m_GDIO = null;
         private BluetoothGattCharacteristicConnection m_UGDIO = null;
-
+        private object Syncroot = new object();
         private BluetoothLEDevice m_bleDevice = null;
-        
+        public bool Connected => m_bleDevice != null;
+
+       
         public string DeviceName => m_connectionInfo.DeviceName;
         public static Collection Connections => Collection.Instance;
-        private BluetoothConnectionInfo m_connectionInfo = new BluetoothConnectionInfo();
+        private NukiConnectionBinding m_connectionInfo = new NukiConnectionBinding();
         public ClientPublicKey ClientPublicKey => m_connectionInfo.ClientPublicKey;
         public SmartLockPublicKey SmartLockPublicKey => m_connectionInfo.SmartLockPublicKey;
         public SharedKey SharedKey => m_connectionInfo.SharedKey;
@@ -91,12 +96,71 @@ namespace Nuki.Communication.Connection
             m_connectionInfo.DeviceName = strDeviceName;
             m_connectionInfo.UniqueClientID = new UniqueClientID(5);
             m_pairingGDIO = new BluetoothGattCharacteristicConnectionPlain(this);
-            m_GDIO = new BluetoothGattCharacteristicConnectionEncrypted(this);
+            //m_GDIO = new BluetoothGattCharacteristicConnectionEncrypted(this);
             m_UGDIO = new BluetoothGattCharacteristicConnectionEncrypted(this);
         }
-        public async Task<bool> Connect(string strDeviceID, BluetoothConnectionInfo connectionInfo = null)
+        public Task<bool> Connect(NukiConnectionBinding connectionInfo)
+        {
+            if (connectionInfo == null)
+                throw new ArgumentNullException(nameof(connectionInfo));
+            return Connect(connectionInfo.DeviceName, connectionInfo);
+        }
+
+        public async Task<RecieveNukiStatesCommand> RequestNukiState()
+        {
+            RecieveNukiStatesCommand retCmd = null;
+            //if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))
+            //{
+            //    RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
+
+                if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.NukiStates)))
+                {
+                    Debug.WriteLine("Send request Config command...");
+                    var cmd = await m_UGDIO.Recieve(5000);
+                    retCmd = cmd as RecieveNukiStatesCommand;
+                }
+                else
+                {
+                }
+            //}
+            //else
+            //{
+            //}
+
+            return retCmd;
+        }
+        public Task<RecieveBaseCommand> SendCalibrateRequest()
+        {
+            throw new NotImplementedException();
+        }
+        public async Task<RecieveBaseCommand> SendLockAction(NukiLockAction lockAction, NukiLockActionFlags flags =  NukiLockActionFlags.None)
+        {
+            RecieveBaseCommand retCmd = null;
+            if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))
+            {
+                RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
+
+                if (await m_UGDIO.Send(new SendLockActionCommand(lockAction, flags, this)))
+                {
+                    Debug.WriteLine("Send SendLockAction command...");
+                    retCmd = await m_UGDIO.Recieve(5000);
+                }
+                else
+                {
+                }
+            }
+            else
+            {
+            }
+
+            return retCmd;
+        }
+
+        public async Task<bool> Connect(string strDeviceID, NukiConnectionBinding connectionInfo = null)
         {
             bool blnRet = false;
+         
+
             try
             {
                 if (connectionInfo != null)
@@ -104,13 +168,16 @@ namespace Nuki.Communication.Connection
                 var deviceService = await GattDeviceService.FromIdAsync(strDeviceID);
                 if (deviceService != null)
                 {
-                    foreach (var character in deviceService.GetAllCharacteristics())
+                    foreach (var character in 
+                        deviceService.GetCharacteristics(KeyTurnerUGDIO.Value).
+                        Concat(deviceService.GetCharacteristics(KeyTurnerPairingGDIO.Value)))
                     {
-                        if (character.Uuid == KeyTurnerGDIO.Value)
-                        {
-                            m_GDIO.SetConnection(character);
-                        }
-                        else if (character.Uuid == KeyTurnerPairingGDIO.Value)
+                        //if (character.Uuid == KeyTurnerGDIO.Value)
+                        //{
+                        //    m_GDIO.SetConnection(character);
+                        //}
+                        //else 
+                        if (character.Uuid == KeyTurnerPairingGDIO.Value)
                         {
                             m_pairingGDIO.SetConnection(character);
                         }
@@ -134,42 +201,65 @@ namespace Nuki.Communication.Connection
             catch(Exception ex)
             {
                 Debug.WriteLine("Connect failed: {0}",ex);
+                if(ex is InvalidOperationException && (uint)ex.HResult == 0x8000000E )
+                {
+                   //TODO Notify about needed re-Pair
+                }
+                else { }
             }
             return blnRet;
         }
 
-        private async void M_bleDevice_ConnectionStatusChanged(BluetoothLEDevice sender, object args)
+    
+        private  void M_bleDevice_ConnectionStatusChanged(BluetoothLEDevice sender, object args)
         {
-            Debug.WriteLine($"Connection changed to {sender.ConnectionStatus}");
-
-            m_pairingGDIO?.Reset();
-            m_GDIO?.Reset();
-            m_UGDIO?.Reset();
-
-            if (sender.ConnectionStatus == BluetoothConnectionStatus.Connected)
+            try
             {
-                if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))
-                {
-                    RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
+                Debug.WriteLine($"Connection changed to {sender.ConnectionStatus}");
 
-                    if (await m_UGDIO.Send(new SendRequestConfigCommand(this)))
-                    {
-                        Debug.WriteLine("Send request Config command...");
-                    }
-                    else { }
-                }
-                else { }
+                m_pairingGDIO?.Reset();
+                //m_GDIO?.Reset();
+                m_UGDIO?.Reset();
+
+                //if (sender.ConnectionStatus == BluetoothConnectionStatus.Connected &&
+                //    m_connectionInfo?.Valid() == true)
+                //{
+                //    if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))
+                //    {
+                //        RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
+
+                //        if (await m_UGDIO.Send(new SendRequestConfigCommand(this)))
+                //        {
+                //            Debug.WriteLine("Send request Config command...");
+                //        }
+                //        else { }
+                //    }
+                //    else { }
+                //}
+                //else { }
             }
-            else { }
+            catch(Exception ex)
+            {
+                Debug.WriteLine("Exception in connection change: {0}", ex);
+            }
         }
+        private bool m_blnPairingInProgress = false;
 
         public async Task<BluetoothPairResult> PairDevice(string strConnectionName)
         {
             BlutoothPairStatus status = BlutoothPairStatus.Failed;
+            lock (Syncroot)
+            {
+                if (m_blnPairingInProgress)
+                    status = BlutoothPairStatus.PairingInProgress;
+                else
+                    m_blnPairingInProgress = true;
+            }
             try
             {
                 if (m_pairingGDIO.IsValid &&
-                    m_GDIO.IsValid &&
+                     //m_GDIO.IsValid &&
+                     status != BlutoothPairStatus.PairingInProgress &&
                     m_UGDIO.IsValid)
                 {
 
@@ -303,17 +393,29 @@ namespace Nuki.Communication.Connection
                     {
                         status = BlutoothPairStatus.Failed;
                     }
+
                 }
                 else
                 {
-                    if (m_UGDIO.IsValid || m_pairingGDIO.IsValid || m_GDIO.IsValid)
+                    if (m_UGDIO.IsValid || m_pairingGDIO.IsValid
+                        //|| m_GDIO.IsValid
+                        )
                         status = BlutoothPairStatus.MissingCharateristic;
                 }
             }
+
             catch (Exception ex)
             {
                 Debug.WriteLine("Error in pairing: {0}", ex);
                 status = BlutoothPairStatus.Failed;
+            }
+            finally
+            {
+                lock (Syncroot)
+                {
+                    if (status != BlutoothPairStatus.PairingInProgress)
+                        m_blnPairingInProgress = false;
+                }
             }
             return new BluetoothPairResult(status, (status == BlutoothPairStatus.Successfull) ? m_connectionInfo : null);
         }

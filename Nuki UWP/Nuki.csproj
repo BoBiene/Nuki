@@ -11,7 +11,7 @@
     <AssemblyName>Nuki</AssemblyName>
     <DefaultLanguage>de-DE</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.10586.0</TargetPlatformVersion>
+    <TargetPlatformVersion>10.0.14393.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.10586.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
@@ -103,47 +103,65 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converter\SubstractConverter.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="Pages\NukiSettings.xaml.cs">
-      <DependentUpon>NukiSettings.xaml</DependentUpon>
+    <Compile Include="Converter\MultiplyConverter.cs" />
+    <Compile Include="ViewModels\NukiLockStatusPartViewModel.cs" />
+    <Compile Include="ViewModels\NukiLockAdministrationPartViewModel.cs" />
+    <Compile Include="ViewModels\NukiLockSettingsPartViewModel.cs" />
+    <Compile Include="ViewModels\NukiLockHomePartViewModel.cs" />
+    <Compile Include="ViewModels\NukiLockViewModel.cs" />
+    <Compile Include="Views\NukiLock.xaml.cs">
+      <DependentUpon>NukiLock.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\Setup\Setup02ConfirmInstallation.xaml.cs">
+    <Compile Include="Views\Setup\Setup02ConfirmInstallation.xaml.cs">
       <DependentUpon>Setup02ConfirmInstallation.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\Setup\Setup04PairDevice.xaml.cs">
+    <Compile Include="Views\Setup\Setup06LockNamePage.xaml.cs">
+      <DependentUpon>Setup06LockNamePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Setup\Setup04PairDevice.xaml.cs">
       <DependentUpon>Setup04PairDevice.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\Setup\SetupIconPage.xaml.cs">
-      <DependentUpon>SetupIconPage.xaml</DependentUpon>
+    <Compile Include="Views\Setup\Setup05IconPage.xaml.cs">
+      <DependentUpon>Setup05IconPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\Setup\Setup01LandingPage.xaml.cs">
+    <Compile Include="Views\Setup\Setup01LandingPage.xaml.cs">
       <DependentUpon>Setup01LandingPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\Setup\Setup03NamePage.xaml.cs">
+    <Compile Include="Views\Setup\Setup03NamePage.xaml.cs">
       <DependentUpon>Setup03NamePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Settings\NukiAppSettings.cs" />
-    <Compile Include="Shell.xaml.cs">
+    <Compile Include="Services\SettingsServices\SettingsService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\DetailPageViewModel.cs" />
+    <Compile Include="ViewModels\MainPageViewModel.cs" />
+    <Compile Include="ViewModels\SettingsPageViewModel.cs" />
+    <Compile Include="ViewModels\SetupNewLockViewModel.cs" />
+    <Compile Include="Views\Busy.xaml.cs">
+      <DependentUpon>Busy.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DetailPage.xaml.cs">
+      <DependentUpon>DetailPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPage.xaml.cs">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SetupNewLock.xaml.cs">
+      <DependentUpon>SetupNewLock.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Setup\SetupSuccessfull.xaml.cs">
+      <DependentUpon>SetupSuccessfull.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Shell.xaml.cs">
       <DependentUpon>Shell.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Pages\Page1.xaml.cs">
-      <DependentUpon>Page1.xaml</DependentUpon>
+    <Compile Include="Views\Splash.xaml.cs">
+      <DependentUpon>Splash.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\Page2.xaml.cs">
-      <DependentUpon>Page2.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\Page3.xaml.cs">
-      <DependentUpon>Page3.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\About.xaml.cs">
-      <DependentUpon>About.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Presentation\Command.cs" />
-    <Compile Include="Presentation\MenuItem.cs" />
-    <Compile Include="Presentation\ObjectToMenuItemConverter.cs" />
-    <Compile Include="Presentation\ShellViewModel.cs" />
-    <Compile Include="SwipeableSplitView.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -182,65 +200,70 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="Pages\NukiSettings.xaml">
+    <Page Include="Views\NukiLock.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\Setup\Setup02ConfirmInstallation.xaml">
+    <Page Include="Views\Setup\Setup02ConfirmInstallation.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\Setup\Setup04PairDevice.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Pages\Setup\SetupIconPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Pages\Setup\Setup01LandingPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Pages\Setup\Setup03NamePage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Shell.xaml">
+    <Page Include="Views\Setup\Setup06LockNamePage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Pages\Page1.xaml">
+    <Page Include="Views\Setup\Setup04PairDevice.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Setup\Setup05IconPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Setup\Setup01LandingPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Setup\Setup03NamePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\Custom.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Pages\Page2.xaml">
+    <Page Include="Views\Busy.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Pages\Page3.xaml">
+    <Page Include="Views\DetailPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Pages\About.xaml">
+    <Page Include="Views\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\Generic.xaml">
+    <Page Include="Views\SettingsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <SDKReference Include="BehaviorsXamlSDKManaged, Version=12.0">
-      <Name>Behaviors SDK %28XAML%29</Name>
-    </SDKReference>
-    <SDKReference Include="WindowsDesktop, Version=10.0.10586.0">
-      <Name>Windows Desktop Extensions for the UWP</Name>
-    </SDKReference>
-    <SDKReference Include="WindowsMobile, Version=10.0.10586.0">
-      <Name>Windows Mobile Extensions for the UWP</Name>
-    </SDKReference>
+    <Page Include="Views\SetupNewLock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Setup\SetupSuccessfull.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Shell.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Splash.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Nuki.Communication\Nuki.Communication.csproj">
@@ -252,6 +275,7 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

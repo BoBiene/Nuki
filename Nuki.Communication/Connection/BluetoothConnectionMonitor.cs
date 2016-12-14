@@ -20,14 +20,14 @@ namespace Nuki.Communication.Connection
         private static TypedEventHandler<DeviceWatcher, DeviceInformationUpdate> OnBLERemoved = null;
 
         private static DeviceWatcher s_Watcher = null;
-        private static ObservableCollection<BluetoothConnectionInfo> s_connectionsToMonitor = null;
-        private static ConcurrentDictionary<string, BluetoothConnectionInfo> s_connectionInfoMap =
-            new ConcurrentDictionary<string, BluetoothConnectionInfo>();
-        public static void Start(ObservableCollection<BluetoothConnectionInfo> connectionsToMonitor)
+        private static ObservableCollection<NukiConnectionBinding> s_connectionsToMonitor = null;
+        private static ConcurrentDictionary<string, NukiConnectionBinding> s_connectionInfoMap =
+            new ConcurrentDictionary<string, NukiConnectionBinding>();
+        public static void Start(ObservableCollection<NukiConnectionBinding> connectionsToMonitor, Action<BluetoothConnection> connectedAction = null)
         {
             s_connectionsToMonitor = connectionsToMonitor;
             s_connectionsToMonitor.CollectionChanged += S_connectionsToMonitor_CollectionChanged;
-            StartWatcher();
+            StartWatcher(connectedAction);
         }
 
         private static void S_connectionsToMonitor_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -58,7 +58,7 @@ namespace Nuki.Communication.Connection
 
         }
 
-        private static void StartWatcher()
+        private static void StartWatcher(Action<BluetoothConnection> connectedAction = null)
         {
             StopWatcher();
             if (s_connectionsToMonitor.Count > 0)
@@ -74,21 +74,28 @@ namespace Nuki.Communication.Connection
                      {
                          Debug.WriteLine($"{keyValue.Key} = {keyValue.Value}");
                      }
-                     BluetoothConnectionInfo connectionInfo;
+                     NukiConnectionBinding connectionInfo;
                      if (deviceInfo?.Pairing?.IsPaired == true &&
                             deviceInfo.Properties["System.Devices.Aep.IsPaired"] as bool? == true)
                      {
                          if (s_connectionInfoMap.TryGetValue(deviceInfo.Name, out connectionInfo))
                          {
-                             if (await BluetoothConnection.Connections[deviceInfo.Name].Connect(deviceInfo.Id, connectionInfo))
+                             var connection = BluetoothConnection.Connections[deviceInfo.Name];
+                             if (await connection.Connect(deviceInfo.Id, connectionInfo))
                              {
                                  Debug.WriteLine("Connected to: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
                              }
                              else { }
+
+                             if (connection.Connected)
+                                 connectedAction?.Invoke(connection);
                          }
                          else { }
                      }
-                     else { }
+                     else
+                     {
+                         Debug.Write("Device is not paired...");
+                     }
                  };
                 OnBLEUpdated = (watcher, deviceInfoUpdate) =>
                 {
@@ -109,7 +116,8 @@ namespace Nuki.Communication.Connection
                 //System.Devices.Aep.IsPaired
                 string aqs = "((" + string.Join(") OR (", s_connectionInfoMap.Keys.Select(k => $"System.ItemNameDisplay:=\"{k}\"").ToArray()) + "))";
                 string strService = GattDeviceService.GetDeviceSelectorFromUuid(BluetoothConnection.KeyTurnerService.Value);
-
+                //for bluetooth LE Devices
+            
                 aqs = $"({strService}) AND {aqs}";
 
                 s_Watcher = DeviceInformation.CreateWatcher(aqs, requestedProperties);

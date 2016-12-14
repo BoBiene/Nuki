@@ -11,6 +11,7 @@ namespace Nuki.Communication.Connection
         NoCharateristic = 0,
         MissingCharateristic = 1,
         Successfull = 2,
+        PairingInProgress = 254,
         Failed = 255,
         Timeout = 3,
         PairingNotActive = 4,

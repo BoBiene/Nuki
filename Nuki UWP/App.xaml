@@ -1,173 +1,175 @@
-﻿<Application
-    x:Class="Nuki.App"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Nuki"
-    xmlns:presentation="using:Nuki.Presentation"
-    RequestedTheme="Dark">
-    
-    <Application.Resources>
-        <Style x:Key="SetupPage" TargetType="Page">
-            <Setter Property="Transitions">
-                <Setter.Value>
-                    <TransitionCollection>
-                        <NavigationThemeTransition>
-                            <NavigationThemeTransition.DefaultNavigationTransitionInfo>
-                                <ContinuumNavigationTransitionInfo/>
-                            </NavigationThemeTransition.DefaultNavigationTransitionInfo>
-                        </NavigationThemeTransition>
-                    </TransitionCollection>
-                </Setter.Value>
-            </Setter>
-        </Style>
+<common:BootStrapper x:Class="Nuki.App"
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:common="using:Template10.Common">
 
-        <Style x:Key="SetupPageStyle" TargetType="Grid">
-            <Setter Property="ChildrenTransitions">
-                <Setter.Value>
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles\Custom.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!--  custom resources go here  -->
+
+            <Style x:Key="SetupPage" TargetType="Page">
+                <Setter Property="Transitions">
+                    <Setter.Value>
+                        <TransitionCollection>
+                            <NavigationThemeTransition>
+                                <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                                    <ContinuumNavigationTransitionInfo/>
+                                </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                            </NavigationThemeTransition>
+                        </TransitionCollection>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="SetupPageStyle" TargetType="Grid">
+                <Setter Property="ChildrenTransitions">
+                    <Setter.Value>
                         <TransitionCollection>
                             <EntranceThemeTransition FromHorizontalOffset="480" />
                         </TransitionCollection>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Background" Value="Transparent" >
-                <!--     <Setter.Value>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Background" Value="Transparent" >
+                    <!--     <Setter.Value>
                     <ImageBrush ImageSource="/Assets/setup_bg.jpg" Stretch="UniformToFill" AlignmentY="Bottom" AlignmentX="Center" ></ImageBrush>
                 </Setter.Value> -->
-            </Setter>
-        </Style>
-        <Style x:Key="TitleText" TargetType="TextBlock" BasedOn="{StaticResource TitleTextBlockStyle}">
-            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
-            <Setter Property="FontWeight" Value="SemiBold"></Setter>
-        </Style>    
-        <Style x:Key="SetupPageTitle" TargetType="TextBlock" BasedOn="{StaticResource TitleText}">
-            <Setter Property="Margin" Value="30 80"></Setter>
-            <Setter Property="FontWeight" Value="Bold"></Setter>
-            <Setter Property="TextAlignment" Value="Center"></Setter>
-        </Style>
+                </Setter>
+            </Style>
+            <Style x:Key="TitleText" TargetType="TextBlock" BasedOn="{StaticResource TitleTextBlockStyle}">
+                <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+                <Setter Property="FontWeight" Value="SemiBold"></Setter>
+            </Style>
+            <Style x:Key="SetupPageTitle" TargetType="TextBlock" BasedOn="{StaticResource TitleText}">
+                <Setter Property="Margin" Value="30 80"></Setter>
+                <Setter Property="FontWeight" Value="Bold"></Setter>
+                <Setter Property="TextAlignment" Value="Center"></Setter>
+                <Setter Property="TextWrapping" Value="WrapWholeWords"></Setter>
+            </Style>
 
-        <Style x:Key="SetupPageButton" TargetType="Button">
-            <Setter Property="VerticalAlignment" Value="Bottom"></Setter>
-            <Setter Property="Background" Value="#292929"></Setter>
-            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
-            <Setter Property="Width" Value="250"></Setter>
-            <Setter Property="Height" Value="40"></Setter>
-        </Style>
-        <Style x:Key="SetupPageTextBox" TargetType="TextBox">
-            <Setter Property="HorizontalAlignment" Value="Center" ></Setter>
-            <Setter Property="TextWrapping" Value="Wrap"></Setter>
-            <Setter Property="VerticalAlignment" Value="Top"></Setter>
-            <Setter Property="Width" Value="250"></Setter>
-            <Setter Property="TextAlignment" Value="Center"></Setter>
-            <Setter Property="Background" Value="Transparent"></Setter>
-            <Setter Property="BorderThickness" Value="0,0,0,2"></Setter>
-            <Setter Property="BorderBrush" Value="#292929"></Setter>
-            <Setter Property="Foreground" Value="#292929"></Setter>
-        </Style>
-        <SolidColorBrush x:Key="NavButtonPressedBackgroundBrush" Color="White" Opacity="0.3" />
-        <SolidColorBrush x:Key="NavButtonCheckedBackgroundBrush" Color="White" Opacity="0.2" />
-        <SolidColorBrush x:Key="NavButtonHoverBackgroundBrush" Color="White" Opacity="0.1" />
-        <Style x:Key="IconSelector" TargetType="RadioButton">
-            <Setter Property="Background" Value="Transparent"/>
-            
-            <Setter Property="Width" Value="40" />
-            <Setter Property="Height" Value="40" />
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="RadioButton">
-                        <Border Width="40" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup x:Name="CommonStates">
-                                    <VisualState x:Name="Normal"/>
-                                    <VisualState x:Name="PointerOver">
-                                        <Storyboard>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="BackgroundGrid">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource NavButtonHoverBackgroundBrush}"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="Pressed">
-                                        <Storyboard>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="BackgroundGrid">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource NavButtonPressedBackgroundBrush}"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="Disabled" />
-                                </VisualStateGroup>
-                                <VisualStateGroup x:Name="CheckStates">
-                                    <VisualState x:Name="Checked">
-                                        <Storyboard>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="BackgroundGrid">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource NavButtonCheckedBackgroundBrush}"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="Unchecked"/>
-                                    <VisualState x:Name="Indeterminate"/>
-                                </VisualStateGroup>
-                                <VisualStateGroup x:Name="FocusStates">
-                                    <VisualState x:Name="Focused"/>
-                                    <VisualState x:Name="Unfocused"/>
-                                    <VisualState x:Name="PointerFocused"/>
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>
-                            
+            <Style x:Key="SetupPageButton" TargetType="Button">
+                <Setter Property="VerticalAlignment" Value="Bottom"></Setter>
+                <Setter Property="Background" Value="#292929"></Setter>
+                <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+                <Setter Property="Width" Value="250"></Setter>
+                <Setter Property="Height" Value="40"></Setter>
+            </Style>
+            <Style x:Key="SetupPageTextBox" TargetType="TextBox">
+                <Setter Property="HorizontalAlignment" Value="Center" ></Setter>
+                <Setter Property="TextWrapping" Value="Wrap"></Setter>
+                <Setter Property="VerticalAlignment" Value="Top"></Setter>
+                <Setter Property="Width" Value="250"></Setter>
+                <Setter Property="TextAlignment" Value="Center"></Setter>
+                <Setter Property="Background" Value="Transparent"></Setter>
+                <Setter Property="BorderThickness" Value="0,0,0,2"></Setter>
+                <Setter Property="BorderBrush" Value="#292929"></Setter>
+                <Setter Property="Foreground" Value="#292929"></Setter>
+            </Style>
+            <SolidColorBrush x:Key="NavButtonPressedBackgroundBrush" Color="White" Opacity="0.3" />
+            <SolidColorBrush x:Key="NavButtonCheckedBackgroundBrush" Color="White" Opacity="0.2" />
+            <SolidColorBrush x:Key="NavButtonHoverBackgroundBrush" Color="White" Opacity="0.1" />
+            <Style x:Key="IconSelector" TargetType="RadioButton">
+                <Setter Property="Background" Value="Transparent"/>
+
+                <Setter Property="Width" Value="40" />
+                <Setter Property="Height" Value="40" />
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RadioButton">
+                            <Border Width="40" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal"/>
+                                        <VisualState x:Name="PointerOver">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="BackgroundGrid">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource NavButtonHoverBackgroundBrush}"/>
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="Pressed">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="BackgroundGrid">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource NavButtonPressedBackgroundBrush}"/>
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="Disabled" />
+                                    </VisualStateGroup>
+                                    <VisualStateGroup x:Name="CheckStates">
+                                        <VisualState x:Name="Checked">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="BackgroundGrid">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource NavButtonCheckedBackgroundBrush}"/>
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="Unchecked"/>
+                                        <VisualState x:Name="Indeterminate"/>
+                                    </VisualStateGroup>
+                                    <VisualStateGroup x:Name="FocusStates">
+                                        <VisualState x:Name="Focused"/>
+                                        <VisualState x:Name="Unfocused"/>
+                                        <VisualState x:Name="PointerFocused"/>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+
                                 <TextBlock FontSize="34" Height="38" Text="{TemplateBinding Tag}" FontFamily="Segoe MDL2 Assets" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="AppTitleTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
-            <Setter Property="Margin" Value="12,6,0,6" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
 
-        <Style x:Key="TitleTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource TitleTextBlockStyle}">
-            <Setter Property="Margin" Value="0,1,0,18" />
-        </Style>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="AppTitleTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
+                <Setter Property="Margin" Value="12,6,0,6" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
 
-        <Style x:Key="ParagraphTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
-            <Setter Property="Margin" Value="0,1,0,34" />
-            <Setter Property="TextWrapping" Value="Wrap" />
-            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-        </Style>
+            <Style x:Key="TitleTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource TitleTextBlockStyle}">
+                <Setter Property="Margin" Value="0,1,0,18" />
+            </Style>
+
+            <Style x:Key="ParagraphTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
+                <Setter Property="Margin" Value="0,1,0,34" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            </Style>
+
+            <Style x:Key="ParagraphLicenseTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource ParagraphTextBlockStyle}">
+                <Setter Property="FontSize" Value="11" />
+            </Style>
 
 
-        <Style x:Key="ParagraphLicenseTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource ParagraphTextBlockStyle}">
-            <Setter Property="FontSize" Value="11" />
-        </Style>
-        
+            <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource TextBlockButtonStyle}">
+                <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+                <Setter Property="FontSize" Value="24" />
+                <Setter Property="Width" Value="48" />
+                <Setter Property="Height" Value="48" />
+            </Style>
 
-        <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource TextBlockButtonStyle}">
-            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
-            <Setter Property="FontSize" Value="24" />
-            <Setter Property="Width" Value="48" />
-            <Setter Property="Height" Value="48" />
-        </Style>
+            <Style x:Key="IconTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+                <Setter Property="FontSize" Value="24" />
+                <Setter Property="Width" Value="48" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="TextAlignment" Value="Center" />
+            </Style>
 
-        <Style x:Key="IconTextBlockStyle" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
-            <Setter Property="FontSize" Value="24" />
-            <Setter Property="Width" Value="48" />
-            <Setter Property="HorizontalAlignment" Value="Center" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="TextAlignment" Value="Center" />
-        </Style>
+            <Style x:Key="MenuTitleTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
+        </ResourceDictionary>
 
-        <Style x:Key="MenuTitleTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
-            <Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
 
-        <Style x:Key="PageScrollViewerStyle" TargetType="ScrollViewer">
-            <Setter Property="Padding" Value="24,20,24,24" />
-        </Style>
-
-        <presentation:ObjectToMenuItemConverter x:Key="ObjectToMenuItemConverter"/>
     </Application.Resources>
-</Application>
+
+</common:BootStrapper>

@@ -10,7 +10,7 @@ namespace Nuki.Communication.SemanticTypes
 {
     public abstract class SemanticByteArray : SemanticTypeBase<byte[]>, IEquatable<SemanticTypeBase<byte[]>>, IComparable<SemanticTypeBase<byte[]>>
     {
-        public SemanticByteArray(byte[] value, int nByteArrayLength) : base((b) => b?.Length == nByteArrayLength, value)
+        public SemanticByteArray(byte[] value, int nByteArrayLength) : base((b) => b?.Length == nByteArrayLength || b == null, value)
         {
         }
 
