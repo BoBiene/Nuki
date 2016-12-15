@@ -71,7 +71,6 @@ namespace Nuki.Views
         //CanvasBitmap m_BackgroundImageInitialAlpha = null;
         BlendEffect m_BluredBackground = null;
         BlendEffect m_BlendedBackground = null;
-        BlendEffect m_ExtremeBlendedBackground = null;
 
         private float m_nFadein = 0f;
         private ImageLoadStatus m_ImageStatus = ImageLoadStatus.Initial;
@@ -164,7 +163,7 @@ namespace Nuki.Views
                 if (m_ImageStatus == ImageLoadStatus.Initial)
                 {
                     m_ImageStatus = ImageLoadStatus.LoadRequested;
-                    CreateResourcesAsync(sender);
+                    var asynHandle = CreateResourcesAsync(sender);
                 }
                 else { }
                 drawRect = GetDrawRect(sender, m_BackgroundImageInitial);
