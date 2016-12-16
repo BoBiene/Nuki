@@ -24,6 +24,9 @@
     <AppxPackageDir>C:\Users\bo_bi\Source\Repos\Nuki\AppPackages\</AppxPackageDir>
     <AppxBundle>Always</AppxBundle>
   </PropertyGroup>
+  <PropertyGroup  Condition="'$(Configuration)' == 'Debug'">
+    <PackageCertificateKeyFile>Nuki_TemporaryKey.pfx</PackageCertificateKeyFile>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\build\ARM\debug\</OutputPath>
@@ -33,6 +36,7 @@
     <PlatformTarget>ARM</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
+    
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>false</UseDotNetNativeToolchain>
   </PropertyGroup>
@@ -100,8 +104,10 @@
       <Link>README.md</Link>
     </None>
     <None Include="Nuki.snk" />
-    <None Include="Nuki_StoreKey.pfx" />
+    <None Condition="'$(Configuration)' == 'Release'"  Include="Nuki_StoreKey.encrypted" />
+    <None Condition="'$(Configuration)' == 'Release'" Include="Nuki_StoreKey.pfx" />
     <None Include="Nuki_TemporaryKey.pfx" />
+    <None Condition="'$(Configuration)' == 'Release'"  Include="Package.StoreAssociation.encrypted" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -116,6 +122,7 @@
     <Compile Include="ViewModels\NukiLockSettingsPartViewModel.cs" />
     <Compile Include="ViewModels\NukiLockHomePartViewModel.cs" />
     <Compile Include="ViewModels\NukiLockViewModel.cs" />
+    <Compile Include="ViewModels\NukiLockViewModelPassword.cs" />
     <Compile Include="Views\NukiLock.xaml.cs">
       <DependentUpon>NukiLock.xaml</DependentUpon>
     </Compile>
@@ -194,7 +201,7 @@
     <Content Include="Assets\StoreLogo.scale-150.png" />
     <Content Include="Assets\StoreLogo.scale-200.png" />
     <Content Include="Assets\StoreLogo.scale-400.png" />
-    <None Include="Package.StoreAssociation.xml" />
+    <None Condition="'$(Configuration)' == 'Release'" Include="Package.StoreAssociation.xml" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\SplashScreen.scale-200.png" />

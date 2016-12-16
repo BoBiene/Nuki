@@ -109,9 +109,7 @@ namespace Nuki.Communication.Connection
         public async Task<RecieveNukiStatesCommand> RequestNukiState()
         {
             RecieveNukiStatesCommand retCmd = null;
-            //if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))
-            //{
-            //    RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
+        
 
                 if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.NukiStates)))
                 {
@@ -122,20 +120,36 @@ namespace Nuki.Communication.Connection
                 else
                 {
                 }
-            //}
-            //else
-            //{
-            //}
+          
 
             return retCmd;
         }
-        public Task<RecieveBaseCommand> SendCalibrateRequest()
+        public async Task<RecieveStatusCommand> SendCalibrateRequest(UInt16 securityPin)
         {
-            throw new NotImplementedException();
+            RecieveStatusCommand retCmd = null;
+            if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))
+            {
+                RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
+
+                if (await m_UGDIO.Send(new SendRequestCalibrationCommand(this,securityPin)))
+                {
+                    Debug.WriteLine("SendRequestCalibrationCommand command...");
+                     cmd = await m_UGDIO.Recieve(5000);
+                    retCmd = cmd as RecieveStatusCommand;
+                }
+                else
+                {
+                }
+            }
+            else
+            {
+            }
+
+            return retCmd;
         }
-        public async Task<RecieveBaseCommand> SendLockAction(NukiLockAction lockAction, NukiLockActionFlags flags =  NukiLockActionFlags.None)
+        public async Task<RecieveStatusCommand> SendLockAction(NukiLockAction lockAction, NukiLockActionFlags flags =  NukiLockActionFlags.None)
         {
-            RecieveBaseCommand retCmd = null;
+            RecieveStatusCommand retCmd = null;
             if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))
             {
                 RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
@@ -143,7 +157,7 @@ namespace Nuki.Communication.Connection
                 if (await m_UGDIO.Send(new SendLockActionCommand(lockAction, flags, this)))
                 {
                     Debug.WriteLine("Send SendLockAction command...");
-                    retCmd = await m_UGDIO.Recieve(5000);
+                    retCmd = await m_UGDIO.Recieve(5000) as RecieveStatusCommand;
                 }
                 else
                 {

@@ -12,7 +12,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace Nuki.ViewModels
 {
-    public class NukiLockViewModel : ViewModelBase
+    public partial class NukiLockViewModel : ViewModelBase
     {
         private NukiConnectionBinding m_NukiConnectionBinding = null;
         private Visibility m_ProgressbarVisibility = Visibility.Collapsed;
@@ -22,11 +22,13 @@ namespace Nuki.ViewModels
         public NukiLockSettingsPartViewModel SettingsViewModel { get; private set; }
         public NukiLockStatusPartViewModel StatusViewModel { get; private set; }
 
+
         public string SelectedLock
         {
             get { return NukiConncection?.ConnectionName ?? string.Empty; }
 
         }
+
 
         public Visibility ProgressbarVisibility => m_ProgressbarVisibility;
 

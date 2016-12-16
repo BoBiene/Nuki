@@ -149,6 +149,7 @@
     <Compile Include="Commands\Request\SendBaseCommandWithContext.cs" />
     <Compile Include="Commands\Request\SendLockActionCommand.cs" />
     <Compile Include="Commands\Request\SendPublicKeyComand.cs" />
+    <Compile Include="Commands\Request\SendRequestCalibrationCommand.cs" />
     <Compile Include="Commands\Request\SendRequestDataCommand.cs" />
     <Compile Include="Commands\Request\SendRequestConfigCommand.cs" />
     <Compile Include="Commands\ResponseCommandParser.cs" />

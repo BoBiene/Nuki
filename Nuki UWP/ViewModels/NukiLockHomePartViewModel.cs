@@ -53,8 +53,12 @@ namespace Nuki.ViewModels
         public DelegateCommand SendCalibrateCommand
             => m_SendCalibrateCommand ?? (m_SendCalibrateCommand = new DelegateCommand(async () =>
             {
-
-                await BaseModel.BluetoothConnection.SendCalibrateRequest();
+                var userPassword = await BaseModel.RequestPassword();
+                if (userPassword.Successfull)
+                {
+                    await BaseModel.BluetoothConnection.SendCalibrateRequest(userPassword.SecurityPIN);
+                }
+                else { }
 
             }, () => BaseModel.BluetoothConnection?.Connected == true));
 

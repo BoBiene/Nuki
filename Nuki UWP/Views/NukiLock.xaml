@@ -19,7 +19,11 @@
         <Converter:SubstractConverter Value="10" x:Name="RadiusToInnerRadius" />
         <Converter:SubstractConverter Value="40" x:Name="ContainerMargin" />
     </Page.Resources>
-    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <controls:ModalDialog IsModal="{x:Bind ViewModel.IsPasswordDialogVisible, Mode=OneWay}">
+        <controls:ModalDialog.Content>
+            
+
+                <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
@@ -125,6 +129,42 @@
             </PivotItem>
         </Pivot>
     </RelativePanel>
+        </controls:ModalDialog.Content>
+        <controls:ModalDialog.ModalContent>
+            <Viewbox MaxHeight="200">
+                <RelativePanel>
+                    <PasswordBox 
+                        Margin="10,0,10,0"
+                        RelativePanel.AlignLeftWithPanel="True"
+                        RelativePanel.AlignRightWithPanel="True"
+                        RelativePanel.AlignTopWithPanel="True"
+                        Header="PIN" 
+                                 x:Name="PasswordBox" 
+                                 Password="{x:Bind ViewModel.UserInputPassword, Mode=TwoWay}">
+                        <PasswordBox.InputScope>
+                            <InputScope>
+                                <InputScope.Names>
+                                    <InputScopeName NameValue="NumericPin"/>
+                                </InputScope.Names>
+                            </InputScope>
+                        </PasswordBox.InputScope>
+                    </PasswordBox>
+                    <Button 
+                        Width="100"
+                        Margin="10"
+                        Command="{x:Bind ViewModel.PasswordOkAction }"
+                        RelativePanel.Below="PasswordBox" 
+                        x:Name="PasswordBoxOK" >Ok</Button>
+                    <Button  x:Name="PasswordBoxCancel"
+                            Width="100"
+                             Margin="10"
+                             Command="{x:Bind ViewModel.PasswordCancelAction }"
+                            RelativePanel.Below="PasswordBox" 
+                            RelativePanel.RightOf="PasswordBoxOK">Cancel</Button>
+                </RelativePanel>
+            </Viewbox>
+        </controls:ModalDialog.ModalContent>
+    </controls:ModalDialog>
     <!--<Grid Background="{StaticResource ExtendedSplashBackground}" x:Name="Grid">
         --><!--<Path Width="200" Height="200" Stroke="Black" StrokeThickness="3" Stretch="Uniform">
             <Path.Data>

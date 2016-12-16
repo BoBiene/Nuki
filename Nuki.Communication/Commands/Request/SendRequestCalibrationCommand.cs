@@ -8,18 +8,20 @@ using System.Threading.Tasks;
 
 namespace Nuki.Communication.Commands.Request
 {
-    public class SendRequestConfigCommand : SendBaseCommandWithContext
+    public class SendRequestCalibrationCommand : SendBaseCommandWithContext
     {
         public SmartLockNonce ChallengeNonce { get { return GetData<SmartLockNonce>(nameof(ChallengeNonce)); } }
+        public UInt16 SecurityPIN {  get { return GetData<UInt16>(nameof(SecurityPIN)); } }
 
         /// <summary>
         /// Public Key (0x0003) 
         /// </summary>
         /// <param name="byPublicKey">The public key of the sender. </param>
-        public SendRequestConfigCommand(IConnectionContext context)
-            : base(CommandTypes.RequestConfig,context, 1)
+        public SendRequestCalibrationCommand(IConnectionContext context, UInt16 securityPin)
+            : base(CommandTypes.RequestCalibration,context, 2)
         {
             AddField(nameof(ChallengeNonce), context.SmartLockNonce);
+            AddField(nameof(SecurityPIN), securityPin);
         }
 
     }
