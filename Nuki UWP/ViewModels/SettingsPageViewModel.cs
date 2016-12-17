@@ -55,10 +55,10 @@ namespace Nuki.ViewModels
             }
         }
 
-        public bool UseShellBackButton
+        public bool EnableLoggingToggleSwitch
         {
-            get { return _settings.UseShellBackButton; }
-            set { _settings.UseShellBackButton = value; base.RaisePropertyChanged(); }
+            get { return _settings.EnableLogging; }
+            set { _settings.EnableLogging = value; base.RaisePropertyChanged(); }
         }
 
         public bool UseLightThemeButton

@@ -26,6 +26,9 @@ namespace Nuki
         {
             HockeyClient.Current.Configure("bc0c6685cf164f4881b205148b4b9d2e");
             LogManagerFactory.DefaultConfiguration.AddTarget(LogLevel.Info, LogLevel.Fatal, new StreamingFileTarget());
+            SQLiteTarget sqLiteTarget = new SQLiteTarget();
+            sqLiteTarget.RetainDays = 2;
+            LogManagerFactory.DefaultConfiguration.AddTarget(LogLevel.Info, LogLevel.Fatal, sqLiteTarget);
             InitializeComponent();
             SplashFactory = (e) => new Views.Splash(e);
 
