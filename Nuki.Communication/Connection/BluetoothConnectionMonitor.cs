@@ -81,14 +81,26 @@ namespace Nuki.Communication.Connection
                          if (s_connectionInfoMap.TryGetValue(deviceInfo.Name, out connectionInfo))
                          {
                              var connection = BluetoothConnection.Connections[deviceInfo.Name];
-                             if (await connection.Connect(deviceInfo.Id, connectionInfo))
+                             var result = await connection.Connect(deviceInfo.Id, connectionInfo);
+
+
+
+                             if (result == BluetoothConnection.ConnectResult.NeedRepair)
                              {
-                                 Debug.WriteLine("Connected to: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
+                                 if (await TryToRepairDevice(deviceInfo))
+                                 {
+                                     result = await connection.Connect(deviceInfo.Id, connectionInfo);
+                                 }
+                                 else { }
                              }
                              else { }
 
-                             if (connection.Connected)
+                             if (result >= BluetoothConnection.ConnectResult.Successfull)
+                             {
+                                 Debug.WriteLine("Connected to: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
                                  connectedAction?.Invoke(connection);
+                             }
+                             else { }
                          }
                          else { }
                      }
@@ -130,6 +142,99 @@ namespace Nuki.Communication.Connection
             {
                 //No Connections...
             }
+        }
+
+        private static async Task<bool> TryToRepairDevice(DeviceInformation deviceInfoToRepair)
+        {
+            bool blnRet = false;
+            DeviceWatcher deviceWatcher = null;
+            try
+            {
+                // Request the IsPaired property so we can display the paired status in the UI
+                string[] requestedProperties = { "System.Devices.Aep.IsPaired" };
+
+                //for bluetooth LE Devices
+                string aqsFilter = "System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\"";
+
+                TaskCompletionSource<bool> awaitAbleResult = new TaskCompletionSource<bool>();
+
+                deviceWatcher = DeviceInformation.CreateWatcher(
+                    aqsFilter,
+                    requestedProperties,
+                    DeviceInformationKind.AssociationEndpoint
+                    );
+
+                deviceWatcher.Added += async (watcher, deviceInfo) =>
+                {
+                    if (deviceInfo.Name == deviceInfoToRepair.Name)
+                    {
+                        awaitAbleResult.SetResult(await TryToPairDevice(deviceInfo));
+                    }
+                    else
+                    {
+
+                    }
+                };
+                deviceWatcher.Start();
+
+                var completedTask = await Task.WhenAny(awaitAbleResult.Task, Task.Delay(30000));
+
+                if (completedTask == awaitAbleResult.Task)
+                    blnRet = awaitAbleResult.Task.Result;
+            }
+            finally
+            {
+                try
+                {
+                    deviceWatcher?.Stop();
+                }
+                catch { }
+            }
+            return blnRet;
+        }
+
+        private static async Task<bool> TryToPairDevice(DeviceInformation deviceInfo)
+        {
+
+            bool paired = false;
+            if (deviceInfo != null)
+            {
+                if (deviceInfo.Pairing.IsPaired != true)
+                {
+                    paired = false;
+
+                    DevicePairingKinds ceremoniesSelected = DevicePairingKinds.ConfirmOnly;
+                    DevicePairingProtectionLevel protectionLevel = DevicePairingProtectionLevel.Default;
+
+                    // Specify custom pairing with all ceremony types and protection level EncryptionAndAuthentication
+                    DeviceInformationCustomPairing customPairing = deviceInfo.Pairing.Custom;
+
+                    customPairing.PairingRequested += (sender, args) =>
+                    {
+                        switch (args.PairingKind)
+                        {
+                            case DevicePairingKinds.ConfirmOnly:
+                                args.Accept();
+                                break;
+                        }
+                    };
+                    DevicePairingResult result = await customPairing.PairAsync(ceremoniesSelected, protectionLevel);
+
+                    if (result.Status == DevicePairingResultStatus.Paired)
+                    {
+                        paired = true;
+                    }
+                    else
+                    {
+                    }
+                }
+                else
+                {
+                    paired = true;
+                }
+            }
+            else { } //Null device
+            return paired;
         }
     }
 }

@@ -32,93 +32,92 @@
         </Style>
 
     </UserControl.Resources>
+    <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
+                <VisualState x:Name="VisualStateNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for narrow view  -->
+                        <Setter Target="MyRingSlice.Radius" Value="100" />
+                        <Setter Target="MyRingSlice.Height" Value="200" />
+                        <Setter Target="MyRingSlice.InnerRadius" Value="90" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateNormal">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for normal view  -->
+                        <Setter Target="MyRingSlice.Radius" Value="150" />
+                        <Setter Target="MyRingSlice.Height" Value="300" />
+                        <Setter Target="MyRingSlice.InnerRadius" Value="135" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for wide view  -->
+                        <Setter Target="MyRingSlice.Radius" Value="200" />
+                        <Setter Target="MyRingSlice.InnerRadius" Value="180" />
+                        <Setter Target="MyRingSlice.Height" Value="400" />
 
-
-    <VisualStateManager.VisualStateGroups>
-        <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
-            <VisualState x:Name="VisualStateNarrow">
-                <VisualState.StateTriggers>
-                    <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
-                </VisualState.StateTriggers>
-                <VisualState.Setters>
-                    <!--  TODO: change properties for narrow view  -->
-                    <Setter Target="MyRingSlice.Radius" Value="100" />
-                    <Setter Target="MyRingSlice.Height" Value="200" />
-                    <Setter Target="MyRingSlice.InnerRadius" Value="90" />
-                </VisualState.Setters>
-            </VisualState>
-            <VisualState x:Name="VisualStateNormal">
-                <VisualState.StateTriggers>
-                    <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
-                </VisualState.StateTriggers>
-                <VisualState.Setters>
-                    <!--  TODO: change properties for normal view  -->
-                    <Setter Target="MyRingSlice.Radius" Value="150" />
-                    <Setter Target="MyRingSlice.Height" Value="300" />
-                    <Setter Target="MyRingSlice.InnerRadius" Value="135" />
-                </VisualState.Setters>
-            </VisualState>
-            <VisualState x:Name="VisualStateWide">
-                <VisualState.StateTriggers>
-                    <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
-                </VisualState.StateTriggers>
-                <VisualState.Setters>
-                    <!--  TODO: change properties for wide view  -->
-                    <Setter Target="MyRingSlice.Radius" Value="200" />
-                    <Setter Target="MyRingSlice.InnerRadius" Value="180" />
-                    <Setter Target="MyRingSlice.Height" Value="400" />
-
-                </VisualState.Setters>
-            </VisualState>
-        </VisualStateGroup>
-    </VisualStateManager.VisualStateGroups>
-    <RelativePanel  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <RelativePanel x:Name="RingContainer" VerticalAlignment="Center"
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        <RelativePanel  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <RelativePanel x:Name="RingContainer" VerticalAlignment="Center"
             RelativePanel.AlignBottomWithPanel="True"
                 RelativePanel.AlignLeftWithPanel="True"
                 RelativePanel.AlignRightWithPanel="True"
                        RelativePanel.AlignTopWithPanel="True">
-            <Grid x:Name="GridOverRing"
+                <Grid x:Name="GridOverRing"
                      RelativePanel.Above="GridRing"
                 RelativePanel.AlignBottomWithPanel="True"
                 RelativePanel.AlignTopWithPanel="True"
                 RelativePanel.AlignRightWithPanel="True"
                 RelativePanel.AlignLeftWithPanel="True">
-                <TextBlock
+                    <TextBlock
                 TextAlignment="Center"
                 VerticalAlignment="Center"
-            Text="{x:Bind ViewModel.LockRingState}">
+            Text="{x:Bind ViewModel.LockRingState, Mode=OneWay}">
 
-                </TextBlock>
-            </Grid>
-            <Grid x:Name="GridRing" 
+                    </TextBlock>
+                </Grid>
+                <Grid x:Name="GridRing" 
                 VerticalAlignment="Center"  
                 RelativePanel.AlignBottomWithPanel="True"
                 RelativePanel.AlignTopWithPanel="True"
                 RelativePanel.AlignRightWithPanel="True"
                 RelativePanel.AlignLeftWithPanel="True">
-                <controls:RingSegment x:Name="MyRingSlice" 
+                    <controls:RingSegment x:Name="MyRingSlice" 
                                       HorizontalAlignment="Center"
                         VerticalAlignment="Center" StartAngle="50" EndAngle="310"
                                Fill="{StaticResource ApplicationForegroundThemeBrush}"
                                Radius="100"
                                InnerRadius="90">
-                </controls:RingSegment>
+                    </controls:RingSegment>
 
-            </Grid>
+                </Grid>
 
-        </RelativePanel>
-        <Grid
+            </RelativePanel>
+            <Grid
             RelativePanel.AlignBottomWithPanel="True"
                 RelativePanel.AlignLeftWithPanel="True"
                 RelativePanel.AlignRightWithPanel="True"
                 RelativePanel.Above="RingContainer"
                 Visibility="{x:Bind ViewModel.IsFlyoutOpen,Mode=TwoWay}">
-            <RelativePanel 
+                <RelativePanel 
                 MaxWidth="400"
                 Background="{ThemeResource CustomColorBrush}">
 
-                <!--<TextBox x:Name="LockStateText"
+                    <!--<TextBox x:Name="LockStateText"
                         Header="Status"
                         IsEnabled="False"
                         Text="{x:Bind ViewModel.LockState, Mode=OneWay}" />
@@ -127,7 +126,7 @@
                         IsEnabled="False"
                         RelativePanel.Below="LockStateText"
                         Text="{x:Bind ViewModel.NukiState, Mode=OneWay}" />-->
-                <Button 
+                    <Button 
                         x:Name="LockButton" 
                         Content="Lock"
                 Style="{StaticResource CommandButton}"
@@ -135,14 +134,14 @@
                         RelativePanel.AlignHorizontalCenterWithPanel="True"
                         Command="{x:Bind ViewModel.SendLockCommand }"
                         />
-                <Button 
+                    <Button 
                         x:Name="UnkockButton" 
                         Content="Unlock"
                 Style="{StaticResource CommandButton}"
                         Command="{x:Bind ViewModel.SendUnlockCommand }"
                         RelativePanel.Below="LockButton"
                         />
-                <Button 
+                    <Button 
                         x:Name="CalibrateButton" 
                         Content="Calibrate"
                        Margin="10,10,10,10"
@@ -150,18 +149,19 @@
                         Command="{x:Bind ViewModel.SendCalibrateCommand }"
                         RelativePanel.Below="UnkockButton"
                         />
-            </RelativePanel>
-            <Grid.Transitions>
-                <TransitionCollection>
-                    <PopupThemeTransition></PopupThemeTransition>
-                </TransitionCollection>
-            </Grid.Transitions>
-        </Grid>
-        <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Tapped">
-                <core:InvokeCommandAction Command="{x:Bind  ViewModel.ToggleFlyoutCommand }" />
-            </core:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
-        
-    </RelativePanel>
+                </RelativePanel>
+                <Grid.Transitions>
+                    <TransitionCollection>
+                        <PopupThemeTransition></PopupThemeTransition>
+                    </TransitionCollection>
+                </Grid.Transitions>
+            </Grid>
+            <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="Tapped">
+                    <core:InvokeCommandAction Command="{x:Bind  ViewModel.ToggleFlyoutCommand }" />
+                </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+
+        </RelativePanel>
+    </Grid>
 </UserControl>

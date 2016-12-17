@@ -103,7 +103,7 @@ namespace Nuki.Communication.Connection
         {
             if (connectionInfo == null)
                 throw new ArgumentNullException(nameof(connectionInfo));
-            return Connect(connectionInfo.DeviceName, connectionInfo);
+            return Connect(connectionInfo.DeviceName);
         }
 
         public async Task<RecieveNukiStatesCommand> RequestNukiState()
@@ -169,11 +169,22 @@ namespace Nuki.Communication.Connection
 
             return retCmd;
         }
-
-        public async Task<bool> Connect(string strDeviceID, NukiConnectionBinding connectionInfo = null)
+        public enum ConnectResult
         {
-            bool blnRet = false;
-         
+            NeedRepair = -1,
+            Failed = 0,
+            Successfull = 1,
+            Connected = 2,
+        }
+        public async Task<bool> Connect(string strDeviceID)
+        {
+            return await Connect(strDeviceID, null) >= ConnectResult.Successfull;
+        }
+        public async Task<ConnectResult> Connect(string strDeviceID, NukiConnectionBinding connectionInfo)
+        {
+            ConnectResult result = ConnectResult.Failed;
+
+
 
             try
             {
@@ -193,11 +204,12 @@ namespace Nuki.Communication.Connection
                         //else 
                         if (character.Uuid == KeyTurnerPairingGDIO.Value)
                         {
+                            result = ConnectResult.Successfull;
                             m_pairingGDIO.SetConnection(character);
                         }
                         else if (character.Uuid == KeyTurnerUGDIO.Value)
                         {
-
+                            result = ConnectResult.Successfull;
                             m_UGDIO.SetConnection(character);
                         }
                     }
@@ -210,18 +222,20 @@ namespace Nuki.Communication.Connection
                 {
                     Debug.WriteLine($"Unable to get GattDeviceService.FromIdAsync(\"{strDeviceID}\");");
                 }
-                blnRet = m_bleDevice?.ConnectionStatus == BluetoothConnectionStatus.Connected;
+
+                if (m_bleDevice?.ConnectionStatus == BluetoothConnectionStatus.Connected)
+                    result = ConnectResult.Connected;
             }
             catch(Exception ex)
             {
                 Debug.WriteLine("Connect failed: {0}",ex);
                 if(ex is InvalidOperationException && (uint)ex.HResult == 0x8000000E )
                 {
-                   //TODO Notify about needed re-Pair
+                    result = ConnectResult.NeedRepair;
                 }
                 else { }
             }
-            return blnRet;
+            return result;
         }
 
     
