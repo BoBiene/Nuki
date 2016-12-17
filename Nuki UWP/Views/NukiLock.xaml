@@ -21,41 +21,10 @@
 
 
             <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-                <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
-                        <VisualState x:Name="VisualStateNarrow">
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <!--  TODO: change properties for narrow view  -->
-                            </VisualState.Setters>
-                        </VisualState>
-                        <VisualState x:Name="VisualStateNormal">
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <!--  TODO: change properties for normal view  -->
-                            </VisualState.Setters>
-                        </VisualState>
-                        <VisualState x:Name="VisualStateWide">
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <!--  TODO: change properties for wide view  -->
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-                </VisualStateManager.VisualStateGroups>
-
                 <!--  header  -->
                 <controls:PageHeader x:Name="pageHeader"
                              Content="{x:Bind ViewModel.SelectedLock,Mode=OneWay}"
-                             Frame="{x:Bind Frame}"
-                             
+                             Frame="{x:Bind Frame}"   
                              RelativePanel.AlignLeftWithPanel="True"
                              RelativePanel.AlignRightWithPanel="True"
                              RelativePanel.AlignTopWithPanel="True" />

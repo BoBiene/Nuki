@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Template10.Mvvm;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
 
 namespace Nuki.ViewModels
@@ -20,9 +21,9 @@ namespace Nuki.ViewModels
         private NukiState m_NukiState = NukiState.Uninitialized;
         private bool m_blnCriticalBattery = false;
         private string m_strLockRingState = string.Empty;
-        private bool m_blnIsFlyoutOpen = false;
+        private Visibility m_IsFlyoutOpen = Visibility.Collapsed;
 
-        public bool IsFlyoutOpen { get { return m_blnIsFlyoutOpen; } set { Set(ref m_blnIsFlyoutOpen, value); } }
+        public Visibility IsFlyoutOpen { get { return m_IsFlyoutOpen; } set { Set(ref m_IsFlyoutOpen, value); } }
         public string LockRingState { get { return m_strLockRingState; } set { Set(ref m_strLockRingState, value); } }
         public bool CriticalBattery {  get { return m_blnCriticalBattery;  } set { Set(ref m_blnCriticalBattery, value); } }
         public NukiLockState LockState { get { return m_LockState; } set { Set(ref m_LockState, value); } }
@@ -42,23 +43,26 @@ namespace Nuki.ViewModels
         public DelegateCommand OpenFlyoutCommand
             => m_OpenFlyoutCommand ?? (m_OpenFlyoutCommand = new DelegateCommand(() =>
             {
-                IsFlyoutOpen = true;
+                IsFlyoutOpen = Visibility.Visible;
 
-            }, () => !IsFlyoutOpen));
+            }, () => IsFlyoutOpen == Visibility.Collapsed));
 
         public DelegateCommand m_CloseFlyoutCommand = null;
         public DelegateCommand CloseFlyoutCommand
             => m_CloseFlyoutCommand ?? (m_CloseFlyoutCommand = new DelegateCommand(() =>
             {
-                IsFlyoutOpen = false;
+                IsFlyoutOpen = Visibility.Collapsed;
 
-            }, () => IsFlyoutOpen));
+            }, () => IsFlyoutOpen == Visibility.Visible));
 
         public DelegateCommand m_ToggleFlyoutCommand = null;
         public DelegateCommand ToggleFlyoutCommand
             => m_ToggleFlyoutCommand ?? (m_ToggleFlyoutCommand = new DelegateCommand(() =>
             {
-                IsFlyoutOpen = !IsFlyoutOpen;
+                if (IsFlyoutOpen == Visibility.Visible)
+                    IsFlyoutOpen = Visibility.Collapsed;
+                else
+                    IsFlyoutOpen = Visibility.Visible;
 
             }, () =>true));
 
@@ -136,7 +140,7 @@ namespace Nuki.ViewModels
             SendCalibrateCommand.RaiseCanExecuteChanged();
             SendLockCommand.RaiseCanExecuteChanged();
             SendUnlockCommand.RaiseCanExecuteChanged();
-            BaseModel.ShowProgressbar(true);
+            BaseModel.ShowProgressbar(false);
         }
     }
 }
