@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 using Nuki.Communication.Commands.Response;
 using System.Diagnostics;
 using Windows.Storage.Streams;
+using MetroLog;
 
 namespace Nuki.Communication.Commands
 {
     public static class ResponseCommandParser
     {
-
+        private static ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger(nameof(ResponseCommandParser));
         public static RecieveBaseCommand Parse(IDataReader reader)
         {
             RecieveBaseCommand cmd = null;
@@ -40,7 +41,7 @@ namespace Nuki.Communication.Commands
                     cmd = new RecieveConfigCommand();
                     break;
                 default:
-                    Debug.WriteLine($"Command {cmdType} is not handelt!");
+                    Log.Error($"Command {cmdType} is not handelt!");
                     break;
             }
 

@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.Commands;
+﻿using MetroLog;
+using Nuki.Communication.Commands;
 using Nuki.Communication.Commands.Request;
 using Nuki.Communication.Commands.Response;
 using System;
@@ -15,6 +16,7 @@ namespace Nuki.Communication.Connection
 {
     internal abstract class BluetoothGattCharacteristicConnection
     {
+        protected ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger<BluetoothGattCharacteristicConnection>();
         private object syncroot = new object();
         private GattCharacteristic m_GattCharacteristic = null;
         private TaskCompletionSource<RecieveBaseCommand> m_responseWaitHandle = null;
@@ -28,7 +30,7 @@ namespace Nuki.Communication.Connection
 
         internal void SetConnection(GattCharacteristic characteristic)
         {
-            Debug.WriteLine("SetConnection");
+            Log.Debug("SetConnection");
             if (m_GattCharacteristic != null)
                 m_GattCharacteristic.ValueChanged -= M_GattCharacteristic_ValueChanged;
             m_GattCharacteristic = characteristic;
@@ -45,7 +47,7 @@ namespace Nuki.Communication.Connection
         private void M_GattCharacteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
             var recieveBuffer = args.CharacteristicValue;
-            Debug.WriteLine("M_GattCharacteristic_ValueChanged");
+            Log.Debug("M_GattCharacteristic_ValueChanged");
             lock (syncroot)
             {
                 DataReader reader = null;
@@ -61,24 +63,24 @@ namespace Nuki.Communication.Connection
                         {
                             var cmd = m_cmdInProgress;
                             m_cmdInProgress = null;
-                            Debug.WriteLine($"Recieved Command {cmd}...");
+                            Log.Trace($"Recieved Command {cmd}...");
                             if (m_responseWaitHandle?.TrySetResult(cmd) != true)
                             {
-                                Debug.WriteLine($"Recieved Command {cmd} is not handlet...");
+                               Log.Warn($"Recieved Command {cmd} is not handlet...");
                             }
                             else
                             {
-                                Debug.WriteLine("m_responseWaitHandle set");
+                               Log.Debug("m_responseWaitHandle set");
                             }
                         }
                         else
                         {
-                            Debug.WriteLine($"Command {m_cmdInProgress.CommandType} not complete (Recieved {m_cmdInProgress.BytesRecieved} from {m_cmdInProgress.BytesTotal})...");
+                            Log.Debug($"Command {m_cmdInProgress.CommandType} not complete (Recieved {m_cmdInProgress.BytesRecieved} from {m_cmdInProgress.BytesTotal})...");
                         }
                     }
                     else
                     {
-                        Debug.WriteLine("Recieved unknown command");
+                        Log.Warn("Recieved unknown command");
                     }
                 }
                 else
@@ -103,7 +105,7 @@ namespace Nuki.Communication.Connection
         {
             bool blnRet = false;
             m_responseWaitHandle = new TaskCompletionSource<RecieveBaseCommand>();
-            Debug.WriteLine($"Send Command {cmd}...");
+            Log.Trace($"Send Command {cmd}...");
             var writer = new DataWriter();
             writer.ByteOrder = ByteOrder.LittleEndian;
             if (await Send(cmd, writer))
@@ -121,19 +123,19 @@ namespace Nuki.Communication.Connection
         public async Task<RecieveBaseCommand> Recieve(int nTimeout)
         {
             RecieveBaseCommand retCommand = null;
-            Debug.WriteLine("Await response...");
+            Log.Debug("Await response...");
             Task completedTask = await Task.WhenAny(m_responseWaitHandle.Task, Task.Delay(nTimeout));
 
             if (completedTask == m_responseWaitHandle.Task)
             {
-                Debug.WriteLine("Recieved command...");
+                Log.Debug("Recieved command...");
                 retCommand = m_responseWaitHandle.Task.Result;
                 if (retCommand is RecieveChallengeCommand)
                     this.Connection.SmartLockNonce = ((RecieveChallengeCommand)retCommand).Nonce;
             }
             else
             {
-                Debug.WriteLine("Recieve timed out...");
+                Log.Warn("Recieve timed out...");
                 //Timeout
             }
 

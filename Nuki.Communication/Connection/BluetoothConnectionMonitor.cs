@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MetroLog;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,7 +19,7 @@ namespace Nuki.Communication.Connection
         private static TypedEventHandler<DeviceWatcher, DeviceInformation> OnBLEAdded = null;
         private static TypedEventHandler<DeviceWatcher, DeviceInformationUpdate> OnBLEUpdated = null;
         private static TypedEventHandler<DeviceWatcher, DeviceInformationUpdate> OnBLERemoved = null;
-
+        private static ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger(nameof(BluetoothConnectionMonitor));
         private static DeviceWatcher s_Watcher = null;
         private static ObservableCollection<NukiConnectionBinding> s_connectionsToMonitor = null;
         private static ConcurrentDictionary<string, NukiConnectionBinding> s_connectionInfoMap =
@@ -69,10 +70,10 @@ namespace Nuki.Communication.Connection
              
                 OnBLEAdded = async (watcher, deviceInfo) =>
                  {
-                     Debug.WriteLine("OnBLEAdded: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
+                     Log.Debug("OnBLEAdded: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
                      foreach (var keyValue in deviceInfo.Properties)
                      {
-                         Debug.WriteLine($"{keyValue.Key} = {keyValue.Value}");
+                         Log.Debug($"{keyValue.Key} = {keyValue.Value}");
                      }
                      NukiConnectionBinding connectionInfo;
                      if (deviceInfo?.Pairing?.IsPaired == true &&
@@ -97,7 +98,7 @@ namespace Nuki.Communication.Connection
 
                              if (result >= BluetoothConnection.ConnectResult.Successfull)
                              {
-                                 Debug.WriteLine("Connected to: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
+                                 Log.Trace("Connected to: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
                                  connectedAction?.Invoke(connection);
                              }
                              else { }
@@ -106,22 +107,22 @@ namespace Nuki.Communication.Connection
                      }
                      else
                      {
-                         Debug.Write("Device is not paired...");
+                         Log.Trace("Device is not paired...");
                      }
                  };
                 OnBLEUpdated = (watcher, deviceInfoUpdate) =>
                 {
-                    Debug.WriteLine($"OnBLEUpdated: {deviceInfoUpdate.Id}");
+                    Log.Debug($"OnBLEUpdated: {deviceInfoUpdate.Id}");
                     foreach (var keyValue in deviceInfoUpdate.Properties)
                     {
-                        Debug.WriteLine($"{keyValue.Key} = {keyValue.Value}");
+                        Log.Debug($"{keyValue.Key} = {keyValue.Value}");
                     }
                 };
 
 
                 OnBLERemoved = (watcher, deviceInfoUpdate) =>
                 {
-                    Debug.WriteLine("OnBLERemoved");
+                    Log.Debug("OnBLERemoved");
                 };
                 string[] requestedProperties = { "System.Devices.Aep.IsPaired" };
 

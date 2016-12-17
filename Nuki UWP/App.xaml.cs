@@ -11,6 +11,8 @@ using Windows.UI.Xaml.Controls;
 using Nuki.Views;
 using Nuki.Communication.Connection;
 using Microsoft.HockeyApp;
+using MetroLog;
+using MetroLog.Targets;
 
 namespace Nuki
 {
@@ -23,6 +25,7 @@ namespace Nuki
         public App()
         {
             HockeyClient.Current.Configure("bc0c6685cf164f4881b205148b4b9d2e");
+            LogManagerFactory.DefaultConfiguration.AddTarget(LogLevel.Info, LogLevel.Fatal, new StreamingFileTarget());
             InitializeComponent();
             SplashFactory = (e) => new Views.Splash(e);
 
@@ -36,7 +39,7 @@ namespace Nuki
             AutoSuspendAllFrames = true;
             AutoRestoreAfterTerminated = true;
             AutoExtendExecutionSession = true;
-
+            LogManagerFactory.DefaultConfiguration.IsEnabled = settings.EnableLogging;
             #endregion
         }
 

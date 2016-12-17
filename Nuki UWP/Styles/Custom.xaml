@@ -22,9 +22,9 @@
 
             <Style TargetType="controls:HamburgerMenu">
                 <Setter Property="AccentColor" Value="{StaticResource CustomColor}" />
-                <Setter Property="VisualStateNarrowMinWidth" Value="-1" />
-                <Setter Property="VisualStateNormalMinWidth" Value="0" />
-                <Setter Property="VisualStateWideMinWidth" Value="{StaticResource FullMenuMinWidth}" />
+                <Setter Property="VisualStateNarrowMinWidth" Value="{StaticResource NarrowMinWidth}" />
+                <Setter Property="VisualStateNormalMinWidth" Value="{StaticResource NormalMinWidth}" />
+                <Setter Property="VisualStateWideMinWidth" Value="{StaticResource WideMinWidth}" />
             </Style>
 
             <Style TargetType="controls:PageHeader">
@@ -69,9 +69,9 @@
                 -->
 
                 <Setter Property="AccentColor" Value="{StaticResource CustomColor}" />
-                <Setter Property="VisualStateNarrowMinWidth" Value="-1" />
-                <Setter Property="VisualStateNormalMinWidth" Value="0" />
-                <Setter Property="VisualStateWideMinWidth" Value="{StaticResource FullMenuMinWidth}" />
+                <Setter Property="VisualStateNarrowMinWidth" Value="{StaticResource NarrowMinWidth}" />
+                <Setter Property="VisualStateNormalMinWidth" Value="{StaticResource NormalMinWidth}" />
+                <Setter Property="VisualStateWideMinWidth" Value="{StaticResource WideMinWidth}" />
             </Style>
 
             <Style TargetType="controls:PageHeader">
@@ -100,9 +100,9 @@
                 <Setter Property="NavAreaBackground" Value="{ThemeResource SystemColorWindowColor}" />
                 <Setter Property="HamburgerForeground" Value="{ThemeResource SystemColorWindowColor}" />
                 <Setter Property="HamburgerBackground" Value="{ThemeResource SystemColorWindowTextColor}" />
-                <Setter Property="VisualStateNarrowMinWidth" Value="-1" />
-                <Setter Property="VisualStateNormalMinWidth" Value="0" />
-                <Setter Property="VisualStateWideMinWidth" Value="{ThemeResource FullMenuMinWidth}" />
+                <Setter Property="VisualStateNarrowMinWidth" Value="{StaticResource NarrowMinWidth}" />
+                <Setter Property="VisualStateNormalMinWidth" Value="{StaticResource NormalMinWidth}" />
+                <Setter Property="VisualStateWideMinWidth" Value="{StaticResource WideMinWidth}" />
             </Style>
 
             <Style TargetType="controls:PageHeader">

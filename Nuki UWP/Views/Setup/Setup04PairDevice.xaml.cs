@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using Nuki.ViewModels;
 using Nuki.Views;
 using Nuki.Services.SettingsServices;
+using MetroLog;
 
 namespace Nuki.Pages.Setup
 {
@@ -35,8 +36,8 @@ namespace Nuki.Pages.Setup
     /// </summary>
     public sealed partial class Setup04PairDevice : Page
     {
-       
 
+        private  ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger<Setup04PairDevice>();
         private DeviceWatcher deviceWatcher = null;
         //Handlers for device detection
         private TypedEventHandler<DeviceWatcher, DeviceInformation> handlerAdded = null;
@@ -100,12 +101,12 @@ namespace Nuki.Pages.Setup
                 // Since we have the collection databound to a UI element, we need to update the collection on the UI thread.
                 await this.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                  {
-                     Debug.WriteLine("Watcher Add: " + deviceInfo.Id);
-                     Debug.WriteLine("Watcher Add: " + deviceInfo.Name);
+                     Log.Debug("Watcher Add: " + deviceInfo.Id);
+                     Log.Debug("Watcher Add: " + deviceInfo.Name);
 
                      foreach (var keyValue in deviceInfo.Properties)
                      {
-                         Debug.WriteLine($"{keyValue.Key} = {keyValue.Value}");
+                         Log.Debug($"{keyValue.Key} = {keyValue.Value}");
                      }
 
                      if (deviceInfo.Name.StartsWith("Nuki_", StringComparison.OrdinalIgnoreCase) &&
@@ -121,25 +122,6 @@ namespace Nuki.Pages.Setup
             };
             deviceWatcher.Added += handlerAdded;
 
-            //handlerUpdated = async (watcher, deviceInfoUpdate) =>
-            //{
-            //    // Since we have the collection databound to a UI element, we need to update the collection on the UI thread.
-            //    Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-            //    {
-            //        Debug.WriteLine("Watcher Update: " + deviceInfoUpdate.Id);
-            //        // Find the corresponding updated DeviceInformation in the collection and pass the update object
-            //        // to the Update method of the existing DeviceInformation. This automatically updates the object
-            //        // for us.
-            //        foreach (var deviceInfoDisp in ResultCollection)
-            //        {
-            //            if (deviceInfoDisp.Id == deviceInfoUpdate.Id)
-            //            {
-
-            //                break;
-            //            }
-            //        }
-            //    });
-            //};
             deviceWatcher.Updated += handlerUpdated;
 
 
@@ -149,7 +131,7 @@ namespace Nuki.Pages.Setup
                 // Since we have the collection databound to a UI element, we need to update the collection on the UI thread.
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                  {
-                     Debug.WriteLine("Watcher Remove: " + deviceInfoUpdate.Id);
+                     Log.Debug("Watcher Remove: " + deviceInfoUpdate.Id);
                     // Find the corresponding DeviceInformation in the collection and remove it
                     foreach (var deviceInfoDisp in ResultCollection)
                      {
@@ -167,7 +149,7 @@ namespace Nuki.Pages.Setup
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                  {
-                     Debug.WriteLine($"Found {ResultCollection.Count} Bluetooth LE Devices");
+                     Log.Trace($"Found {ResultCollection.Count} Bluetooth LE Devices");
 
                      if (ResultCollection.Count > 0)
                      {
@@ -275,7 +257,7 @@ namespace Nuki.Pages.Setup
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                  {
-                     Debug.WriteLine("OnBLEAdded: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
+                     Log.Trace("OnBLEAdded: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
 
                      var blCon = BluetoothConnection.Connections[deviceInfo.Name];
 
@@ -324,7 +306,7 @@ namespace Nuki.Pages.Setup
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                  {
-                     Debug.WriteLine($"OnBLEUpdated: {deviceInfoUpdate.Id}");
+                     Log.Debug($"OnBLEUpdated: {deviceInfoUpdate.Id}");
                  });
             };
 
@@ -333,7 +315,7 @@ namespace Nuki.Pages.Setup
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                  {
-                     Debug.WriteLine("OnBLERemoved");
+                     Log.Debug("OnBLERemoved");
 
                  });
             };

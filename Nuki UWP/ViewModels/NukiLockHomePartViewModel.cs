@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.API;
+﻿using MetroLog;
+using Nuki.Communication.API;
 using Nuki.Communication.Commands.Response;
 using Nuki.Communication.Connection;
 using Nuki.Services.SettingsServices;
@@ -22,7 +23,7 @@ namespace Nuki.ViewModels
         private bool m_blnCriticalBattery = false;
         private string m_strLockRingState = string.Empty;
         private Visibility m_IsFlyoutOpen = Visibility.Collapsed;
-
+        private static ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger(nameof(NukiLockHomePartViewModel));
         public Visibility IsFlyoutOpen { get { return m_IsFlyoutOpen; } set { Set(ref m_IsFlyoutOpen, value); } }
         public string LockRingState { get { return m_strLockRingState; } set { Set(ref m_strLockRingState, value); } }
         public bool CriticalBattery {  get { return m_blnCriticalBattery;  } set { Set(ref m_blnCriticalBattery, value); } }
@@ -123,7 +124,7 @@ namespace Nuki.ViewModels
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Failed to request Nuki Stat: {0}", ex);
+                Log.Error("Failed to request Nuki Stat: {0}", ex);
             }
 
             if (nukiStateCmd != null)

@@ -168,7 +168,6 @@
     <Compile Include="Connection\BluetoothGattCharacteristicConnection.cs" />
     <Compile Include="Connection\BluetoothGattCharacteristicConnectionEncrypted.cs" />
     <Compile Include="Connection\BluetoothGattCharacteristicConnectionPlain.cs" />
-    <Compile Include="Connection\BluetoothImplementation.cs" />
     <Compile Include="Connection\BluetoothPairResult.cs" />
     <Compile Include="Connection\IConnectionContext.cs" />
     <Compile Include="Connection\BlutoothPairStatus.cs" />
