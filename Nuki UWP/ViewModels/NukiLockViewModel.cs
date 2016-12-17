@@ -17,10 +17,10 @@ namespace Nuki.ViewModels
         private NukiConnectionBinding m_NukiConnectionBinding = null;
         private Visibility m_ProgressbarVisibility = Visibility.Collapsed;
         private object m_SelectedPivotItem = null;
-        public NukiLockAdministrationPartViewModel AdministrationViewModel { get; private set; }
-        public NukiLockHomePartViewModel HomeViewModel { get; private set; }
-        public NukiLockSettingsPartViewModel SettingsViewModel { get; private set; }
-        public NukiLockStatusPartViewModel StatusViewModel { get; private set; }
+        //public NukiLockAdministrationPartViewModel AdministrationViewModel { get; private set; }
+        //public NukiLockHomePartViewModel HomeViewModel { get; private set; }
+        //public NukiLockSettingsPartViewModel SettingsViewModel { get; private set; }
+        //public NukiLockStatusPartViewModel StatusViewModel { get; private set; }
 
 
         public string SelectedLock
@@ -50,8 +50,10 @@ namespace Nuki.ViewModels
                 PivotItem pivotItem = value as PivotItem;
                 if (pivotItem != null)
                 {
-                    Part viewModel = pivotItem.DataContext as Part;
-                    if(viewModel != null)
+                    UserControl control = pivotItem.Content as UserControl;
+
+                    Part viewModel = control?.DataContext as Part;
+                    if (viewModel != null)
                     {
                         viewModel.OnNavigatedToAsync(null, NavigationMode.Refresh, null);
                     }
@@ -88,15 +90,22 @@ namespace Nuki.ViewModels
 
         public NukiLockViewModel()
         {
-            AdministrationViewModel = new NukiLockAdministrationPartViewModel(this);
-            HomeViewModel = new NukiLockHomePartViewModel(this);
-            SettingsViewModel = new NukiLockSettingsPartViewModel(this);
-            StatusViewModel = new NukiLockStatusPartViewModel(this);
+            Current = this;
+            //AdministrationViewModel = new NukiLockAdministrationPartViewModel(this);
+            //HomeViewModel = new NukiLockHomePartViewModel(this);
+            //SettingsViewModel = new NukiLockSettingsPartViewModel(this);
+            //StatusViewModel = new NukiLockStatusPartViewModel(this);
         }
 
+        private static NukiLockViewModel Current { get; set; }
         public abstract class Part : ViewModelBase
         {
             public NukiLockViewModel BaseModel { get; private set; }
+            public Part()
+                :this(NukiLockViewModel.Current)
+            {
+
+            }
             public Part(NukiLockViewModel baseModel)
             {
                 BaseModel = baseModel;

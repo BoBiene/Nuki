@@ -5,6 +5,7 @@
     <x:Double x:Key="NarrowMinWidth">0</x:Double>
     <x:Double x:Key="NormalMinWidth">521</x:Double>
     <x:Double x:Key="WideMinWidth">1200</x:Double>
+    <x:Double x:Key="FullMenuMinWidth">600</x:Double>
 
     <Color x:Key="CustomColor">#292929</Color>
     <Color x:Key="ContrastColor">#fecb3f</Color>
@@ -21,9 +22,9 @@
 
             <Style TargetType="controls:HamburgerMenu">
                 <Setter Property="AccentColor" Value="{StaticResource CustomColor}" />
-                <Setter Property="VisualStateNarrowMinWidth" Value="{StaticResource NarrowMinWidth}" />
-                <Setter Property="VisualStateNormalMinWidth" Value="{StaticResource NormalMinWidth}" />
-                <Setter Property="VisualStateWideMinWidth" Value="{StaticResource WideMinWidth}" />
+                <Setter Property="VisualStateNarrowMinWidth" Value="-1" />
+                <Setter Property="VisualStateNormalMinWidth" Value="0" />
+                <Setter Property="VisualStateWideMinWidth" Value="{StaticResource FullMenuMinWidth}" />
             </Style>
 
             <Style TargetType="controls:PageHeader">
@@ -68,9 +69,9 @@
                 -->
 
                 <Setter Property="AccentColor" Value="{StaticResource CustomColor}" />
-                <Setter Property="VisualStateNarrowMinWidth" Value="{StaticResource NarrowMinWidth}" />
-                <Setter Property="VisualStateNormalMinWidth" Value="{StaticResource NormalMinWidth}" />
-                <Setter Property="VisualStateWideMinWidth" Value="{StaticResource WideMinWidth}" />
+                <Setter Property="VisualStateNarrowMinWidth" Value="-1" />
+                <Setter Property="VisualStateNormalMinWidth" Value="0" />
+                <Setter Property="VisualStateWideMinWidth" Value="{StaticResource FullMenuMinWidth}" />
             </Style>
 
             <Style TargetType="controls:PageHeader">
@@ -86,7 +87,6 @@
             </Style>
 
         </ResourceDictionary>
-
         <ResourceDictionary x:Key="HighContrast">
 
             <SolidColorBrush x:Key="ExtendedSplashBackground" Color="Black" />
@@ -100,9 +100,9 @@
                 <Setter Property="NavAreaBackground" Value="{ThemeResource SystemColorWindowColor}" />
                 <Setter Property="HamburgerForeground" Value="{ThemeResource SystemColorWindowColor}" />
                 <Setter Property="HamburgerBackground" Value="{ThemeResource SystemColorWindowTextColor}" />
-                <Setter Property="VisualStateNarrowMinWidth" Value="{ThemeResource NarrowMinWidth}" />
-                <Setter Property="VisualStateNormalMinWidth" Value="{ThemeResource NormalMinWidth}" />
-                <Setter Property="VisualStateWideMinWidth" Value="{ThemeResource WideMinWidth}" />
+                <Setter Property="VisualStateNarrowMinWidth" Value="-1" />
+                <Setter Property="VisualStateNormalMinWidth" Value="0" />
+                <Setter Property="VisualStateWideMinWidth" Value="{ThemeResource FullMenuMinWidth}" />
             </Style>
 
             <Style TargetType="controls:PageHeader">

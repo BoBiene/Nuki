@@ -8,8 +8,12 @@ namespace Nuki.ViewModels
 {
     public class NukiLockAdministrationPartViewModel : NukiLockViewModel.Part
     {
-        public NukiLockAdministrationPartViewModel(NukiLockViewModel baseModel)
-            : base(baseModel)
+        //public NukiLockAdministrationPartViewModel(NukiLockViewModel baseModel)
+        //    : base(baseModel)
+        //{
+
+        //}
+        public NukiLockAdministrationPartViewModel()
         {
 
         }

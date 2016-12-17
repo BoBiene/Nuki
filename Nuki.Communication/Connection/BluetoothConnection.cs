@@ -20,7 +20,7 @@ using Windows.Storage.Streams;
 
 namespace Nuki.Communication.Connection
 {
-    public class BluetoothConnection : IConnectionContext
+    public class BluetoothConnection : IConnectionContext, INukiConnection
     {
         public static readonly BluetoothServiceUUID KeyTurnerPairingService = new BluetoothServiceUUID("a92ee100550111e4916c0800200c9a66");
         public static readonly BluetoothServiceUUID KeyTurnerInitializingService = new BluetoothServiceUUID("a92ee000550111e4916c0800200c9a66");

@@ -19,15 +19,48 @@ namespace Nuki.ViewModels
         private NukiLockState m_LockState = NukiLockState.Undefined;
         private NukiState m_NukiState = NukiState.Uninitialized;
         private bool m_blnCriticalBattery = false;
-        
+        private string m_strLockRingState = string.Empty;
+        private bool m_blnIsFlyoutOpen = false;
+
+        public bool IsFlyoutOpen { get { return m_blnIsFlyoutOpen; } set { Set(ref m_blnIsFlyoutOpen, value); } }
+        public string LockRingState { get { return m_strLockRingState; } set { Set(ref m_strLockRingState, value); } }
         public bool CriticalBattery {  get { return m_blnCriticalBattery;  } set { Set(ref m_blnCriticalBattery, value); } }
         public NukiLockState LockState { get { return m_LockState; } set { Set(ref m_LockState, value); } }
         public NukiState NukiState { get { return m_NukiState; } set { Set(ref m_NukiState, value); } }
-        public NukiLockHomePartViewModel(NukiLockViewModel baseModel)
-            : base(baseModel)
+        public NukiLockHomePartViewModel()
         {
-            
+
         }
+        //public NukiLockHomePartViewModel(NukiLockViewModel baseModel)
+        //    : base(baseModel)
+        //{
+
+        //}
+
+        
+        public DelegateCommand m_OpenFlyoutCommand = null;
+        public DelegateCommand OpenFlyoutCommand
+            => m_OpenFlyoutCommand ?? (m_OpenFlyoutCommand = new DelegateCommand(() =>
+            {
+                IsFlyoutOpen = true;
+
+            }, () => !IsFlyoutOpen));
+
+        public DelegateCommand m_CloseFlyoutCommand = null;
+        public DelegateCommand CloseFlyoutCommand
+            => m_CloseFlyoutCommand ?? (m_CloseFlyoutCommand = new DelegateCommand(() =>
+            {
+                IsFlyoutOpen = false;
+
+            }, () => IsFlyoutOpen));
+
+        public DelegateCommand m_ToggleFlyoutCommand = null;
+        public DelegateCommand ToggleFlyoutCommand
+            => m_ToggleFlyoutCommand ?? (m_ToggleFlyoutCommand = new DelegateCommand(() =>
+            {
+                IsFlyoutOpen = !IsFlyoutOpen;
+
+            }, () =>true));
 
         public DelegateCommand m_SendLockCommand = null;
         public DelegateCommand SendLockCommand
@@ -64,6 +97,7 @@ namespace Nuki.ViewModels
 
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
         {
+            LockRingState = "Connecting...";
             BluetoothConnectionMonitor.Start(SettingsService.Instance.PairdLocks, (connection) =>
             {
                 if (connection == BaseModel.BluetoothConnection)
@@ -75,6 +109,7 @@ namespace Nuki.ViewModels
 
         private async Task RefreshNukiState()
         {
+            LockRingState = "Requsting state...";
             BaseModel.ShowProgressbar(true);
             RecieveNukiStatesCommand nukiStateCmd = null;
             try
@@ -92,6 +127,7 @@ namespace Nuki.ViewModels
                 LockState = nukiStateCmd.LockState;
                 NukiState = nukiStateCmd.NukiState;
                 CriticalBattery = nukiStateCmd.CriticalBattery;
+                LockRingState = LockState.ToString();
             }
             else
             {

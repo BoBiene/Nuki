@@ -23,8 +23,9 @@
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
     <AppxPackageDir>C:\Users\bo_bi\Source\Repos\Nuki\AppPackages\</AppxPackageDir>
     <AppxBundle>Always</AppxBundle>
+    <HockeyAppResourceId>bc0c6685cf164f4881b205148b4b9d2e</HockeyAppResourceId>
   </PropertyGroup>
-  <PropertyGroup  Condition="'$(Configuration)' == 'Debug'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <PackageCertificateKeyFile>Nuki_TemporaryKey.pfx</PackageCertificateKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
@@ -36,7 +37,6 @@
     <PlatformTarget>ARM</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
-    
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>false</UseDotNetNativeToolchain>
   </PropertyGroup>
@@ -104,10 +104,10 @@
       <Link>README.md</Link>
     </None>
     <None Include="Nuki.snk" />
-    <None Condition="'$(Configuration)' == 'Release'"  Include="Nuki_StoreKey.encrypted" />
+    <None Condition="'$(Configuration)' == 'Release'" Include="Nuki_StoreKey.encrypted" />
     <None Condition="'$(Configuration)' == 'Release'" Include="Nuki_StoreKey.pfx" />
     <None Include="Nuki_TemporaryKey.pfx" />
-    <None Condition="'$(Configuration)' == 'Release'"  Include="Package.StoreAssociation.encrypted" />
+    <None Condition="'$(Configuration)' == 'Release'" Include="Package.StoreAssociation.encrypted" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -123,8 +123,21 @@
     <Compile Include="ViewModels\NukiLockHomePartViewModel.cs" />
     <Compile Include="ViewModels\NukiLockViewModel.cs" />
     <Compile Include="ViewModels\NukiLockViewModelPassword.cs" />
+    <Compile Include="Views\Helper\FlyoutHelper.cs" />
     <Compile Include="Views\NukiLock.xaml.cs">
       <DependentUpon>NukiLock.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NukiLockAdministration.xaml.cs">
+      <DependentUpon>NukiLockAdministration.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NukiLockHome.xaml.cs">
+      <DependentUpon>NukiLockHome.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NukiLockSettings.xaml.cs">
+      <DependentUpon>NukiLockSettings.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NukiLockStatus.xaml.cs">
+      <DependentUpon>NukiLockStatus.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Setup\Setup02ConfirmInstallation.xaml.cs">
       <DependentUpon>Setup02ConfirmInstallation.xaml</DependentUpon>
@@ -215,6 +228,22 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Views\NukiLock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NukiLockAdministration.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NukiLockHome.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NukiLockSettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NukiLockStatus.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

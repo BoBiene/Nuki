@@ -7,70 +7,67 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
      xmlns:controls="using:Template10.Controls"
        xmlns:vm="using:Nuki.ViewModels"
-    xmlns:Converter="using:Nuki.Converter"
+    xmlns:v="using:Nuki.Views"
+
     mc:Ignorable="d">
     <Page.DataContext>
         <vm:NukiLockViewModel x:Name="ViewModel" />
     </Page.DataContext>
 
+
     
-    <Page.Resources>
-        <Converter:MultiplyConverter Value="0.5" x:Name="DiameterToRadius" />
-        <Converter:SubstractConverter Value="10" x:Name="RadiusToInnerRadius" />
-        <Converter:SubstractConverter Value="40" x:Name="ContainerMargin" />
-    </Page.Resources>
     <controls:ModalDialog IsModal="{x:Bind ViewModel.IsPasswordDialogVisible, Mode=OneWay}">
         <controls:ModalDialog.Content>
-            
 
-                <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
-                <VisualState x:Name="VisualStateNarrow">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <!--  TODO: change properties for narrow view  -->
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="VisualStateNormal">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <!--  TODO: change properties for normal view  -->
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="VisualStateWide">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <!--  TODO: change properties for wide view  -->
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
+            <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-        <!--  header  -->
-        <controls:PageHeader x:Name="pageHeader"
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
+                        <VisualState x:Name="VisualStateNarrow">
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <!--  TODO: change properties for narrow view  -->
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="VisualStateNormal">
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <!--  TODO: change properties for normal view  -->
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="VisualStateWide">
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <!--  TODO: change properties for wide view  -->
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+
+                <!--  header  -->
+                <controls:PageHeader x:Name="pageHeader"
                              Content="{x:Bind ViewModel.SelectedLock,Mode=OneWay}"
                              Frame="{x:Bind Frame}"
                              
                              RelativePanel.AlignLeftWithPanel="True"
                              RelativePanel.AlignRightWithPanel="True"
                              RelativePanel.AlignTopWithPanel="True" />
-        <ProgressBar x:Name="progress" 
+                <ProgressBar x:Name="progress" 
                      RelativePanel.Below="pageHeader" 
                      IsIndeterminate="True"
                      Height="10" 
                         Visibility="{x:Bind ViewModel.ProgressbarVisibility}"
                      RelativePanel.AlignLeftWithPanel="True"
                      RelativePanel.AlignRightWithPanel="True"/>
-        <!--  content  -->
-        <Pivot x:Name="MyPivot"
+                <!--  content  -->
+                <Pivot x:Name="MyPivot"
                Grid.Row="1"
                SelectedItem="{x:Bind ViewModel.SelectedPivotItem, Mode=TwoWay}"
                EntranceNavigationTransitionInfo.IsTargetElement="True"
@@ -78,57 +75,21 @@
                RelativePanel.AlignLeftWithPanel="True"
                RelativePanel.AlignRightWithPanel="True"
                RelativePanel.Below="progress">
-            <PivotItem Header="Home" DataContext="{x:Bind ViewModel.HomeViewModel}">
-                <RelativePanel>
-                    <TextBox x:Name="LockStateText"
-                        Header="Status"
-                        IsEnabled="False"
-                        Text="{x:Bind ViewModel.HomeViewModel.LockState, Mode=OneWay}" />
-                    <TextBox x:Name="NukiStateText"
-                        Header="Status"
-                        IsEnabled="False"
-                        RelativePanel.Below="LockStateText"
-                        Text="{x:Bind ViewModel.HomeViewModel.NukiState, Mode=OneWay}" />
-                    <Button 
-                        x:Name="LockButton" 
-                        Content="Lock"
-                        Margin="0 12 0 0"
-                        Width="90"
-                        Command="{x:Bind ViewModel.HomeViewModel.SendLockCommand }"
-                        RelativePanel.Below="NukiStateText" 
-                        />
-                    <Button 
-                        x:Name="UnkockButton" 
-                        Content="Unlock"
-                        Margin="12 12 0 0"
-                        Width="90"
-                        Command="{x:Bind ViewModel.HomeViewModel.SendUnlockCommand }"
-                        RelativePanel.Below="NukiStateText"
-                        RelativePanel.RightOf="LockButton"
-                        />
-                    <Button 
-                        x:Name="CalibrateButton" 
-                        Content="Calibrate"
-                       Margin="12 12 0 0"
-                        Width="90"
-                        Command="{x:Bind ViewModel.HomeViewModel.SendCalibrateCommand }"
-                        RelativePanel.Below="NukiStateText"
-                         RelativePanel.RightOf="UnkockButton"
-                        />
-                </RelativePanel>
-            </PivotItem>
-            <PivotItem Header="Settings"  DataContext="{x:Bind ViewModel.SettingsViewModel}">
-               
-            </PivotItem>
+                    <PivotItem Header="Home" >
+                        <v:NukiLockHome />
+                    </PivotItem>
+                    <PivotItem Header="Settings"  >
+                        <v:NukiLockSettings />
+                    </PivotItem>
 
-            <PivotItem Header="Status"  DataContext="{x:Bind ViewModel.StatusViewModel}">
-
-            </PivotItem>
-            <PivotItem Header="Administration"  DataContext="{x:Bind ViewModel.AdministrationViewModel}">
-
-            </PivotItem>
-        </Pivot>
-    </RelativePanel>
+                    <PivotItem Header="Status"  >
+                        <v:NukiLockStatus />
+                    </PivotItem>
+                    <PivotItem Header="Administration"  >
+                        <v:NukiLockAdministration />
+                    </PivotItem>
+                </Pivot>
+            </RelativePanel>
         </controls:ModalDialog.Content>
         <controls:ModalDialog.ModalContent>
             <Viewbox MaxHeight="200">
@@ -166,7 +127,8 @@
         </controls:ModalDialog.ModalContent>
     </controls:ModalDialog>
     <!--<Grid Background="{StaticResource ExtendedSplashBackground}" x:Name="Grid">
-        --><!--<Path Width="200" Height="200" Stroke="Black" StrokeThickness="3" Stretch="Uniform">
+        -->
+    <!--<Path Width="200" Height="200" Stroke="Black" StrokeThickness="3" Stretch="Uniform">
             <Path.Data>
                 <GeometryGroup>
                     <EllipseGeometry  Center="1,1"  RadiusX="1" RadiusY="1"/>
@@ -176,10 +138,12 @@
                 </GeometryGroup>
             </Path.Data>
         </Path>-->
-        <!--<Border>
-            --><!--<Border.RenderTransform>
+    <!--<Border>
+            -->
+    <!--<Border.RenderTransform>
                 <ScaleTransform ScaleX=""
-            </Border.RenderTransform>--><!--
+            </Border.RenderTransform>-->
+    <!--
         <Controls:RingSegment  Width="100" Height="100" x:Name="MyRingSlice" HorizontalAlignment="Center"
                         VerticalAlignment="Center" StartAngle="50" EndAngle="310"
                                Fill="{StaticResource ExtendedSplashForeground}"
@@ -187,13 +151,14 @@
                            StrokeThickness="4"
                                />
         </Border>-->
-        <!--<Controls:RingSegment  x:Name="MyRingSlice" HorizontalAlignment="Center"
+    <!--<Controls:RingSegment  x:Name="MyRingSlice" HorizontalAlignment="Center"
                         VerticalAlignment="Center" StartAngle="50" EndAngle="310"
                            Fill="{StaticResource ExtendedSplashForeground}"
                               
                                Margin="20" MaxWidth="500" MinWidth="200" MaxHeight="500" MinHeight="200"
                                Radius="{Binding RelativeSource={RelativeSource Mode=Self},Path=Width, Converter={StaticResource DiameterToRadius}}"
                                InnerRadius="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Radius, Converter={StaticResource RadiusToInnerRadius}}"
-                              StrokeThickness="4"/>--><!--
+                              StrokeThickness="4"/>-->
+    <!--
     </Grid>-->
 </Page>
