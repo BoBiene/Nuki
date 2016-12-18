@@ -149,7 +149,7 @@ namespace Nuki.Pages.Setup
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                  {
-                     Log.Trace($"Found {ResultCollection.Count} Bluetooth LE Devices");
+                     Log.Info($"Found {ResultCollection.Count} Bluetooth LE Devices");
 
                      if (ResultCollection.Count > 0)
                      {
@@ -257,7 +257,7 @@ namespace Nuki.Pages.Setup
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                  {
-                     Log.Trace("OnBLEAdded: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
+                     Log.Info("OnBLEAdded: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
 
                      var blCon = BluetoothConnection.Connections[deviceInfo.Name];
 

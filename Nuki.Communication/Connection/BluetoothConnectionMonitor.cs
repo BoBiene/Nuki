@@ -98,7 +98,7 @@ namespace Nuki.Communication.Connection
 
                              if (result >= BluetoothConnection.ConnectResult.Successfull)
                              {
-                                 Log.Trace("Connected to: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
+                                 Log.Info("Connected to: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
                                  connectedAction?.Invoke(connection);
                              }
                              else { }
@@ -107,7 +107,7 @@ namespace Nuki.Communication.Connection
                      }
                      else
                      {
-                         Log.Trace("Device is not paired...");
+                         Log.Info("Device is not paired...");
                      }
                  };
                 OnBLEUpdated = (watcher, deviceInfoUpdate) =>

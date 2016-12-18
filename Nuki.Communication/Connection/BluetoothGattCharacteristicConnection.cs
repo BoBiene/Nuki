@@ -63,7 +63,7 @@ namespace Nuki.Communication.Connection
                         {
                             var cmd = m_cmdInProgress;
                             m_cmdInProgress = null;
-                            Log.Trace($"Recieved Command {cmd}...");
+                            Log.Info($"Recieved Command {cmd}...");
                             if (m_responseWaitHandle?.TrySetResult(cmd) != true)
                             {
                                Log.Warn($"Recieved Command {cmd} is not handlet...");
@@ -105,7 +105,7 @@ namespace Nuki.Communication.Connection
         {
             bool blnRet = false;
             m_responseWaitHandle = new TaskCompletionSource<RecieveBaseCommand>();
-            Log.Trace($"Send Command {cmd}...");
+            Log.Info($"Send Command {cmd}...");
             var writer = new DataWriter();
             writer.ByteOrder = ByteOrder.LittleEndian;
             if (await Send(cmd, writer))

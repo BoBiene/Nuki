@@ -309,6 +309,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MetroLog\MetroLog.Targets.SQLite\MetroLog.Targets.SQLite.csproj">
+      <Project>{0cf158cd-dd4e-4e9b-b386-e3ba3c4c6f1f}</Project>
+      <Name>MetroLog.Targets.SQLite</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Nuki.Communication\Nuki.Communication.csproj">
       <Project>{c021066a-6586-4d8c-8f7c-97b1a15910aa}</Project>
       <Name>Nuki.Communication</Name>

@@ -22,13 +22,18 @@ namespace Nuki
     [Bindable]
     sealed partial class App : BootStrapper
     {
+        public static readonly SQLiteTarget SQLiteTarget = new SQLiteTarget();
+        private static ILogger Log = null;
         public App()
         {
+            
             HockeyClient.Current.Configure("bc0c6685cf164f4881b205148b4b9d2e");
             LogManagerFactory.DefaultConfiguration.AddTarget(LogLevel.Info, LogLevel.Fatal, new StreamingFileTarget());
-            SQLiteTarget sqLiteTarget = new SQLiteTarget();
-            sqLiteTarget.RetainDays = 2;
-            LogManagerFactory.DefaultConfiguration.AddTarget(LogLevel.Info, LogLevel.Fatal, sqLiteTarget);
+
+            SQLiteTarget.RetainDays = 2;
+            LogManagerFactory.DefaultConfiguration.AddTarget(LogLevel.Info, LogLevel.Fatal, App.SQLiteTarget);
+            Log = LogManagerFactory.DefaultLogManager.GetLogger<App>();
+            Log.Info("Starting...");
             InitializeComponent();
             SplashFactory = (e) => new Views.Splash(e);
 
@@ -59,6 +64,7 @@ namespace Nuki
 
         public override async Task OnStartAsync(StartKind startKind, IActivatedEventArgs args)
         {
+            Log.Info("OnStartAsync...");
             // TODO: add your long-running task here
             var firstLock = SettingsService.Instance.PairdLocks.FirstOrDefault();
             if (firstLock != null)
