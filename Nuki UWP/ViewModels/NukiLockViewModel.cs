@@ -53,7 +53,7 @@ namespace Nuki.ViewModels
                 if (pivotItem != null)
                 {
                     UserControl control = pivotItem.Content as UserControl;
-
+                    
                     Part viewModel = control?.DataContext as Part;
                     if (viewModel != null)
                     {

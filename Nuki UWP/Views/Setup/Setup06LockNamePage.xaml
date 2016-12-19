@@ -7,10 +7,21 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d" Style="{StaticResource SetupPage}" >
 
-        <Grid Style="{StaticResource SetupPageStyle}">
-            <TextBlock Text="Gib einen Namen für dein Schloss ein:" Style="{StaticResource SetupPageTitle}" />
-        <TextBox x:Name="NameBox" Margin="0 120 0 0" Style="{StaticResource SetupPageTextBox}" Text="{x:Bind ViewModel.MyLockName, Mode=TwoWay}" >
+        <RelativePanel>
+            <TextBlock
+                x:Name="Title"
+                RelativePanel.AlignHorizontalCenterWithPanel="True"
+                Text="Gib einen Namen für dein Schloss ein:" Style="{StaticResource SetupPageTitle}" />
+        <TextBox x:Name="NameBox"  
+                 RelativePanel.Below="Title"
+                 RelativePanel.AlignHorizontalCenterWithPanel="True"
+                 Style="{StaticResource SetupPageTextBox}" 
+                 Text="{x:Bind ViewModel.MyLockName, Mode=TwoWay}" >
         </TextBox>
-        <Button Style="{StaticResource SetupPageButton}" VerticalAlignment="Top" Margin="0 180 0 0" Click="{x:Bind ViewModel.GotoNextPage}">Weiter</Button>
-    </Grid>
+        <Button Style="{StaticResource SetupPageButton}" 
+                RelativePanel.Below="NameBox"
+                Margin="0,20,0,0"
+                RelativePanel.AlignHorizontalCenterWithPanel="True"
+                Click="{x:Bind ViewModel.GotoNextPage}">Weiter</Button>
+    </RelativePanel>
 </Page>

@@ -37,10 +37,10 @@ namespace Nuki.ViewModels
             query.Top = 1000;
             query.FromDateTimeUtc = DateTime.UtcNow.AddHours(-2);
             var entries = await App.SQLiteTarget.ReadLogEntriesAsync(query);
-
+            int nEntry = 0;
             foreach (var entry in entries.Events)
             {
-
+                
                 var textBlock = new TextBlock
                 {
                     TextWrapping = TextWrapping.Wrap,
@@ -49,6 +49,13 @@ namespace Nuki.ViewModels
                 };
                 if (entry.Level >= LogLevel.Error)
                     textBlock.Foreground = ErrorBrush;
+
+                //if (nEntry++ % 2 == 0)//Even Rows
+                //{
+                //    textBlock. 
+                //}
+                //else { }
+                
                 panel.Children.Add(textBlock);
             }
 
