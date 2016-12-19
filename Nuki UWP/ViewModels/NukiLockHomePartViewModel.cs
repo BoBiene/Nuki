@@ -103,7 +103,8 @@ namespace Nuki.ViewModels
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
         {
             LockRingState = "Connecting...";
-            BluetoothConnectionMonitor.Start(SettingsService.Instance.PairdLocks, (connection) =>
+            
+            BluetoothConnectionMonitor.Start(SettingsService.Instance.PairdLocks,(action) => Dispatcher.DispatchAsync(action).AsAsyncAction(), (connection) =>
             {
                 if (connection == BaseModel.BluetoothConnection)
                     BaseModel.Dispatcher.Dispatch(async () => await RefreshNukiState());

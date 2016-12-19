@@ -9,6 +9,8 @@ using Template10.Mvvm;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using Template10.Common;
+using Template10.Services.NavigationService;
 
 namespace Nuki.ViewModels
 {
@@ -107,11 +109,48 @@ namespace Nuki.ViewModels
 
             }
             public Part(NukiLockViewModel baseModel)
+                : base()
             {
                 BaseModel = baseModel;
-                Dispatcher = BaseModel.Dispatcher;
-                NavigationService = BaseModel.NavigationService;
-                SessionState = BaseModel.SessionState;
+             
+            }
+
+            public override IStateItems SessionState
+            {
+                get
+                {
+                    return base.SessionState ?? BaseModel.SessionState;
+                }
+
+                set
+                {
+                    base.SessionState = value;
+                }
+            }
+
+            public override INavigationService NavigationService
+            {
+                get
+                {
+                    return base.NavigationService ?? BaseModel.NavigationService;
+                }
+
+                set
+                {
+                    base.NavigationService = value;
+                }
+            }
+            public override IDispatcherWrapper Dispatcher
+            {
+                get
+                {
+                    return base.Dispatcher ?? BaseModel.Dispatcher;
+                }
+
+                set
+                {
+                    base.Dispatcher = value;
+                }
             }
         }
     }

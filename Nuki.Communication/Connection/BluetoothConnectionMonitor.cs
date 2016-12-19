@@ -22,18 +22,13 @@ namespace Nuki.Communication.Connection
         private static ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger(nameof(BluetoothConnectionMonitor));
         private static DeviceWatcher s_Watcher = null;
         private static ObservableCollection<NukiConnectionBinding> s_connectionsToMonitor = null;
-        private static ConcurrentDictionary<string, NukiConnectionBinding> s_connectionInfoMap =
+        private static readonly ConcurrentBag<string> s_DevicesNeedingRepiar = new ConcurrentBag<string>();
+        private static readonly ConcurrentDictionary<string, NukiConnectionBinding> s_connectionInfoMap =
             new ConcurrentDictionary<string, NukiConnectionBinding>();
-        public static void Start(ObservableCollection<NukiConnectionBinding> connectionsToMonitor, Action<BluetoothConnection> connectedAction = null)
+        public static void Start(ObservableCollection<NukiConnectionBinding> connectionsToMonitor, Func<Action, IAsyncAction> dispatch, Action<BluetoothConnection> connectedAction = null)
         {
             s_connectionsToMonitor = connectionsToMonitor;
-            s_connectionsToMonitor.CollectionChanged += S_connectionsToMonitor_CollectionChanged;
-            StartWatcher(connectedAction);
-        }
-
-        private static void S_connectionsToMonitor_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            StartWatcher(); //Restart Watcher
+            StartWatcher(dispatch, connectedAction);
         }
 
         private static void StopWatcher()
@@ -51,15 +46,11 @@ namespace Nuki.Communication.Connection
                 }
             }
 
-            if(null != s_connectionsToMonitor)
-            {
-                s_connectionsToMonitor.CollectionChanged += S_connectionsToMonitor_CollectionChanged;
-            }
-            else { }
+         
 
         }
 
-        private static void StartWatcher(Action<BluetoothConnection> connectedAction = null)
+        private static void StartWatcher(Func<Action, IAsyncAction> dispatch, Action<BluetoothConnection> connectedAction = null)
         {
             StopWatcher();
             if (s_connectionsToMonitor.Count > 0)
@@ -70,45 +61,63 @@ namespace Nuki.Communication.Connection
              
                 OnBLEAdded = async (watcher, deviceInfo) =>
                  {
-                     Log.Debug("OnBLEAdded: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
-                     foreach (var keyValue in deviceInfo.Properties)
+                     await dispatch(async () =>
                      {
-                         Log.Debug($"{keyValue.Key} = {keyValue.Value}");
-                     }
-                     NukiConnectionBinding connectionInfo;
-                     if (deviceInfo?.Pairing?.IsPaired == true &&
-                            deviceInfo.Properties["System.Devices.Aep.IsPaired"] as bool? == true)
-                     {
-                         if (s_connectionInfoMap.TryGetValue(deviceInfo.Name, out connectionInfo))
+                         Log.Debug("OnBLEAdded: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
+                         foreach (var keyValue in deviceInfo.Properties)
                          {
-                             var connection = BluetoothConnection.Connections[deviceInfo.Name];
-                             var result = await connection.Connect(deviceInfo.Id, connectionInfo);
-
-
-
-                             if (result == BluetoothConnection.ConnectResult.NeedRepair)
+                             Log.Debug($"{keyValue.Key} = {keyValue.Value}");
+                         }
+                         NukiConnectionBinding connectionInfo;
+                         if (deviceInfo?.Pairing?.IsPaired == true &&
+                                deviceInfo.Properties["System.Devices.Aep.IsPaired"] as bool? == true)
+                         {
+                             if (s_connectionInfoMap.TryGetValue(deviceInfo.Name, out connectionInfo))
                              {
-                                 if (await TryToRepairDevice(deviceInfo))
+                                 var connection = BluetoothConnection.Connections[deviceInfo.Name];
+                                 var result = await connection.Connect(deviceInfo.Id, connectionInfo);
+
+
+
+                                 if (result == BluetoothConnection.ConnectResult.NeedRepair)
                                  {
-                                     result = await connection.Connect(deviceInfo.Id, connectionInfo);
-                                 }
-                                 else { }
-                             }
-                             else { }
+                                     StopWatcher();
 
-                             if (result >= BluetoothConnection.ConnectResult.Successfull)
-                             {
-                                 Log.Info("Connected to: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
-                                 connectedAction?.Invoke(connection);
+                                     TryToRepairDevice(deviceInfo).ContinueWith(async (task) =>
+                                     {
+                                         if (task.Result)
+                                         {
+                                             //Pair usccessfull
+                                             var connectResult = await connection.Connect(deviceInfo.Id, connectionInfo);
+                                             if (connectResult >= BluetoothConnection.ConnectResult.Successfull)
+                                             {
+                                                 Log.Info("Repiared to: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
+                                                 connectedAction?.Invoke(connection);
+                                             }
+                                             else { }
+                                         }
+                                         else { }
+                                     }).GetAwaiter();
+
+
+                                 }
+                                 else
+                                 {
+                                     if (result >= BluetoothConnection.ConnectResult.Successfull)
+                                     {
+                                         Log.Info("Connected to: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
+                                         connectedAction?.Invoke(connection);
+                                     }
+                                     else { }
+                                 }
                              }
                              else { }
                          }
-                         else { }
-                     }
-                     else
-                     {
-                         Log.Info("Device is not paired...");
-                     }
+                         else
+                         {
+                             Log.Info("Device is not paired...");
+                         }
+                     });
                  };
                 OnBLEUpdated = (watcher, deviceInfoUpdate) =>
                 {
@@ -145,53 +154,56 @@ namespace Nuki.Communication.Connection
             }
         }
 
-        private static async Task<bool> TryToRepairDevice(DeviceInformation deviceInfoToRepair)
+        private static  Task<bool> TryToRepairDevice(DeviceInformation deviceInfoToRepair)
         {
-            bool blnRet = false;
-            DeviceWatcher deviceWatcher = null;
-            try
+            return Task.Run(async () =>
             {
-                // Request the IsPaired property so we can display the paired status in the UI
-                string[] requestedProperties = { "System.Devices.Aep.IsPaired" };
-
-                //for bluetooth LE Devices
-                string aqsFilter = "System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\"";
-
-                TaskCompletionSource<bool> awaitAbleResult = new TaskCompletionSource<bool>();
-
-                deviceWatcher = DeviceInformation.CreateWatcher(
-                    aqsFilter,
-                    requestedProperties,
-                    DeviceInformationKind.AssociationEndpoint
-                    );
-
-                deviceWatcher.Added += async (watcher, deviceInfo) =>
-                {
-                    if (deviceInfo.Name == deviceInfoToRepair.Name)
-                    {
-                        awaitAbleResult.SetResult(await TryToPairDevice(deviceInfo));
-                    }
-                    else
-                    {
-
-                    }
-                };
-                deviceWatcher.Start();
-
-                var completedTask = await Task.WhenAny(awaitAbleResult.Task, Task.Delay(30000));
-
-                if (completedTask == awaitAbleResult.Task)
-                    blnRet = awaitAbleResult.Task.Result;
-            }
-            finally
-            {
+                bool blnRet = false;
+                DeviceWatcher deviceWatcher = null;
                 try
                 {
-                    deviceWatcher?.Stop();
+                    // Request the IsPaired property so we can display the paired status in the UI
+                    string[] requestedProperties = { "System.Devices.Aep.IsPaired" };
+
+                    //for bluetooth LE Devices
+                    string aqsFilter = "System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\"";
+
+                    TaskCompletionSource<bool> awaitAbleResult = new TaskCompletionSource<bool>();
+
+                    deviceWatcher = DeviceInformation.CreateWatcher(
+                        aqsFilter,
+                        requestedProperties,
+                        DeviceInformationKind.AssociationEndpoint
+                        );
+
+                    deviceWatcher.Added += async (watcher, deviceInfo) =>
+                    {
+                        if (deviceInfo.Name == deviceInfoToRepair.Name)
+                        {
+                            awaitAbleResult.SetResult(await TryToPairDevice(deviceInfo));
+                        }
+                        else
+                        {
+
+                        }
+                    };
+                    deviceWatcher.Start();
+
+                    var completedTask = await Task.WhenAny(awaitAbleResult.Task, Task.Delay(30000));
+
+                    if (completedTask == awaitAbleResult.Task)
+                        blnRet = awaitAbleResult.Task.Result;
                 }
-                catch { }
-            }
-            return blnRet;
+                finally
+                {
+                    try
+                    {
+                        deviceWatcher?.Stop();
+                    }
+                    catch { }
+                }
+                return blnRet;
+            });
         }
 
         private static async Task<bool> TryToPairDevice(DeviceInformation deviceInfo)
