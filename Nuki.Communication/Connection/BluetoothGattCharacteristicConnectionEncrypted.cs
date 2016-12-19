@@ -171,26 +171,26 @@ namespace Nuki.Communication.Connection
                             }
                             else
                             {
-                                Debug.WriteLine("Decryption of message failed (PDATA has wrong UniqueClientID)!");
+                                Log.Warn("Decryption of message failed (PDATA has wrong UniqueClientID)!");
                             }
                         }
                         else
                         {
-                            Debug.WriteLine("Recieved message for wron ClientID?!");
+                            Log.Warn("Recieved message for wrong ClientID?!");
                         }
                     }
                     else
                     {
-                        Debug.WriteLine($"Nonce: {m_RecieveBuffer.Nonce}");
-                        Debug.WriteLine($"UniqueClientID: {m_RecieveBuffer.UniqueClientID}");
-                        Debug.WriteLine($"Length: {m_RecieveBuffer.Length}");
-                        Debug.WriteLine($"HeaderComplete: {m_RecieveBuffer.HeaderComplete}");
-                        Debug.WriteLine($"Recieved: {m_RecieveBuffer.Recieved}");
+                        Log.Debug($"Nonce: {m_RecieveBuffer.Nonce}");
+                        Log.Debug($"UniqueClientID: {m_RecieveBuffer.UniqueClientID}");
+                        Log.Debug($"Length: {m_RecieveBuffer.Length}");
+                        Log.Debug($"HeaderComplete: {m_RecieveBuffer.HeaderComplete}");
+                        Log.Debug($"Recieved: {m_RecieveBuffer.Recieved}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("Exception in TryRecieve: " + ex.ToString());
+                    Log.Error("Exception in TryRecieve: " + ex.ToString());
                 }
             }
             return blnRet;

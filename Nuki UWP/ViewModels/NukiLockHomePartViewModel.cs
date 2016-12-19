@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.API;
+﻿using MetroLog;
+using Nuki.Communication.API;
 using Nuki.Communication.Commands.Response;
 using Nuki.Communication.Connection;
 using Nuki.Services.SettingsServices;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Template10.Mvvm;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
 
 namespace Nuki.ViewModels
@@ -19,15 +21,51 @@ namespace Nuki.ViewModels
         private NukiLockState m_LockState = NukiLockState.Undefined;
         private NukiState m_NukiState = NukiState.Uninitialized;
         private bool m_blnCriticalBattery = false;
-        
+        private string m_strLockRingState = string.Empty;
+        private Visibility m_IsFlyoutOpen = Visibility.Collapsed;
+        private static ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger(nameof(NukiLockHomePartViewModel));
+        public Visibility IsFlyoutOpen { get { return m_IsFlyoutOpen; } set { Set(ref m_IsFlyoutOpen, value); } }
+        public string LockRingState { get { return m_strLockRingState; } set { Set(ref m_strLockRingState, value); } }
         public bool CriticalBattery {  get { return m_blnCriticalBattery;  } set { Set(ref m_blnCriticalBattery, value); } }
         public NukiLockState LockState { get { return m_LockState; } set { Set(ref m_LockState, value); } }
         public NukiState NukiState { get { return m_NukiState; } set { Set(ref m_NukiState, value); } }
-        public NukiLockHomePartViewModel(NukiLockViewModel baseModel)
-            : base(baseModel)
+        public NukiLockHomePartViewModel()
         {
-            
+
         }
+        //public NukiLockHomePartViewModel(NukiLockViewModel baseModel)
+        //    : base(baseModel)
+        //{
+
+        //}
+
+        
+        public DelegateCommand m_OpenFlyoutCommand = null;
+        public DelegateCommand OpenFlyoutCommand
+            => m_OpenFlyoutCommand ?? (m_OpenFlyoutCommand = new DelegateCommand(() =>
+            {
+                IsFlyoutOpen = Visibility.Visible;
+
+            }, () => IsFlyoutOpen == Visibility.Collapsed));
+
+        public DelegateCommand m_CloseFlyoutCommand = null;
+        public DelegateCommand CloseFlyoutCommand
+            => m_CloseFlyoutCommand ?? (m_CloseFlyoutCommand = new DelegateCommand(() =>
+            {
+                IsFlyoutOpen = Visibility.Collapsed;
+
+            }, () => IsFlyoutOpen == Visibility.Visible));
+
+        public DelegateCommand m_ToggleFlyoutCommand = null;
+        public DelegateCommand ToggleFlyoutCommand
+            => m_ToggleFlyoutCommand ?? (m_ToggleFlyoutCommand = new DelegateCommand(() =>
+            {
+                if (IsFlyoutOpen == Visibility.Visible)
+                    IsFlyoutOpen = Visibility.Collapsed;
+                else
+                    IsFlyoutOpen = Visibility.Visible;
+
+            }, () =>true));
 
         public DelegateCommand m_SendLockCommand = null;
         public DelegateCommand SendLockCommand
@@ -64,17 +102,28 @@ namespace Nuki.ViewModels
 
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
         {
-            BluetoothConnectionMonitor.Start(SettingsService.Instance.PairdLocks, (connection) =>
+            LockRingState = "Connecting...";
+            if (Dispatcher != null)
             {
-                if (connection == BaseModel.BluetoothConnection)
-                    BaseModel.Dispatcher.Dispatch(async () => await RefreshNukiState());
-            });
+                var dispatcher = Dispatcher;
+                Log.Info("OnNavigatedToAsync");
+                BluetoothConnectionMonitor.Start(SettingsService.Instance.PairdLocks, (action) => dispatcher.DispatchAsync(action).AsAsyncAction(), (connection) =>
+                 {
+                     if (connection == BaseModel.BluetoothConnection)
+                         BaseModel.Dispatcher.Dispatch(async () => await RefreshNukiState());
+                 });
+            }
+            else
+            {
+                Log.Debug("Dispatcher is null...");
+            }
           //  await RefreshNukiState();
             await base.OnNavigatedToAsync(parameter, mode, state);
         }
 
         private async Task RefreshNukiState()
         {
+            LockRingState = "Requsting state...";
             BaseModel.ShowProgressbar(true);
             RecieveNukiStatesCommand nukiStateCmd = null;
             try
@@ -84,7 +133,7 @@ namespace Nuki.ViewModels
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Failed to request Nuki Stat: {0}", ex);
+                Log.Error("Failed to request Nuki Stat: {0}", ex);
             }
 
             if (nukiStateCmd != null)
@@ -92,6 +141,7 @@ namespace Nuki.ViewModels
                 LockState = nukiStateCmd.LockState;
                 NukiState = nukiStateCmd.NukiState;
                 CriticalBattery = nukiStateCmd.CriticalBattery;
+                LockRingState = LockState.ToString();
             }
             else
             {
@@ -100,7 +150,7 @@ namespace Nuki.ViewModels
             SendCalibrateCommand.RaiseCanExecuteChanged();
             SendLockCommand.RaiseCanExecuteChanged();
             SendUnlockCommand.RaiseCanExecuteChanged();
-            BaseModel.ShowProgressbar(true);
+            BaseModel.ShowProgressbar(false);
         }
     }
 }

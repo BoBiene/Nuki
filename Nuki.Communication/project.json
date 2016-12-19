@@ -1,6 +1,7 @@
 ﻿{
   "dependencies": {
     "libsodium-uwp": "1.0.0-rc1",
+    "MetroLog": "1.0.1",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2"
   },
   "frameworks": {

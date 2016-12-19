@@ -13,5 +13,9 @@ namespace Nuki.ViewModels
         {
 
         }
+        public NukiLockSettingsPartViewModel()
+        {
+
+        }
     }
 }

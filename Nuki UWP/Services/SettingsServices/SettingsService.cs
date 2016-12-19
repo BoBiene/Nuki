@@ -11,11 +11,13 @@ using System.Diagnostics;
 using System.Xml;
 using System.IO;
 using System.Text;
+using MetroLog;
 
 namespace Nuki.Services.SettingsServices
 {
     public class SettingsService
     {
+        private static ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger(nameof(SettingsService));
         private static XmlSerializer s_XmlSerializer = new XmlSerializer(typeof(NukiConnectionBinding[]));
         public static SettingsService Instance { get; } = new SettingsService();
         Template10.Services.SettingsService.ISettingsHelper _helper;
@@ -48,7 +50,7 @@ namespace Nuki.Services.SettingsServices
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Load BluetoothConnectionInfo failed: {0}", ex);
+                Log.Error("Load BluetoothConnectionInfo failed: {0}", ex);
             }
             return retValues;
         }
@@ -67,7 +69,7 @@ namespace Nuki.Services.SettingsServices
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Save BluetoothConnectionInfo failed: {0}", ex);
+                Log.Error("Save BluetoothConnectionInfo failed: {0}", ex);
             }
         }
 
@@ -127,6 +129,16 @@ namespace Nuki.Services.SettingsServices
             {
                 _helper.Write(nameof(ShowHamburgerButton), value);
                 Views.Shell.HamburgerMenu.HamburgerButtonVisibility = value ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        public bool EnableLogging
+        {
+            get { return _helper.Read<bool>(nameof(EnableLogging), true); }
+            set
+            {
+                _helper.Write(nameof(EnableLogging), value);
+                LogManagerFactory.DefaultConfiguration.IsEnabled = value;
             }
         }
 

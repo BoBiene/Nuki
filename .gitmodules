@@ -1,3 +1,6 @@
 [submodule "Semantictypes"]
 	path = Semantictypes
 	url = https://github.com/BoBiene/semantictypes.git
+[submodule "MetroLog"]
+	path = MetroLog
+url=https://github.com/BoBiene/MetroLog.git
