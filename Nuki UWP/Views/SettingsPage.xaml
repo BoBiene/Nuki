@@ -231,6 +231,8 @@
                     <ScrollViewer  x:Name="LogContent"
                                    Margin="10"
                                   Content="{Binding LogContent}"
+                                   VerticalScrollMode="Enabled"
+                                   VerticalScrollBarVisibility="Auto"
                                   RelativePanel.AlignLeftWithPanel="True"
                                   RelativePanel.AlignRightWithPanel="True"
                                   RelativePanel.AlignBottomWithPanel="True"
