@@ -10,7 +10,7 @@ using System.Reflection;
 using Nuki.Communication.SemanticTypes;
 using SemanticTypes;
 
-namespace Nuki.Communication.Commands.Request
+namespace Nuki.Communication.Connection.Bluetooth.Commands.Request
 {
     public abstract class SendBaseCommand : BaseCommand
     {

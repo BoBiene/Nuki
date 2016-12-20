@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Nuki.Communication.Commands.Request;
+using Nuki.Communication.Connection.Bluetooth.Commands.Request;
 using Windows.Storage.Streams;
 
 namespace Nuki.Communication.Connection.Bluetooth

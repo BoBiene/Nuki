@@ -1,4 +1,4 @@
-﻿using Nuki.Communication.Commands;
+﻿using Nuki.Communication.Connection.Bluetooth.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;

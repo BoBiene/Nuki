@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Nuki.Communication.API;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nuki.Communication.Commands.Response
+namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
 {
     public class RecieveErrorReportCommand : RecieveBaseCommand
     {

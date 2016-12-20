@@ -1,6 +1,6 @@
 ﻿using MetroLog;
 using Nuki.Communication.API;
-using Nuki.Communication.Commands.Response;
+using Nuki.Communication.Connection.Bluetooth.Commands.Response;
 using Nuki.Communication.Connection;
 using Nuki.Services.SettingsServices;
 using Nuki.Views;

@@ -1,5 +1,5 @@
 ﻿
-using Nuki.Communication.Commands;
+using Nuki.Communication.Connection.Bluetooth.Commands;
 using System;
 
 

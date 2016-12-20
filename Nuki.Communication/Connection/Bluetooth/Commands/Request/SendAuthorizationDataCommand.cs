@@ -7,7 +7,7 @@ using Nuki.Communication.Connection;
 using Nuki.Communication.API;
 using Nuki.Communication.SemanticTypes;
 
-namespace Nuki.Communication.Commands.Request
+namespace Nuki.Communication.Connection.Bluetooth.Commands.Request
 {
     public class SendAuthorizationDataCommand : SendBaseCommandAuthenticated
     {

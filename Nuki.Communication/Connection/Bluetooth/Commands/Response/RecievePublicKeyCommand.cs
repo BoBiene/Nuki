@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Nuki.Communication.SemanticTypes;
 
-namespace Nuki.Communication.Commands.Response
+namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
 {
     public class RecievePublicKeyCommand : RecieveBaseCommand
     {

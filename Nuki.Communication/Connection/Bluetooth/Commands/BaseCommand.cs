@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Nuki.Communication.Commands
+namespace Nuki.Communication.Connection.Bluetooth.Commands
 {
     public abstract class BaseCommand
     { 

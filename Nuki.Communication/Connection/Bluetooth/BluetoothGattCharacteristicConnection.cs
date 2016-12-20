@@ -1,7 +1,7 @@
 ﻿using MetroLog;
-using Nuki.Communication.Commands;
-using Nuki.Communication.Commands.Request;
-using Nuki.Communication.Commands.Response;
+using Nuki.Communication.Connection.Bluetooth.Commands;
+using Nuki.Communication.Connection.Bluetooth.Commands.Request;
+using Nuki.Communication.Connection.Bluetooth.Commands.Response;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nuki.Communication.Commands
+namespace Nuki.Communication.Connection.Bluetooth.Commands
 {
     public static class ByteHelper
     {

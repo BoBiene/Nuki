@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Nuki.Communication.Commands.Response;
+using Nuki.Communication.Connection.Bluetooth.Commands.Response;
 using System.Diagnostics;
 using Windows.Storage.Streams;
 using MetroLog;
 
-namespace Nuki.Communication.Commands
+namespace Nuki.Communication.Connection.Bluetooth.Commands
 {
     public static class ResponseCommandParser
     {

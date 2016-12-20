@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nuki.Communication.Commands.Request
+namespace Nuki.Communication.Connection.Bluetooth.Commands.Request
 {
     public class SendPublicKeyComand : SendBaseCommand
     {
