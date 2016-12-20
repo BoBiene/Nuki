@@ -14,8 +14,8 @@ namespace Nuki.Communication.Connection
         bool Connected { get; }
         string DeviceName { get; }
 
-        Task<RecieveNukiStatesCommand> RequestNukiState();
-        Task<RecieveStatusCommand> SendCalibrateRequest(ushort securityPin);
-        Task<RecieveStatusCommand> SendLockAction(NukiLockAction lockAction, NukiLockActionFlags flags = NukiLockActionFlags.None);
+        Task<INukiDeviceStateMessage> RequestNukiState();
+        Task<INukiReturnMessage> SendCalibrateRequest(ushort securityPin);
+        Task<INukiReturnMessage> SendLockAction(NukiLockAction lockAction, NukiLockActionFlags flags = NukiLockActionFlags.None);
     }
 }

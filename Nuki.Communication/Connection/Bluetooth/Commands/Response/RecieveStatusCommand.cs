@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
 {
-    public class RecieveStatusCommand : RecieveBaseCommand
+    public class RecieveStatusCommand : RecieveBaseCommand, INukiReturnMessage
     {
         public NukiErrorCode StatusCode => GetData<NukiErrorCode>(nameof(StatusCode));
         public RecieveStatusCommand()

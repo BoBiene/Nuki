@@ -108,7 +108,7 @@ namespace Nuki.Communication.Connection.Bluetooth
             return Connect(connectionInfo.DeviceName);
         }
 
-        public async Task<RecieveNukiStatesCommand> RequestNukiState()
+        public async Task<INukiDeviceStateMessage> RequestNukiState()
         {
             RecieveNukiStatesCommand retCmd = null;
         
@@ -126,7 +126,7 @@ namespace Nuki.Communication.Connection.Bluetooth
 
             return retCmd;
         }
-        public async Task<RecieveStatusCommand> SendCalibrateRequest(UInt16 securityPin)
+        public async Task<INukiReturnMessage> SendCalibrateRequest(UInt16 securityPin)
         {
             RecieveStatusCommand retCmd = null;
             if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))
@@ -149,7 +149,7 @@ namespace Nuki.Communication.Connection.Bluetooth
 
             return retCmd;
         }
-        public async Task<RecieveStatusCommand> SendLockAction(NukiLockAction lockAction, NukiLockActionFlags flags =  NukiLockActionFlags.None)
+        public async Task<INukiReturnMessage> SendLockAction(NukiLockAction lockAction, NukiLockActionFlags flags = NukiLockActionFlags.None)
         {
             RecieveStatusCommand retCmd = null;
             if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))

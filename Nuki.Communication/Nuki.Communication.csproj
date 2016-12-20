@@ -125,19 +125,19 @@
     <Compile Include="..\Semantictypes\SemanticTypes\UncomparableSemanticType.cs">
       <Link>SemanticTypes\Core\UncomparableSemanticType.cs</Link>
     </Compile>
-    <Compile Include="API\NukiDSTSetting.cs" />
-    <Compile Include="API\NukiFobAction.cs" />
-    <Compile Include="API\NukiLockActionFlags.cs" />
-    <Compile Include="API\NukiClientTypeID.cs" />
-    <Compile Include="API\NukiLockAction.cs" />
-    <Compile Include="API\NukiLockState.cs" />
-    <Compile Include="API\NukiLockStateChangeTrigger.cs" />
-    <Compile Include="API\NukiState.cs" />
+    <Compile Include="API\Enum\NukiDSTSetting.cs" />
+    <Compile Include="API\Enum\NukiFobAction.cs" />
+    <Compile Include="API\Enum\NukiLockActionFlags.cs" />
+    <Compile Include="API\Enum\NukiClientTypeID.cs" />
+    <Compile Include="API\Enum\NukiLockAction.cs" />
+    <Compile Include="API\Enum\NukiLockState.cs" />
+    <Compile Include="API\Enum\NukiLockStateChangeTrigger.cs" />
+    <Compile Include="API\Enum\NukiState.cs" />
     <Compile Include="API\NukiTimeStamp.cs" />
     <Compile Include="Connection\Bluetooth\Commands\BaseCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\ByteHelper.cs" />
     <Compile Include="Connection\Bluetooth\Commands\CrcMissmatchException.cs" />
-    <Compile Include="API\NukiErrorCode.cs" />
+    <Compile Include="API\Enum\NukiErrorCode.cs" />
     <Compile Include="Connection\Bluetooth\Commands\MessageParseException.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Request\SendAuthorizationDataCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Request\SendAuthorization­IDConfirmationCommand.cs" />
@@ -153,6 +153,8 @@
     <Compile Include="Connection\Bluetooth\Commands\Request\SendRequestDataCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Request\SendRequestConfigCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\ResponseCommandParser.cs" />
+    <Compile Include="API\INukiDeviceStateMessage.cs" />
+    <Compile Include="API\INukiReturnMessage.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveAuthorization­IDCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveBaseCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveBaseCommandAuthenticated.cs" />
@@ -163,7 +165,7 @@
     <Compile Include="Connection\Bluetooth\Commands\Response\RecievePublicKeyCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveStatusCommand.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothConnection.cs" />
-    <Compile Include="Connection\Bluetooth\BluetoothConnectionInfo.cs" />
+    <Compile Include="Connection\NukiConnectionBinding.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothConnectionMonitor.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothGattCharacteristicConnection.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothGattCharacteristicConnectionEncrypted.cs" />
@@ -172,6 +174,7 @@
     <Compile Include="Connection\IConnectionContext.cs" />
     <Compile Include="Connection\Bluetooth\BlutoothPairStatus.cs" />
     <Compile Include="Connection\INukiConnection.cs" />
+    <Compile Include="Connection\NukiConnectionFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SemanticTypes\ADATANonce.cs" />
     <Compile Include="SemanticTypes\BluetoothCharacteristic.cs" />

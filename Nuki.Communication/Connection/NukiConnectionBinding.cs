@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
 
-namespace Nuki.Communication.Connection.Bluetooth
+namespace Nuki.Communication.Connection
 {
     public class NukiConnectionBinding : NotifyPropertyChanged
     {

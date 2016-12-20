@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
 {
-    public class RecieveNukiStatesCommand : RecieveBaseCommand
+    public class RecieveNukiStatesCommand : RecieveBaseCommand, INukiDeviceStateMessage
     {
         public NukiState NukiState { get { return GetData<NukiState>(nameof(NukiState)); } }
         public NukiLockState LockState { get { return GetData<NukiLockState>(nameof(LockState)); } }
