@@ -19,7 +19,7 @@ using Windows.Devices.Enumeration;
 using Windows.Foundation;
 using Windows.Storage.Streams;
 
-namespace Nuki.Communication.Connection
+namespace Nuki.Communication.Connection.Bluetooth
 {
     public class BluetoothConnection : IConnectionContext, INukiConnection
     {

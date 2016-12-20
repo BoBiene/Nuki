@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 
-namespace Nuki.Communication.Commands
+namespace Nuki.Communication.API
 {
     public enum NukiErrorCode : byte
     {
