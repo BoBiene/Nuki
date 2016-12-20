@@ -64,7 +64,7 @@ namespace Nuki.ViewModels
                 else { }
             }
         }
-        public BluetoothConnection BluetoothConnection { get; private set; }
+        public INukiConnection BluetoothConnection { get; private set; }
 
         public NukiConnectionBinding NukiConncection
         {
@@ -73,12 +73,7 @@ namespace Nuki.ViewModels
             {
                 Set(ref m_NukiConnectionBinding, value);
                 RaisePropertyChanged(nameof(SelectedLock));
-                if (value != null)
-                {
-                    BluetoothConnection = BluetoothConnection.Connections[value.DeviceName];
-                }
-                else { }
-                RaisePropertyChanged(nameof(BluetoothConnection));
+            
             }
         }
 
@@ -86,6 +81,12 @@ namespace Nuki.ViewModels
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
         {
             NukiConncection = SettingsService.Instance.PairdLocks.Where((l) => l.UniqueClientID.Value == parameter as uint?).FirstOrDefault();
+
+            var connectResult = await NukiConnectionFactory.TryConnect(NukiConncection, (action) => Dispatcher.DispatchAsync(action).AsAsyncAction());
+
+            BluetoothConnection = connectResult.Connection;
+            RaisePropertyChanged(nameof(BluetoothConnection));
+
             //await HomeViewModel.OnNavigatedToAsync(parameter, mode, state);
             await base.OnNavigatedToAsync(parameter, mode, state);
         }

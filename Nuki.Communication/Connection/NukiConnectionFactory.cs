@@ -17,25 +17,15 @@ namespace Nuki.Communication.Connection
             s_Factories.AddFirst(new BluetoothConnectionFactory());
         }
 
-
-
-        public static async Task<bool> TryConnect(NukiConnectionBinding connectionInfo, Func<Action, IAsyncAction> dispatch, Action<INukiConnection> OnConnectionEstablished, int nTimeout = 3000)
+        public static async Task<NukiConnectResult> TryConnect(NukiConnectionBinding connectionInfo, Func<Action, IAsyncAction> dispatch,int nTimeout = 3000)
         {
-            bool blnRet = false;
-
+            NukiConnectResult returnValue = null;
             var current = s_Factories.First;
-            while (!blnRet && current != null)
+            while (returnValue == null && current != null)
             {
-                INukiConnection connection = null;
-                var result = await current.Value.TryConnect(connectionInfo, dispatch, nTimeout);
-                if (result?.Successfull == true)
-                {
-                    blnRet = true;
-                    OnConnectionEstablished(connection);
-                }
-                else { }
+                returnValue = await current.Value.TryConnect(connectionInfo, dispatch, nTimeout);
             }
-            return blnRet;
+            return returnValue;
         }
     }
     internal interface INukiConnectionFactory
