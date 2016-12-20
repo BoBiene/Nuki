@@ -9,7 +9,7 @@ using System.IO;
 using Nuki.Communication.SemanticTypes;
 using System.Diagnostics;
 
-namespace Nuki.Communication.Connection
+namespace Nuki.Communication.Connection.Bluetooth
 {
     internal class BluetoothGattCharacteristicConnectionEncrypted : BluetoothGattCharacteristicConnection
     {

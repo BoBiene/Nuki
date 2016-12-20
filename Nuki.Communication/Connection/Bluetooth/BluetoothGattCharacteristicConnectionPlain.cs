@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Nuki.Communication.Commands.Request;
 using Windows.Storage.Streams;
 
-namespace Nuki.Communication.Connection
+namespace Nuki.Communication.Connection.Bluetooth
 {
     internal class BluetoothGattCharacteristicConnectionPlain : BluetoothGattCharacteristicConnection
     {

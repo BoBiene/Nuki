@@ -12,7 +12,7 @@ using Windows.Devices.Enumeration;
 using Windows.Foundation;
 using Windows.UI.Core;
 
-namespace Nuki.Communication.Connection
+namespace Nuki.Communication.Connection.Bluetooth
 {
     public static class BluetoothConnectionMonitor
     {

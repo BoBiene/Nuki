@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Storage.Streams;
 
-namespace Nuki.Communication.Connection
+namespace Nuki.Communication.Connection.Bluetooth
 {
     internal abstract class BluetoothGattCharacteristicConnection
     {
