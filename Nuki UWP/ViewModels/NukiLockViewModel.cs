@@ -49,22 +49,28 @@ namespace Nuki.ViewModels
             set
             {
                 Set(ref m_SelectedPivotItem, value);
-                PivotItem pivotItem = value as PivotItem;
-                if (pivotItem != null)
+                OnNavigatedToPivotItemAsync(value).GetAwaiter();
+            }
+        }
+
+        private static async Task OnNavigatedToPivotItemAsync(object value, NavigationMode mode = NavigationMode.Refresh, IDictionary<string, object> state = null)
+        {
+            PivotItem pivotItem = value as PivotItem;
+            if (pivotItem != null)
+            {
+                UserControl control = pivotItem.Content as UserControl;
+
+                Part viewModel = control?.DataContext as Part;
+                if (viewModel != null)
                 {
-                    UserControl control = pivotItem.Content as UserControl;
-                    
-                    Part viewModel = control?.DataContext as Part;
-                    if (viewModel != null)
-                    {
-                        viewModel.OnNavigatedToAsync(null, NavigationMode.Refresh, null);
-                    }
-                    else { }
+                    await viewModel.OnNavigatedToAsync(null, mode, state);
                 }
                 else { }
             }
+            else { }
         }
-        public INukiConnection BluetoothConnection { get; private set; }
+
+        public BluetoothConnection BluetoothConnection { get; private set; }
 
         public NukiConnectionBinding NukiConncection
         {
@@ -87,7 +93,7 @@ namespace Nuki.ViewModels
             BluetoothConnection = connectResult.Connection;
             RaisePropertyChanged(nameof(BluetoothConnection));
 
-            //await HomeViewModel.OnNavigatedToAsync(parameter, mode, state);
+            await OnNavigatedToPivotItemAsync(SelectedPivotItem,mode,state);
             await base.OnNavigatedToAsync(parameter, mode, state);
         }
 
