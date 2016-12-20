@@ -72,20 +72,20 @@ namespace Nuki.ViewModels
             => m_SendLockCommand ?? (m_SendLockCommand = new DelegateCommand(async () =>
             {
                 Shell.SetBusy(true, "Locking...");
-                await BaseModel.BluetoothConnection.SendLockAction(NukiLockAction.Lock);
+                await BaseModel.NukiConncetion.SendLockAction(NukiLockAction.Lock);
                 Shell.SetBusy(false);
 
-            }, () => BaseModel.BluetoothConnection?.Connected == true));
+            }, () => BaseModel.NukiConncetion?.Connected == true));
 
         public DelegateCommand m_SendUnlockCommand = null;
         public DelegateCommand SendUnlockCommand
             => m_SendUnlockCommand ?? (m_SendUnlockCommand = new DelegateCommand(async () =>
             {
                 Shell.SetBusy(true, "Unlocking...");
-                await BaseModel.BluetoothConnection.SendLockAction(NukiLockAction.Unlock,NukiLockActionFlags.ForceUnlock);
+                await BaseModel.NukiConncetion.SendLockAction(NukiLockAction.Unlock,NukiLockActionFlags.ForceUnlock);
                 Shell.SetBusy(false);
 
-            }, () => BaseModel.BluetoothConnection?.Connected == true));
+            }, () => BaseModel.NukiConncetion?.Connected == true));
 
         public DelegateCommand m_SendCalibrateCommand = null;
         public DelegateCommand SendCalibrateCommand
@@ -94,42 +94,29 @@ namespace Nuki.ViewModels
                 var userPassword = await BaseModel.RequestPassword();
                 if (userPassword.Successfull)
                 {
-                    await BaseModel.BluetoothConnection.SendCalibrateRequest(userPassword.SecurityPIN);
+                    await BaseModel.NukiConncetion.SendCalibrateRequest(userPassword.SecurityPIN);
                 }
                 else { }
 
-            }, () => BaseModel.BluetoothConnection?.Connected == true));
+            }, () => BaseModel.NukiConncetion?.Connected == true));
 
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
         {
             LockRingState = "Connecting...";
-            if (Dispatcher != null)
-            {
-                var dispatcher = Dispatcher;
-                Log.Info("OnNavigatedToAsync");
-                BluetoothConnectionMonitor.Start(SettingsService.Instance.PairdLocks, (action) => dispatcher.DispatchAsync(action).AsAsyncAction(), (connection) =>
-                 {
-                     if (connection == BaseModel.BluetoothConnection)
-                         BaseModel.Dispatcher.Dispatch(async () => await RefreshNukiState());
-                 });
-            }
-            else
-            {
-                Log.Debug("Dispatcher is null...");
-            }
-          //  await RefreshNukiState();
+            Log.Info("OnNavigatedToAsync");
             await base.OnNavigatedToAsync(parameter, mode, state);
+            await RefreshNukiState();
         }
 
         private async Task RefreshNukiState()
         {
             LockRingState = "Requsting state...";
             BaseModel.ShowProgressbar(true);
-            RecieveNukiStatesCommand nukiStateCmd = null;
+            INukiDeviceStateMessage nukiStateCmd = null;
             try
             {
-                if (BaseModel?.BluetoothConnection?.Connected == true)
-                    nukiStateCmd = await BaseModel.BluetoothConnection.RequestNukiState();
+                if (BaseModel?.NukiConncetion?.Connected == true)
+                    nukiStateCmd = await BaseModel.NukiConncetion.RequestNukiState();
             }
             catch (Exception ex)
             {

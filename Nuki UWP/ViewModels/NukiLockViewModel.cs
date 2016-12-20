@@ -11,6 +11,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using Template10.Common;
 using Template10.Services.NavigationService;
+using Windows.UI.Core;
 
 namespace Nuki.ViewModels
 {
@@ -70,7 +71,7 @@ namespace Nuki.ViewModels
             else { }
         }
 
-        public BluetoothConnection BluetoothConnection { get; private set; }
+        public INukiConnection NukiConncetion { get; private set; }
 
         public NukiConnectionBinding NukiConncection
         {
@@ -88,10 +89,10 @@ namespace Nuki.ViewModels
         {
             NukiConncection = SettingsService.Instance.PairdLocks.Where((l) => l.UniqueClientID.Value == parameter as uint?).FirstOrDefault();
 
-            var connectResult = await NukiConnectionFactory.TryConnect(NukiConncection, (action) => Dispatcher.DispatchAsync(action).AsAsyncAction());
+            var connectResult = await NukiConnectionFactory.TryConnect(NukiConncection, (action) => Dispatcher.DispatchAsync(action,priority: CoreDispatcherPriority.Low).AsAsyncAction());
 
-            BluetoothConnection = connectResult.Connection;
-            RaisePropertyChanged(nameof(BluetoothConnection));
+            NukiConncetion = connectResult.Connection;
+            RaisePropertyChanged(nameof(NukiConncetion));
 
             await OnNavigatedToPivotItemAsync(SelectedPivotItem,mode,state);
             await base.OnNavigatedToAsync(parameter, mode, state);

@@ -28,6 +28,7 @@ using Nuki.ViewModels;
 using Nuki.Views;
 using Nuki.Services.SettingsServices;
 using MetroLog;
+using Nuki.Communication.Connection.Bluetooth;
 
 namespace Nuki.Pages.Setup
 {

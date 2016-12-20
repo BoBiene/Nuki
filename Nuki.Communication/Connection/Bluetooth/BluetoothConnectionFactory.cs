@@ -101,8 +101,18 @@ namespace Nuki.Communication.Connection.Bluetooth
 
                     s_Watcher = DeviceInformation.CreateWatcher(aqs, requestedProperties);
                     s_Watcher.Added += OnBLEAdded;
-                    s_Watcher.Stopped += (s, o) => taskCompletionSource.TrySetCanceled();
-                    s_Watcher.EnumerationCompleted += (s, o) => taskCompletionSource.TrySetCanceled();
+                    s_Watcher.Stopped += (s, o) =>
+                    {
+                        if (!taskCompletionSource.Task.IsCompleted) taskCompletionSource.TrySetCanceled();
+                    };
+                    s_Watcher.EnumerationCompleted += async (s, o) =>
+                    {
+                        await dispatch(async () =>
+                        {
+                            await Task.Delay(1000);
+                            if (!taskCompletionSource.Task.IsCompleted) taskCompletionSource.TrySetCanceled();
+                        });
+                    };
                     s_Watcher.Start();
 
                     retValue = await taskCompletionSource.Task;
