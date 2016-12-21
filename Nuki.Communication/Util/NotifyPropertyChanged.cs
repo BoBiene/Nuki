@@ -12,7 +12,7 @@ namespace Nuki.Communication.Util
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void OnPropertyChanged([CallerMemberName]string propertyName = null)
+        protected void RaisePropertyChanged([CallerMemberName]string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -21,7 +21,7 @@ namespace Nuki.Communication.Util
         {
             if (!object.Equals(storage, value)) {
                 storage = value;
-                OnPropertyChanged(propertyName);
+                RaisePropertyChanged(propertyName);
                 return true;
             }
             return false;

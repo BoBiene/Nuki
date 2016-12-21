@@ -17,13 +17,13 @@ namespace Nuki.ViewModels
 {
     public partial class NukiLockViewModel : PivotBaseViewModel<NukiLockViewModel>
     {
-        private NukiConnectionBinding m_NukiConnectionBinding = null;
+        private NukiConnectionConfig m_NukiConnectionBinding = null;
         private Visibility m_ProgressbarVisibility = Visibility.Collapsed;
       
 
         public string SelectedLock
         {
-            get { return NukiConncection?.ConnectionName ?? string.Empty; }
+            get { return NukiConnectionConfig?.ConnectionName ?? string.Empty; }
 
         }
 
@@ -43,7 +43,7 @@ namespace Nuki.ViewModels
 
         public INukiConnection NukiConncetion { get; private set; }
 
-        public NukiConnectionBinding NukiConncection
+        public NukiConnectionConfig NukiConnectionConfig
         {
             get { return m_NukiConnectionBinding; }
             set
@@ -57,9 +57,9 @@ namespace Nuki.ViewModels
 
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
         {
-            NukiConncection = SettingsService.Instance.PairdLocks.Where((l) => l.UniqueClientID.Value == parameter as uint?).FirstOrDefault();
+            NukiConnectionConfig = SettingsService.Instance.PairdLocks.Where((l) => l.UniqueClientID.Value == parameter as uint?).FirstOrDefault();
 
-            var connectResult = await NukiConnectionFactory.TryConnect(NukiConncection, (action) => Dispatcher.DispatchAsync(action,priority: CoreDispatcherPriority.Low).AsAsyncAction());
+            var connectResult = await NukiConnectionFactory.TryConnect(NukiConnectionConfig, (action) => Dispatcher.DispatchAsync(action,priority: CoreDispatcherPriority.Low).AsAsyncAction());
 
             NukiConncetion = connectResult.Connection;
             RaisePropertyChanged(nameof(NukiConncetion));

@@ -104,8 +104,23 @@ namespace Nuki.ViewModels
         {
             LockRingState = "Connecting...";
             Log.Info("OnNavigatedToAsync");
+            if(BaseModel?.NukiConncetion != null)
+            {
+                BaseModel.NukiConncetion.PropertyChanged -= NukiConncetion_PropertyChanged;
+                BaseModel.NukiConncetion.PropertyChanged += NukiConncetion_PropertyChanged;
+            }
+            else { }
             await base.OnNavigatedToAsync(parameter, mode, state);
             await RefreshNukiState();
+        }
+
+        private void NukiConncetion_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(BaseModel.NukiConncetion.LastKnownDeviceState))
+            {
+                UpdateNukiDeviceState(BaseModel.NukiConncetion.LastKnownDeviceState).GetAwaiter();
+            }
+            else { }
         }
 
         private async Task RefreshNukiState()
@@ -122,22 +137,37 @@ namespace Nuki.ViewModels
             {
                 Log.Error("Failed to request Nuki Stat: {0}", ex);
             }
-
-            if (nukiStateCmd != null)
-            {
-                LockState = nukiStateCmd.LockState;
-                NukiState = nukiStateCmd.NukiState;
-                CriticalBattery = nukiStateCmd.CriticalBattery;
-                LockRingState = LockState.ToString();
-            }
-            else
-            {
-                LockState = NukiLockState.Undefined;
-            }
+            await UpdateNukiDeviceState(nukiStateCmd);
             SendCalibrateCommand.RaiseCanExecuteChanged();
             SendLockCommand.RaiseCanExecuteChanged();
             SendUnlockCommand.RaiseCanExecuteChanged();
             BaseModel.ShowProgressbar(false);
+        }
+
+        private async Task UpdateNukiDeviceState(INukiDeviceStateMessage nukiStateCmd)
+        {
+            var action = new Action(() =>
+             {
+                 if (nukiStateCmd != null)
+                 {
+                     LockState = nukiStateCmd.LockState;
+                     NukiState = nukiStateCmd.NukiState;
+                     CriticalBattery = nukiStateCmd.CriticalBattery;
+                     LockRingState = LockState.ToString();
+                 }
+                 else
+                 {
+                     LockState = NukiLockState.Undefined;
+                 }
+             });
+            if (Dispatcher != null)
+            {
+                await Dispatcher.DispatchAsync(action);
+            }
+            else
+            {
+                action();
+            }
         }
     }
 }

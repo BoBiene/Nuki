@@ -4,6 +4,7 @@ using Nuki.Communication.Connection.Bluetooth.Commands;
 using Nuki.Communication.Connection.Bluetooth.Commands.Request;
 using Nuki.Communication.Connection.Bluetooth.Commands.Response;
 using Nuki.Communication.SemanticTypes;
+using Nuki.Communication.Util;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ using Windows.Storage.Streams;
 
 namespace Nuki.Communication.Connection.Bluetooth
 {
-    public class BluetoothConnection : IConnectionContext, INukiConnection
+    public class BluetoothConnection : NotifyPropertyChanged, IConnectionContext, INukiConnection
     {
         public static readonly BluetoothServiceUUID KeyTurnerPairingService = new BluetoothServiceUUID("a92ee100550111e4916c0800200c9a66");
         public static readonly BluetoothServiceUUID KeyTurnerInitializingService = new BluetoothServiceUUID("a92ee000550111e4916c0800200c9a66");
@@ -40,12 +41,13 @@ namespace Nuki.Communication.Connection.Bluetooth
         private BluetoothGattCharacteristicConnection m_UGDIO = null;
         private object Syncroot = new object();
         private BluetoothLEDevice m_bleDevice = null;
+        public INukiDeviceStateMessage m_LastDeviceState = null;
         public bool Connected => m_bleDevice != null;
-
+        public INukiDeviceStateMessage LastKnownDeviceState { get { return m_LastDeviceState; } set { Set(ref m_LastDeviceState, value); } }
        
         public string DeviceName => m_connectionInfo.DeviceName;
         public static Collection Connections => Collection.Instance;
-        private NukiConnectionBinding m_connectionInfo = new NukiConnectionBinding();
+        private NukiConnectionConfig m_connectionInfo = new NukiConnectionConfig();
         public ClientPublicKey ClientPublicKey => m_connectionInfo.ClientPublicKey;
         public SmartLockPublicKey SmartLockPublicKey => m_connectionInfo.SmartLockPublicKey;
         public SharedKey SharedKey => m_connectionInfo.SharedKey;
@@ -57,6 +59,8 @@ namespace Nuki.Communication.Connection.Bluetooth
             get;
             internal set;
         }
+
+      
 
         public class Collection
         {
@@ -93,6 +97,23 @@ namespace Nuki.Communication.Connection.Bluetooth
             }
         }
 
+        internal void Update(RecieveErrorReportCommand recieveErrorReportCommand)
+        {
+            Log.Error(recieveErrorReportCommand.ToString());
+        }
+
+        internal void Update(RecieveNukiStatesCommand recieveNukiStatesCommand)
+        {
+            Log.Debug("Recieved new SmartLock state...");
+            LastKnownDeviceState = recieveNukiStatesCommand;
+        }
+
+        internal void Update(RecieveChallengeCommand recieveChallengeCommand)
+        {
+            Log.Debug("Recieved new SmartLock Nonce...");
+            this.SmartLockNonce = recieveChallengeCommand.Nonce;
+        }
+
         private BluetoothConnection(string strDeviceName)
         {
             m_connectionInfo.DeviceName = strDeviceName;
@@ -101,7 +122,7 @@ namespace Nuki.Communication.Connection.Bluetooth
             //m_GDIO = new BluetoothGattCharacteristicConnectionEncrypted(this);
             m_UGDIO = new BluetoothGattCharacteristicConnectionEncrypted(this);
         }
-        public Task<bool> Connect(NukiConnectionBinding connectionInfo)
+        public Task<bool> Connect(NukiConnectionConfig connectionInfo)
         {
             if (connectionInfo == null)
                 throw new ArgumentNullException(nameof(connectionInfo));
@@ -182,7 +203,7 @@ namespace Nuki.Communication.Connection.Bluetooth
         {
             return await Connect(strDeviceID, null) >= ConnectResult.Successfull;
         }
-        public async Task<ConnectResult> Connect(string strDeviceID, NukiConnectionBinding connectionInfo)
+        public async Task<ConnectResult> Connect(string strDeviceID, NukiConnectionConfig connectionInfo)
         {
             ConnectResult result = ConnectResult.Failed;
 
@@ -219,6 +240,7 @@ namespace Nuki.Communication.Connection.Bluetooth
                         m_bleDevice.ConnectionStatusChanged -= M_bleDevice_ConnectionStatusChanged;
                     m_bleDevice = deviceService.Device;
                     m_bleDevice.ConnectionStatusChanged += M_bleDevice_ConnectionStatusChanged;
+                    RaisePropertyChanged(nameof(Connected));
                 }
                 else
                 {

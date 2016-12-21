@@ -165,7 +165,7 @@
     <Compile Include="Connection\Bluetooth\Commands\Response\RecievePublicKeyCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveStatusCommand.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothConnection.cs" />
-    <Compile Include="Connection\NukiConnectionBinding.cs" />
+    <Compile Include="Connection\NukiConnectionConfig.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothConnectionFactory.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothGattCharacteristicConnection.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothGattCharacteristicConnectionEncrypted.cs" />

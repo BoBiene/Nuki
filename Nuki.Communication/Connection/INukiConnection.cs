@@ -2,17 +2,19 @@
 using Nuki.Communication.Connection.Bluetooth.Commands.Response;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Nuki.Communication.Connection
 {
-    public interface INukiConnection
+    public interface INukiConnection: INotifyPropertyChanged
     {
 
         bool Connected { get; }
         string DeviceName { get; }
+        INukiDeviceStateMessage LastKnownDeviceState { get; }
 
         Task<INukiDeviceStateMessage> RequestNukiState();
         Task<INukiReturnMessage> SendCalibrateRequest(ushort securityPin);

@@ -18,7 +18,7 @@ namespace Nuki.Communication.Connection.Bluetooth
     {
         private static ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger(nameof(BluetoothConnectionFactory));
 
-        public async Task<NukiConnectResult> TryConnect(NukiConnectionBinding connectionInfo, Func<Action, IAsyncAction> dispatch, int nTimeout = 3000)
+        public async Task<NukiConnectResult> TryConnect(NukiConnectionConfig connectionInfo, Func<Action, IAsyncAction> dispatch, int nTimeout = 3000)
         {
 
             bool blnRet = false;
@@ -57,7 +57,7 @@ namespace Nuki.Communication.Connection.Bluetooth
         }
    
 
-        private Task<INukiConnection> TryConnect(NukiConnectionBinding connectionInfo, Func<Action, IAsyncAction> dispatch)
+        private Task<INukiConnection> TryConnect(NukiConnectionConfig connectionInfo, Func<Action, IAsyncAction> dispatch)
         {
             return Task.Run(async () =>
             {
