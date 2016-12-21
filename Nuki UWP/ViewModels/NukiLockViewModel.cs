@@ -67,6 +67,36 @@ namespace Nuki.ViewModels
             await base.OnNavigatedToAsync(parameter, mode, state);
         }
 
-    
+        public struct PasswordRequestResult
+        {
+            public UInt16 SecurityPIN { get; private set; }
+            public bool Successfull { get; private set; }
+            public PasswordRequestResult(UInt16 securityPin, bool blnSuccessfull)
+            {
+                SecurityPIN = securityPin;
+                Successfull = blnSuccessfull;
+            }
+        }
+
+        public async Task<PasswordRequestResult> RequestPassword()
+        {
+            var dlg = new Views.dialogRequestPassword();
+            var result = await dlg.ShowAsync();
+            PasswordRequestResult returnValue = new PasswordRequestResult();
+            if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                ushort pin = 0;
+                if (ushort.TryParse(dlg.UserInputPassword, out pin))
+                    returnValue = new PasswordRequestResult(pin, true);
+
+            }
+            else
+            {
+
+            }
+
+            return returnValue;
+        }
+
     }
 }
