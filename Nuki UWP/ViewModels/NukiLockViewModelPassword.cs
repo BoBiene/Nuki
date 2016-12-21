@@ -72,11 +72,27 @@ namespace Nuki.ViewModels
         private TaskCompletionSource<PasswordRequestResult> m_PasswordResult = null;
         public async Task<PasswordRequestResult> RequestPassword()
         {
-            m_PasswordResult = new TaskCompletionSource<PasswordRequestResult>();
-            UserInputPassword = string.Empty;
-            IsPasswordDialogVisible = true;
-            RaisePropertyChanged(nameof(IsPasswordDialogVisible));
-            return await m_PasswordResult.Task;
+            var dlg = new Views.dialogRequestPassword();
+            var result = await dlg.ShowAsync();
+            PasswordRequestResult returnValue = new PasswordRequestResult();
+            if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                ushort pin = 0;
+                if (ushort.TryParse(dlg.UserInputPassword, out pin))
+                    returnValue = new PasswordRequestResult(pin, true);
+
+            }
+            else
+            {
+
+            }
+
+            return returnValue;
+            //m_PasswordResult = new TaskCompletionSource<PasswordRequestResult>();
+            //UserInputPassword = string.Empty;
+            //IsPasswordDialogVisible = true;
+            //RaisePropertyChanged(nameof(IsPasswordDialogVisible));
+            //return await m_PasswordResult.Task;
         }
     }
 }

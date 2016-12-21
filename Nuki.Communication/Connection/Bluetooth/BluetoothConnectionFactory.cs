@@ -80,11 +80,11 @@ namespace Nuki.Communication.Connection.Bluetooth
                                 if (result >= BluetoothConnection.ConnectResult.Successfull)
                                 {
                                     Log.Info("Connected to: " + deviceInfo.Id + ", Name: " + deviceInfo.Name);
-                                    taskCompletionSource.SetResult(connection);
+                                    taskCompletionSource.TrySetResult(connection);
                                 }
                                 else
                                 {
-                                    taskCompletionSource.SetCanceled();
+                                    taskCompletionSource.TrySetCanceled();
                                 }
                             }
                             else { }
@@ -101,11 +101,7 @@ namespace Nuki.Communication.Connection.Bluetooth
 
                     s_Watcher = DeviceInformation.CreateWatcher(aqs, requestedProperties);
                     s_Watcher.Added += OnBLEAdded;
-                    s_Watcher.Stopped += (s, o) =>
-                    {
-                        if (!taskCompletionSource.Task.IsCompleted) taskCompletionSource.TrySetCanceled();
-                    };
-                    s_Watcher.EnumerationCompleted += async (s, o) =>
+                    s_Watcher.Stopped += async (s, o) =>
                     {
                         await dispatch(async () =>
                         {
@@ -113,6 +109,7 @@ namespace Nuki.Communication.Connection.Bluetooth
                             if (!taskCompletionSource.Task.IsCompleted) taskCompletionSource.TrySetCanceled();
                         });
                     };
+                 
                     s_Watcher.Start();
 
                     retValue = await taskCompletionSource.Task;

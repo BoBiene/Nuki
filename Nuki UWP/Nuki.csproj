@@ -123,6 +123,12 @@
     <Compile Include="ViewModels\NukiLockHomePartViewModel.cs" />
     <Compile Include="ViewModels\NukiLockViewModel.cs" />
     <Compile Include="ViewModels\NukiLockViewModelPassword.cs" />
+    <Compile Include="ViewModels\PivotBaseViewModel.cs" />
+    <Compile Include="ViewModels\SettingsPageAboutPartViewModel.cs" />
+    <Compile Include="ViewModels\SettingsPageSettingsPartViewModel.cs" />
+    <Compile Include="Views\dialogRequestPassword.xaml.cs">
+      <DependentUpon>dialogRequestPassword.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Helper\FlyoutHelper.cs" />
     <Compile Include="Views\NukiLock.xaml.cs">
       <DependentUpon>NukiLock.xaml</DependentUpon>
@@ -138,6 +144,12 @@
     </Compile>
     <Compile Include="Views\NukiLockStatus.xaml.cs">
       <DependentUpon>NukiLockStatus.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPageAbout.xaml.cs">
+      <DependentUpon>SettingsPageAbout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPageSettings.xaml.cs">
+      <DependentUpon>SettingsPageSettings.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Setup\Setup02ConfirmInstallation.xaml.cs">
       <DependentUpon>Setup02ConfirmInstallation.xaml</DependentUpon>
@@ -227,6 +239,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Views\dialogRequestPassword.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\NukiLock.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -244,6 +260,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\NukiLockStatus.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageAbout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -15,16 +15,11 @@ using Windows.UI.Core;
 
 namespace Nuki.ViewModels
 {
-    public partial class NukiLockViewModel : ViewModelBase
+    public partial class NukiLockViewModel : PivotBaseViewModel<NukiLockViewModel>
     {
         private NukiConnectionBinding m_NukiConnectionBinding = null;
         private Visibility m_ProgressbarVisibility = Visibility.Collapsed;
-        private object m_SelectedPivotItem = null;
-        //public NukiLockAdministrationPartViewModel AdministrationViewModel { get; private set; }
-        //public NukiLockHomePartViewModel HomeViewModel { get; private set; }
-        //public NukiLockSettingsPartViewModel SettingsViewModel { get; private set; }
-        //public NukiLockStatusPartViewModel StatusViewModel { get; private set; }
-
+      
 
         public string SelectedLock
         {
@@ -45,31 +40,6 @@ namespace Nuki.ViewModels
             RaisePropertyChanged(nameof(ProgressbarVisibility));
         }
 
-        public object SelectedPivotItem {
-            get { return m_SelectedPivotItem; }
-            set
-            {
-                Set(ref m_SelectedPivotItem, value);
-                OnNavigatedToPivotItemAsync(value).GetAwaiter();
-            }
-        }
-
-        private static async Task OnNavigatedToPivotItemAsync(object value, NavigationMode mode = NavigationMode.Refresh, IDictionary<string, object> state = null)
-        {
-            PivotItem pivotItem = value as PivotItem;
-            if (pivotItem != null)
-            {
-                UserControl control = pivotItem.Content as UserControl;
-
-                Part viewModel = control?.DataContext as Part;
-                if (viewModel != null)
-                {
-                    await viewModel.OnNavigatedToAsync(null, mode, state);
-                }
-                else { }
-            }
-            else { }
-        }
 
         public INukiConnection NukiConncetion { get; private set; }
 
@@ -94,72 +64,9 @@ namespace Nuki.ViewModels
             NukiConncetion = connectResult.Connection;
             RaisePropertyChanged(nameof(NukiConncetion));
 
-            await OnNavigatedToPivotItemAsync(SelectedPivotItem,mode,state);
             await base.OnNavigatedToAsync(parameter, mode, state);
         }
 
-        public NukiLockViewModel()
-        {
-            Current = this;
-            //AdministrationViewModel = new NukiLockAdministrationPartViewModel(this);
-            //HomeViewModel = new NukiLockHomePartViewModel(this);
-            //SettingsViewModel = new NukiLockSettingsPartViewModel(this);
-            //StatusViewModel = new NukiLockStatusPartViewModel(this);
-        }
-
-        private static NukiLockViewModel Current { get; set; }
-        public abstract class Part : ViewModelBase
-        {
-            public NukiLockViewModel BaseModel { get; private set; }
-            public Part()
-                :this(NukiLockViewModel.Current)
-            {
-
-            }
-            public Part(NukiLockViewModel baseModel)
-                : base()
-            {
-                BaseModel = baseModel;
-             
-            }
-
-            public override IStateItems SessionState
-            {
-                get
-                {
-                    return base.SessionState ?? BaseModel.SessionState;
-                }
-
-                set
-                {
-                    base.SessionState = value;
-                }
-            }
-
-            public override INavigationService NavigationService
-            {
-                get
-                {
-                    return base.NavigationService ?? BaseModel.NavigationService;
-                }
-
-                set
-                {
-                    base.NavigationService = value;
-                }
-            }
-            public override IDispatcherWrapper Dispatcher
-            {
-                get
-                {
-                    return base.Dispatcher ?? BaseModel.Dispatcher;
-                }
-
-                set
-                {
-                    base.Dispatcher = value;
-                }
-            }
-        }
+    
     }
 }
