@@ -11,19 +11,15 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using Template10.Common;
 using Template10.Services.NavigationService;
+using Windows.UI.Core;
 
 namespace Nuki.ViewModels
 {
-    public partial class NukiLockViewModel : ViewModelBase
+    public partial class NukiLockViewModel : PivotBaseViewModel<NukiLockViewModel>
     {
         private NukiConnectionBinding m_NukiConnectionBinding = null;
         private Visibility m_ProgressbarVisibility = Visibility.Collapsed;
-        private object m_SelectedPivotItem = null;
-        //public NukiLockAdministrationPartViewModel AdministrationViewModel { get; private set; }
-        //public NukiLockHomePartViewModel HomeViewModel { get; private set; }
-        //public NukiLockSettingsPartViewModel SettingsViewModel { get; private set; }
-        //public NukiLockStatusPartViewModel StatusViewModel { get; private set; }
-
+      
 
         public string SelectedLock
         {
@@ -44,27 +40,8 @@ namespace Nuki.ViewModels
             RaisePropertyChanged(nameof(ProgressbarVisibility));
         }
 
-        public object SelectedPivotItem {
-            get { return m_SelectedPivotItem; }
-            set
-            {
-                Set(ref m_SelectedPivotItem, value);
-                PivotItem pivotItem = value as PivotItem;
-                if (pivotItem != null)
-                {
-                    UserControl control = pivotItem.Content as UserControl;
-                    
-                    Part viewModel = control?.DataContext as Part;
-                    if (viewModel != null)
-                    {
-                        viewModel.OnNavigatedToAsync(null, NavigationMode.Refresh, null);
-                    }
-                    else { }
-                }
-                else { }
-            }
-        }
-        public BluetoothConnection BluetoothConnection { get; private set; }
+
+        public INukiConnection NukiConncetion { get; private set; }
 
         public NukiConnectionBinding NukiConncection
         {
@@ -73,12 +50,7 @@ namespace Nuki.ViewModels
             {
                 Set(ref m_NukiConnectionBinding, value);
                 RaisePropertyChanged(nameof(SelectedLock));
-                if (value != null)
-                {
-                    BluetoothConnection = BluetoothConnection.Connections[value.DeviceName];
-                }
-                else { }
-                RaisePropertyChanged(nameof(BluetoothConnection));
+            
             }
         }
 
@@ -86,72 +58,45 @@ namespace Nuki.ViewModels
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
         {
             NukiConncection = SettingsService.Instance.PairdLocks.Where((l) => l.UniqueClientID.Value == parameter as uint?).FirstOrDefault();
-            //await HomeViewModel.OnNavigatedToAsync(parameter, mode, state);
+
+            var connectResult = await NukiConnectionFactory.TryConnect(NukiConncection, (action) => Dispatcher.DispatchAsync(action,priority: CoreDispatcherPriority.Low).AsAsyncAction());
+
+            NukiConncetion = connectResult.Connection;
+            RaisePropertyChanged(nameof(NukiConncetion));
+
             await base.OnNavigatedToAsync(parameter, mode, state);
         }
 
-        public NukiLockViewModel()
+        public struct PasswordRequestResult
         {
-            Current = this;
-            //AdministrationViewModel = new NukiLockAdministrationPartViewModel(this);
-            //HomeViewModel = new NukiLockHomePartViewModel(this);
-            //SettingsViewModel = new NukiLockSettingsPartViewModel(this);
-            //StatusViewModel = new NukiLockStatusPartViewModel(this);
+            public UInt16 SecurityPIN { get; private set; }
+            public bool Successfull { get; private set; }
+            public PasswordRequestResult(UInt16 securityPin, bool blnSuccessfull)
+            {
+                SecurityPIN = securityPin;
+                Successfull = blnSuccessfull;
+            }
         }
 
-        private static NukiLockViewModel Current { get; set; }
-        public abstract class Part : ViewModelBase
+        public async Task<PasswordRequestResult> RequestPassword()
         {
-            public NukiLockViewModel BaseModel { get; private set; }
-            public Part()
-                :this(NukiLockViewModel.Current)
+            var dlg = new Views.dialogRequestPassword();
+            var result = await dlg.ShowAsync();
+            PasswordRequestResult returnValue = new PasswordRequestResult();
+            if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                ushort pin = 0;
+                if (ushort.TryParse(dlg.UserInputPassword, out pin))
+                    returnValue = new PasswordRequestResult(pin, true);
+
+            }
+            else
             {
 
             }
-            public Part(NukiLockViewModel baseModel)
-                : base()
-            {
-                BaseModel = baseModel;
-             
-            }
 
-            public override IStateItems SessionState
-            {
-                get
-                {
-                    return base.SessionState ?? BaseModel.SessionState;
-                }
-
-                set
-                {
-                    base.SessionState = value;
-                }
-            }
-
-            public override INavigationService NavigationService
-            {
-                get
-                {
-                    return base.NavigationService ?? BaseModel.NavigationService;
-                }
-
-                set
-                {
-                    base.NavigationService = value;
-                }
-            }
-            public override IDispatcherWrapper Dispatcher
-            {
-                get
-                {
-                    return base.Dispatcher ?? BaseModel.Dispatcher;
-                }
-
-                set
-                {
-                    base.Dispatcher = value;
-                }
-            }
+            return returnValue;
         }
+
     }
 }

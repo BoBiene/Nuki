@@ -2,11 +2,11 @@
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using System.Text;
 using System.Linq;
-using Nuki.Communication.Commands;
+using Nuki.Communication.Connection.Bluetooth.Commands;
 using System.Linq;
 using System.Collections.Generic;
-using Nuki.Communication.Commands.Request;
-using Nuki.Communication.Commands.Response;
+using Nuki.Communication.Connection.Bluetooth.Commands.Request;
+using Nuki.Communication.Connection.Bluetooth.Commands.Response;
 using Nuki.Communication.Connection;
 using Nuki.Communication.SemanticTypes;
 using Windows.Storage.Streams;
