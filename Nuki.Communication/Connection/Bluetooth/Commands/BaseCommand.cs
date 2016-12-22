@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.SemanticTypes;
+﻿using Nuki.Communication.API;
+using Nuki.Communication.SemanticTypes;
 using SemanticTypes;
 using System;
 using System.Collections.Concurrent;
@@ -24,9 +25,9 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands
         private int m_nFieldPointer = -1;
         private ConcurrentDictionary<string, DataField> m_mapByFieldName = new ConcurrentDictionary<string, DataField>(StringComparer.OrdinalIgnoreCase);
         private DataField[] m_mapByPostion = null;
-        public CommandTypes CommandType { get { return GetData<CommandTypes>(nameof(CommandType)); } }
+        public NukiCommandType CommandType { get { return GetData<NukiCommandType>(nameof(CommandType)); } }
         protected int FieldPointer => m_nFieldPointer;
-        public BaseCommand(CommandTypes type, int nNumberOfFields)
+        public BaseCommand(NukiCommandType type, int nNumberOfFields)
         {
             m_mapByPostion = new DataField[nNumberOfFields + 1];
             AddField(nameof(CommandType), type,FieldFlags.PartOfMessage);

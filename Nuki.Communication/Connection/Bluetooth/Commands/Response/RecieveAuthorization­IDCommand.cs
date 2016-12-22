@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.SemanticTypes;
+﻿using Nuki.Communication.API;
+using Nuki.Communication.SemanticTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
         public SmartLockUUID SmartLockUUID { get { return GetData<SmartLockUUID>(nameof(SmartLockUUID)); } }
         public SmartLockNonce SmartLockNonce { get { return GetData<SmartLockNonce>(nameof(SmartLockNonce)); } }
         public RecieveAuthorization­IDCommand()
-                : base(CommandTypes.AuthorizationID, InitFields())
+                : base(NukiCommandType.AuthorizationID, InitFields())
         {
         }
 

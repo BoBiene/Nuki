@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.Connection;
+﻿using Nuki.Communication.API;
+using Nuki.Communication.Connection;
 using Nuki.Communication.SemanticTypes;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Request
     {
      
         public MessageAuthentication Authenticator { get { return GetData<MessageAuthentication>(nameof(Authenticator)); } }
-        public SendBaseCommandAuthenticated(CommandTypes type, IConnectionContext connectionContext, int nNumberOfFields)
+        public SendBaseCommandAuthenticated(NukiCommandType type, IConnectionContext connectionContext, int nNumberOfFields)
             : base(type,connectionContext, nNumberOfFields + 1)
         {
             AddField(nameof(Authenticator), CalculateAuthenticator,32, FieldFlags.PartOfMessage);

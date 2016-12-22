@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using Nuki.Communication.SemanticTypes;
 using SemanticTypes;
+using Nuki.Communication.API;
 
 namespace Nuki.Communication.Connection.Bluetooth.Commands.Request
 {
@@ -16,7 +17,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Request
     {
         private static readonly byte[] EmptyBytes = new byte[0];
 
-        public SendBaseCommand(CommandTypes type, int nNumberOfFields)
+        public SendBaseCommand(NukiCommandType type, int nNumberOfFields)
             : base(type, nNumberOfFields)
         {
 

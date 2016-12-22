@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.SemanticTypes;
+﻿using Nuki.Communication.API;
+using Nuki.Communication.SemanticTypes;
 using Nuki.Communication.Util;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
         private int m_nRecievePointer = 0;
         private FieldParserBase[] m_fields = null;
         public UInt16 CRC { get { return GetData<UInt16>(nameof(CRC)); } }
-        protected RecieveBaseCommand(CommandTypes type, IEnumerable<FieldParserBase> fields)
+        protected RecieveBaseCommand(NukiCommandType type, IEnumerable<FieldParserBase> fields)
            :this(type,AddCRCField( fields))
         {
          
@@ -32,7 +33,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
             return tmp.ToArray() ;
         }
 
-        private RecieveBaseCommand(CommandTypes type, FieldParserBase[] fields)
+        private RecieveBaseCommand(NukiCommandType type, FieldParserBase[] fields)
             : base(type,fields.Length)
         {
             m_fields = fields;

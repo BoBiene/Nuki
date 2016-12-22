@@ -63,7 +63,7 @@ namespace Nuki_Test
         [TestMethod]
         public void TestSendRequestDataCommand()
         {
-            var Command = new SendRequestDataCommand(CommandTypes.PublicKey);
+            var Command = new SendRequestDataCommand(NukiCommandType.PublicKey);
 
             var data = Command.Serialize();
             string strData = ByteArrayToString(data);
@@ -157,7 +157,7 @@ namespace Nuki_Test
         public void TestEncryption()
         {
 
-            var Command = new SendRequestDataCommand(CommandTypes.Challenge);
+            var Command = new SendRequestDataCommand(NukiCommandType.Challenge);
 
 
             //byte[] byNonce = Sodium.Core.GetRandomBytes(24);

@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Nuki.Communication.Connection.Bluetooth.Commands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nuki.Communication.Connection.Bluetooth.Commands
+namespace Nuki.Communication.API
 {
     [EnumBitSize(16)]
-    public enum CommandTypes : UInt16
+    public enum NukiCommandType : UInt16
     {
         RequestData = 0x0001,
         PublicKey = 0x0003,

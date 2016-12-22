@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.Connection;
+﻿using Nuki.Communication.API;
+using Nuki.Communication.Connection;
 using Nuki.Communication.SemanticTypes;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
     public abstract class RecieveBaseCommandAuthenticated : RecieveBaseCommand
     {
         public MessageAuthentication Authentication { get { return GetData<MessageAuthentication>(nameof(Authentication)); } }
-        protected RecieveBaseCommandAuthenticated(CommandTypes type,IEnumerable<FieldParserBase> fields)
+        protected RecieveBaseCommandAuthenticated(NukiCommandType type,IEnumerable<FieldParserBase> fields)
             : base(type, InitFields(fields))
         {
 

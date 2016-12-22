@@ -134,7 +134,7 @@ namespace Nuki.Communication.Connection.Bluetooth
             RecieveNukiStatesCommand retCmd = null;
         
 
-                if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.NukiStates)))
+                if (await m_UGDIO.Send(new SendRequestDataCommand(NukiCommandType.NukiStates)))
                 {
                     Log.Debug("Send request Config command...");
                     var cmd = await m_UGDIO.Recieve(5000);
@@ -150,7 +150,7 @@ namespace Nuki.Communication.Connection.Bluetooth
         public async Task<INukiReturnMessage> SendCalibrateRequest(UInt16 securityPin)
         {
             RecieveStatusCommand retCmd = null;
-            if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))
+            if (await m_UGDIO.Send(new SendRequestDataCommand(NukiCommandType.Challenge)))
             {
                 RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
 
@@ -173,7 +173,7 @@ namespace Nuki.Communication.Connection.Bluetooth
         public async Task<INukiReturnMessage> SendLockAction(NukiLockAction lockAction, NukiLockActionFlags flags = NukiLockActionFlags.None)
         {
             RecieveStatusCommand retCmd = null;
-            if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))
+            if (await m_UGDIO.Send(new SendRequestDataCommand(NukiCommandType.Challenge)))
             {
                 RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
 
@@ -297,7 +297,7 @@ namespace Nuki.Communication.Connection.Bluetooth
                     m_UGDIO.IsValid)
                 {
 
-                    SendBaseCommand cmd = new SendRequestDataCommand(CommandTypes.PublicKey);
+                    SendBaseCommand cmd = new SendRequestDataCommand(NukiCommandType.PublicKey);
                     Sodium.KeyPair keyPair = Sodium.PublicKeyBox.GenerateKeyPair();
                     m_connectionInfo.ClientPublicKey = new ClientPublicKey(keyPair.Public);
                     m_connectionInfo.ConnectionName = strConnectionName;
@@ -308,7 +308,7 @@ namespace Nuki.Communication.Connection.Bluetooth
                         {
                             switch (response.CommandType)
                             {
-                                case CommandTypes.PublicKey:
+                                case NukiCommandType.PublicKey:
                                     //Continue
                                     cmd = new SendPublicKeyComand(new ClientPublicKey(keyPair.Public));
 
@@ -323,7 +323,7 @@ namespace Nuki.Communication.Connection.Bluetooth
 
                                         response = await m_pairingGDIO.Recieve(2000);
 
-                                        if (response?.CommandType == CommandTypes.Challenge)
+                                        if (response?.CommandType == NukiCommandType.Challenge)
                                         {
                                             cmd = new SendAuthorizationAuthenticatorCommand(this);
 
@@ -331,7 +331,7 @@ namespace Nuki.Communication.Connection.Bluetooth
                                             {
                                                 response = await m_pairingGDIO.Recieve(2000);
 
-                                                if (response?.CommandType == CommandTypes.Challenge) //15
+                                                if (response?.CommandType == NukiCommandType.Challenge) //15
                                                 {
                                                     this.SmartLockNonce = ((RecieveChallengeCommand)response).Nonce;
 
@@ -341,7 +341,7 @@ namespace Nuki.Communication.Connection.Bluetooth
                                                     {
                                                         response = await m_pairingGDIO.Recieve(2000);
 
-                                                        if (response?.CommandType == CommandTypes.AuthorizationID) //19
+                                                        if (response?.CommandType == NukiCommandType.AuthorizationID) //19
                                                         {
                                                             m_connectionInfo.UniqueClientID = ((RecieveAuthorizationIDCommand)response).UniqueClientID;
                                                             m_connectionInfo.SmartLockUUID = ((RecieveAuthorizationIDCommand)response).SmartLockUUID;
@@ -352,7 +352,7 @@ namespace Nuki.Communication.Connection.Bluetooth
                                                             {
                                                                 response = await m_pairingGDIO.Recieve(3000);
 
-                                                                if (response?.CommandType == CommandTypes.Status) //19
+                                                                if (response?.CommandType == NukiCommandType.Status) //19
                                                                 {
                                                                     if (((RecieveStatusCommand)response).StatusCode == NukiErrorCode.COMPLETE)
                                                                     {
@@ -402,7 +402,7 @@ namespace Nuki.Communication.Connection.Bluetooth
 
                                     }
                                     break;
-                                case CommandTypes.ErrorReport:
+                                case NukiCommandType.ErrorReport:
                                     switch (((RecieveErrorReportCommand)response).ErrorCode)
                                     {
                                         case NukiErrorCode.P_ERROR_NOT_PAIRING:

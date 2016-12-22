@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.Connection;
+﻿using Nuki.Communication.API;
+using Nuki.Communication.Connection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Request
     public abstract class SendBaseCommandWithContext : SendBaseCommand
     {
         public IConnectionContext ConnectionContext { get; private set; }
-        public SendBaseCommandWithContext(CommandTypes type, IConnectionContext connectionContext, int nNumberOfFields)
+        public SendBaseCommandWithContext(NukiCommandType type, IConnectionContext connectionContext, int nNumberOfFields)
             : base(type, nNumberOfFields)
         {
             ConnectionContext = connectionContext;

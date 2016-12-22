@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Nuki.Communication.API;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,14 +9,14 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Request
 {
     public class SendRequestDataCommand : SendBaseCommand
     {
-        public CommandTypes ReqestedCommand {  get { return GetData<CommandTypes>(nameof(ReqestedCommand)); } }
+        public NukiCommandType ReqestedCommand {  get { return GetData<NukiCommandType>(nameof(ReqestedCommand)); } }
 
         /// <summary>
         /// Request Data (0x0001) 
         /// </summary>
         /// <param name="requestedCommand">The identifier of the command to be executed by the NukiSmartlock.</param>
-        public SendRequestDataCommand(CommandTypes requestedCommand)
-            : base(CommandTypes.RequestData,1)
+        public SendRequestDataCommand(NukiCommandType requestedCommand)
+            : base(NukiCommandType.RequestData,1)
         {
             AddField(nameof(ReqestedCommand), requestedCommand);
         }

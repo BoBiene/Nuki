@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.SemanticTypes;
+﻿using Nuki.Communication.API;
+using Nuki.Communication.SemanticTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
     {
         public SmartLockNonce Nonce { get { return GetData<SmartLockNonce>(nameof(Nonce)); } }
         public RecieveChallengeCommand()
-            : base(CommandTypes.Challenge, InitFields())
+            : base(NukiCommandType.Challenge, InitFields())
         {
         }
 

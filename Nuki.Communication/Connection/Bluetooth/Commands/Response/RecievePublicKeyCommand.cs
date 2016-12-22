@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Nuki.Communication.SemanticTypes;
+using Nuki.Communication.API;
 
 namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
 {
@@ -11,7 +12,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
     {
         public SmartLockPublicKey PublicKey { get { return GetData<SmartLockPublicKey>(nameof(PublicKey)); } }
         public RecievePublicKeyCommand()
-            : base(CommandTypes.PublicKey, InitFields())
+            : base(NukiCommandType.PublicKey, InitFields())
         {
         }
 

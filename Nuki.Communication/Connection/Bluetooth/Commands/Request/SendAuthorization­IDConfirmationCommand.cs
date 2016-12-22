@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.Connection;
+﻿using Nuki.Communication.API;
+using Nuki.Communication.Connection;
 using Nuki.Communication.SemanticTypes;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Request
         public SmartLockNonce SmartLockNonce => GetData<SmartLockNonce>(nameof(SmartLockNonce));
 
         public SendAuthorization­IDConfirmationCommand(UniqueClientID uuid, IConnectionContext context)
-            : base(CommandTypes.AuthorizationIDConfirmation,context,2)
+            : base(NukiCommandType.AuthorizationIDConfirmation,context,2)
         {
             AddField(nameof(SmartLockUUID), uuid);
             AddField(nameof(SmartLockNonce), context.SmartLockNonce,FieldFlags.PartOfAuthentication); 

@@ -69,7 +69,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
 
 
         public RecieveConfigCommand()
-            : base(CommandTypes.Config, InitFields())
+            : base(NukiCommandType.Config, InitFields())
         {
         }
 

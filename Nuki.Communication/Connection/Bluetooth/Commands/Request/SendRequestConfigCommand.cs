@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.Connection;
+﻿using Nuki.Communication.API;
+using Nuki.Communication.Connection;
 using Nuki.Communication.SemanticTypes;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Request
         /// </summary>
         /// <param name="byPublicKey">The public key of the sender. </param>
         public SendRequestConfigCommand(IConnectionContext context)
-            : base(CommandTypes.RequestConfig,context, 1)
+            : base(NukiCommandType.RequestConfig,context, 1)
         {
             AddField(nameof(ChallengeNonce), context.SmartLockNonce);
         }
