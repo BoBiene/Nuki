@@ -104,6 +104,18 @@ namespace Nuki.Communication.Connection.Bluetooth
             return Send(cmd, 2000);
         }
 
+        public async Task<T> Send<T>(SendBaseCommand cmd,int nTimeout = 5000)
+            where T:RecieveBaseCommand
+        {
+            T ret = default(T);
+            if(await Send(cmd))
+            {
+                ret = await Recieve<T>(nTimeout);
+            }
+            else { }
+            return ret;
+        }
+
         public virtual void Reset()
         {
             m_cmdInProgress = null;
@@ -127,20 +139,23 @@ namespace Nuki.Communication.Connection.Bluetooth
         }
 
         protected abstract Task<bool> Send(SendBaseCommand cmd, DataWriter writer);
-        
 
-        public async Task<RecieveBaseCommand> Recieve(int nTimeout)
+        public Task<RecieveBaseCommand> Recieve(int nTimeout)
         {
-            RecieveBaseCommand retCommand = null;
+            return Recieve<RecieveBaseCommand>(nTimeout);
+        }
+
+        public async Task<T> Recieve<T>(int nTimeout)
+            where T:RecieveBaseCommand
+        {
+            T retCommand = null;
             Log.Debug("Await response...");
             Task completedTask = await Task.WhenAny(m_responseWaitHandle.Task, Task.Delay(nTimeout));
 
             if (completedTask == m_responseWaitHandle.Task)
             {
                 Log.Debug("Recieved command...");
-                retCommand = m_responseWaitHandle.Task.Result;
-                if (retCommand is RecieveChallengeCommand)
-                    this.Connection.SmartLockNonce = ((RecieveChallengeCommand)retCommand).Nonce;
+                retCommand = m_responseWaitHandle.Task.Result as T;
             }
             else
             {

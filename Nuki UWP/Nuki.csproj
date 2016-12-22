@@ -122,7 +122,6 @@
     <Compile Include="ViewModels\NukiLockSettingsPartViewModel.cs" />
     <Compile Include="ViewModels\NukiLockHomePartViewModel.cs" />
     <Compile Include="ViewModels\NukiLockViewModel.cs" />
-    <Compile Include="ViewModels\NukiLockViewModelPassword.cs" />
     <Compile Include="ViewModels\PivotBaseViewModel.cs" />
     <Compile Include="ViewModels\SettingsPageAboutPartViewModel.cs" />
     <Compile Include="ViewModels\SettingsPageSettingsPartViewModel.cs" />

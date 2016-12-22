@@ -156,6 +156,7 @@
     <Compile Include="API\INukiDeviceStateMessage.cs" />
     <Compile Include="API\INukiReturnMessage.cs" />
     <Compile Include="API\INukiErrorMessage.cs" />
+    <Compile Include="API\INukiConfigMessage.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveAuthorization­IDCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveBaseCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveBaseCommandAuthenticated.cs" />

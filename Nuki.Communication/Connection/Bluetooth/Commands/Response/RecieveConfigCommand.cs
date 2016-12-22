@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
 {
-    public class   RecieveConfigCommand : RecieveBaseCommand
+    public class   RecieveConfigCommand : RecieveBaseCommand, INukiConfigMessage
     {
         public UniqueClientID UniqueClientID { get { return GetData<UniqueClientID>(nameof(UniqueClientID)); } }
         public string Name { get { return GetData<string>(nameof(Name)); } }

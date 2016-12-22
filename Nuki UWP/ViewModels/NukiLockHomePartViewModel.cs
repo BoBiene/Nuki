@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Template10.Mvvm;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
+using Template10.Services.NavigationService;
 
 namespace Nuki.ViewModels
 {
@@ -23,7 +24,7 @@ namespace Nuki.ViewModels
         private bool m_blnCriticalBattery = false;
         private string m_strLockRingState = string.Empty;
         private Visibility m_IsFlyoutOpen = Visibility.Collapsed;
-        private static ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger(nameof(NukiLockHomePartViewModel));
+        
         public Visibility IsFlyoutOpen { get { return m_IsFlyoutOpen; } set { Set(ref m_IsFlyoutOpen, value); } }
         public string LockRingState { get { return m_strLockRingState; } set { Set(ref m_strLockRingState, value); } }
         public bool CriticalBattery {  get { return m_blnCriticalBattery;  } set { Set(ref m_blnCriticalBattery, value); } }
@@ -33,11 +34,6 @@ namespace Nuki.ViewModels
         {
 
         }
-        //public NukiLockHomePartViewModel(NukiLockViewModel baseModel)
-        //    : base(baseModel)
-        //{
-
-        //}
 
         
         public DelegateCommand m_OpenFlyoutCommand = null;
@@ -99,6 +95,16 @@ namespace Nuki.ViewModels
                 else { }
 
             }, () => BaseModel.NukiConncetion?.Connected == true));
+
+        public override Task OnNavigatingFromAsync(NavigatingEventArgs args)
+        {
+            if (BaseModel?.NukiConncetion != null)
+            {
+                BaseModel.NukiConncetion.PropertyChanged -= NukiConncetion_PropertyChanged;
+            }
+            else { }
+            return base.OnNavigatingFromAsync(args);
+        }
 
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
         {

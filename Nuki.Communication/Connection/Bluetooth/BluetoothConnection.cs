@@ -41,9 +41,14 @@ namespace Nuki.Communication.Connection.Bluetooth
         private BluetoothGattCharacteristicConnection m_UGDIO = null;
         private object Syncroot = new object();
         private BluetoothLEDevice m_bleDevice = null;
+
         public INukiDeviceStateMessage m_LastDeviceState = null;
-        public bool Connected => m_bleDevice != null;
         public INukiDeviceStateMessage LastKnownDeviceState { get { return m_LastDeviceState; } set { Set(ref m_LastDeviceState, value); } }
+
+        public INukiErrorMessage m_LastError = null;
+        public INukiErrorMessage LastError { get { return m_LastError; } set { Set(ref m_LastError, value); } }
+        public bool Connected => m_bleDevice != null;
+        
        
         public string DeviceName => m_connectionInfo.DeviceName;
         public static Collection Connections => Collection.Instance;
@@ -100,6 +105,7 @@ namespace Nuki.Communication.Connection.Bluetooth
         internal void Update(RecieveErrorReportCommand recieveErrorReportCommand)
         {
             Log.Error(recieveErrorReportCommand.ToString());
+            LastError = recieveErrorReportCommand;
         }
 
         internal void Update(RecieveNukiStatesCommand recieveNukiStatesCommand)
@@ -129,40 +135,36 @@ namespace Nuki.Communication.Connection.Bluetooth
             return Connect(connectionInfo.DeviceName);
         }
 
+        private async Task<bool> Challenge()
+        {
+            return await m_UGDIO.Send<RecieveBaseCommand>(new SendRequestDataCommand(NukiCommandType.Challenge)) != null;
+        }
+
         public async Task<INukiDeviceStateMessage> RequestNukiState()
         {
-            RecieveNukiStatesCommand retCmd = null;
-        
+            return await m_UGDIO.Send<RecieveNukiStatesCommand>(new SendRequestDataCommand(NukiCommandType.NukiStates));
+        }
 
-                if (await m_UGDIO.Send(new SendRequestDataCommand(NukiCommandType.NukiStates)))
-                {
-                    Log.Debug("Send request Config command...");
-                    var cmd = await m_UGDIO.Recieve(5000);
-                    retCmd = cmd as RecieveNukiStatesCommand;
-                }
-                else
-                {
-                }
-          
+        public async Task<INukiConfigMessage> RequestNukiConfig()
+        {
+            RecieveConfigCommand retCmd = null;
+            if (await Challenge())
+            {
+                retCmd = await m_UGDIO.Send<RecieveConfigCommand>(new SendRequestConfigCommand(this));
+            }
+            else
+            {
+            }
 
             return retCmd;
         }
+
         public async Task<INukiReturnMessage> SendCalibrateRequest(UInt16 securityPin)
         {
             RecieveStatusCommand retCmd = null;
-            if (await m_UGDIO.Send(new SendRequestDataCommand(NukiCommandType.Challenge)))
+            if (await Challenge())
             {
-                RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
-
-                if (await m_UGDIO.Send(new SendRequestCalibrationCommand(this,securityPin)))
-                {
-                    Log.Debug("SendRequestCalibrationCommand command...");
-                     cmd = await m_UGDIO.Recieve(5000);
-                    retCmd = cmd as RecieveStatusCommand;
-                }
-                else
-                {
-                }
+                retCmd = await m_UGDIO.Send<RecieveStatusCommand>(new SendRequestCalibrationCommand(this, securityPin));
             }
             else
             {
@@ -173,18 +175,10 @@ namespace Nuki.Communication.Connection.Bluetooth
         public async Task<INukiReturnMessage> SendLockAction(NukiLockAction lockAction, NukiLockActionFlags flags = NukiLockActionFlags.None)
         {
             RecieveStatusCommand retCmd = null;
-            if (await m_UGDIO.Send(new SendRequestDataCommand(NukiCommandType.Challenge)))
+            if (await Challenge())
             {
-                RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
-
-                if (await m_UGDIO.Send(new SendLockActionCommand(lockAction, flags, this)))
-                {
-                    Log.Debug("Send SendLockAction command...");
-                    retCmd = await m_UGDIO.Recieve(5000) as RecieveStatusCommand;
-                }
-                else
-                {
-                }
+                Log.Debug("Send SendLockAction command...");
+                retCmd = await m_UGDIO.Send<RecieveStatusCommand>(new SendLockActionCommand(lockAction, flags, this));
             }
             else
             {
@@ -207,8 +201,6 @@ namespace Nuki.Communication.Connection.Bluetooth
         {
             ConnectResult result = ConnectResult.Failed;
 
-
-
             try
             {
                 if (connectionInfo != null)
@@ -220,11 +212,6 @@ namespace Nuki.Communication.Connection.Bluetooth
                         deviceService.GetCharacteristics(KeyTurnerUGDIO.Value).
                         Concat(deviceService.GetCharacteristics(KeyTurnerPairingGDIO.Value)))
                     {
-                        //if (character.Uuid == KeyTurnerGDIO.Value)
-                        //{
-                        //    m_GDIO.SetConnection(character);
-                        //}
-                        //else 
                         if (character.Uuid == KeyTurnerPairingGDIO.Value)
                         {
                             result = ConnectResult.Successfull;
