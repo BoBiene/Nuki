@@ -20,7 +20,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Request
         public ClientNonce ClientNonce { get { return GetData<ClientNonce>(nameof(ClientNonce)); } }
 
         public SendAuthorizationDataCommand(string strName, IConnectionContext connectionContext) :
-            base(CommandTypes.AuthorizationData, connectionContext, 5)
+            base(NukiCommandType.AuthorizationData, connectionContext, 5)
         {
             AddField(nameof(ClientIDType), NukiClientTypeID.App);
             AddField(nameof(UniqueClientID), connectionContext.UniqueClientID);

@@ -142,7 +142,7 @@
     <Compile Include="Connection\Bluetooth\Commands\Request\SendAuthorizationDataCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Request\SendAuthorization­IDConfirmationCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Request\SendBaseCommand.cs" />
-    <Compile Include="Connection\Bluetooth\Commands\CommandTypes.cs" />
+    <Compile Include="API\Enum\CommandTypes.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Request\SendBaseCommandAuthenticated.cs" />
     <Compile Include="Connection\Bluetooth\Commands\EnumBitSizeAttribute.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Request\SendAuthorizationAuthenticatorCommand.cs" />
@@ -155,6 +155,8 @@
     <Compile Include="Connection\Bluetooth\Commands\ResponseCommandParser.cs" />
     <Compile Include="API\INukiDeviceStateMessage.cs" />
     <Compile Include="API\INukiReturnMessage.cs" />
+    <Compile Include="API\INukiErrorMessage.cs" />
+    <Compile Include="API\INukiConfigMessage.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveAuthorization­IDCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveBaseCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveBaseCommandAuthenticated.cs" />
@@ -165,7 +167,7 @@
     <Compile Include="Connection\Bluetooth\Commands\Response\RecievePublicKeyCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveStatusCommand.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothConnection.cs" />
-    <Compile Include="Connection\NukiConnectionBinding.cs" />
+    <Compile Include="Connection\NukiConnectionConfig.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothConnectionFactory.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothGattCharacteristicConnection.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothGattCharacteristicConnectionEncrypted.cs" />

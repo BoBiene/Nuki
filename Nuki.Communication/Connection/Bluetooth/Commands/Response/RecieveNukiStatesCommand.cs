@@ -18,7 +18,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
         public bool CriticalBattery { get { return GetData<bool>(nameof(CriticalBattery)); } }
 
         public RecieveNukiStatesCommand()
-            : base(CommandTypes.NukiStates, InitFields())
+            : base(NukiCommandType.NukiStates, InitFields())
         {
         }
 

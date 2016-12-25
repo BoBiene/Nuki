@@ -7,6 +7,7 @@ using Nuki.Communication.Connection.Bluetooth.Commands.Response;
 using System.Diagnostics;
 using Windows.Storage.Streams;
 using MetroLog;
+using Nuki.Communication.API;
 
 namespace Nuki.Communication.Connection.Bluetooth.Commands
 {
@@ -16,28 +17,28 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands
         public static RecieveBaseCommand Parse(IDataReader reader)
         {
             RecieveBaseCommand cmd = null;
-            CommandTypes cmdType =(CommandTypes) reader.ReadUInt16();
+            NukiCommandType cmdType =(NukiCommandType) reader.ReadUInt16();
             switch (cmdType)
             {
-                case CommandTypes.AuthorizationID:
+                case NukiCommandType.AuthorizationID:
                     cmd = new RecieveAuthorizationIDCommand();
                     break;
-                case CommandTypes.Challenge:
+                case NukiCommandType.Challenge:
                     cmd = new RecieveChallengeCommand();
                     break;
-                case CommandTypes.ErrorReport:
+                case NukiCommandType.ErrorReport:
                     cmd = new RecieveErrorReportCommand();
                     break;
-                case CommandTypes.PublicKey:
+                case NukiCommandType.PublicKey:
                     cmd = new RecievePublicKeyCommand();
                     break;
-                case CommandTypes.Status:
+                case NukiCommandType.Status:
                     cmd = new RecieveStatusCommand();
                     break;
-                case CommandTypes.NukiStates:
+                case NukiCommandType.NukiStates:
                     cmd = new RecieveNukiStatesCommand();
                     break;
-                case CommandTypes.Config:
+                case NukiCommandType.Config:
                     cmd = new RecieveConfigCommand();
                     break;
                 default:
@@ -48,9 +49,9 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands
             return cmd;
         }
 
-        private static CommandTypes GetCommandType(byte[] data)
+        private static NukiCommandType GetCommandType(byte[] data)
         {
-           return  (CommandTypes)BitConverter.ToUInt16(data, 0);
+           return  (NukiCommandType)BitConverter.ToUInt16(data, 0);
         }
     }
 }

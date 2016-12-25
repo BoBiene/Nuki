@@ -17,7 +17,7 @@ namespace Nuki.Communication.Connection
             s_Factories.AddFirst(new BluetoothConnectionFactory());
         }
 
-        public static async Task<NukiConnectResult> TryConnect(NukiConnectionBinding connectionInfo, Func<Action, IAsyncAction> dispatch,int nTimeout = 3000)
+        public static async Task<NukiConnectResult> TryConnect(NukiConnectionConfig connectionInfo, Func<Action, IAsyncAction> dispatch,int nTimeout = 3000)
         {
             NukiConnectResult returnValue = null;
             var current = s_Factories.First;
@@ -30,7 +30,7 @@ namespace Nuki.Communication.Connection
     }
     internal interface INukiConnectionFactory
     {
-        Task<NukiConnectResult> TryConnect(NukiConnectionBinding connectionInfo, Func<Action, IAsyncAction> dispatch, int nTimeout = 3000);
+        Task<NukiConnectResult> TryConnect(NukiConnectionConfig connectionInfo, Func<Action, IAsyncAction> dispatch, int nTimeout = 3000);
     }
 
     public class NukiConnectResult

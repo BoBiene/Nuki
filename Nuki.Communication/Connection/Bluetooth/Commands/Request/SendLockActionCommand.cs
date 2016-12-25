@@ -20,7 +20,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Request
 
 
         public SendLockActionCommand(NukiLockAction lockAction, NukiLockActionFlags flags, IConnectionContext connectionContext) :
-            base(CommandTypes.LockAction, connectionContext, 4)
+            base(NukiCommandType.LockAction, connectionContext, 4)
         {
             AddField(nameof(LockAction), lockAction);
             AddField(nameof(UniqueClientID), connectionContext.UniqueClientID);

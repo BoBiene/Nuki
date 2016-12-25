@@ -9,7 +9,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace Nuki.Communication.Connection
 {
-    public class NukiConnectionBinding : NotifyPropertyChanged
+    public class NukiConnectionConfig : NotifyPropertyChanged
     {
         private ClientPublicKey m_ClientPublicKey = null;
         private SharedKey m_SharedKey = null;

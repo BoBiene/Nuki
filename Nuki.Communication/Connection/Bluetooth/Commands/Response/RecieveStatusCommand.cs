@@ -11,7 +11,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
     {
         public NukiErrorCode StatusCode => GetData<NukiErrorCode>(nameof(StatusCode));
         public RecieveStatusCommand()
-            : base(CommandTypes.Status, CreateFields())
+            : base(NukiCommandType.Status, CreateFields())
         {
         }
 

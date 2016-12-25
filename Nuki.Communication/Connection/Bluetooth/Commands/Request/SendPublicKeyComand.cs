@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.SemanticTypes;
+﻿using Nuki.Communication.API;
+using Nuki.Communication.SemanticTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Request
         /// </summary>
         /// <param name="byPublicKey">The public key of the sender. </param>
         public SendPublicKeyComand(ClientPublicKey byPublicKey)
-            : base(CommandTypes.PublicKey, 1)
+            : base(NukiCommandType.PublicKey, 1)
         {
             AddField(nameof(PublicKey), byPublicKey);
         }

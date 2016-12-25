@@ -5,11 +5,34 @@
     xmlns:local="using:Nuki.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:vm="using:Nuki.ViewModels"
     mc:Ignorable="d"
     d:DesignHeight="800"
     d:DesignWidth="400">
 
-    <Grid>
+    <UserControl.DataContext>
+        <vm:NukiLockSettingsPartViewModel x:Name="ViewModel" />
+    </UserControl.DataContext>
 
-    </Grid>
+    <RelativePanel  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <ToggleSwitch
+            x:Name="LEDSignalLight"
+            IsOn="{x:Bind ViewModel.LEDEnabled}"
+            Header="LED-Signal am Smart-Lock"
+            OnContent="LED-Blitzen, wenn die Tür aufgesperrt ist"
+            OffContent="Kein LED-Blitzen"
+            RelativePanel.AlignTopWithPanel="True"
+            RelativePanel.AlignLeftWithPanel="True" />
+        <ToggleSwitch 
+               x:Name="AutoUnlatch" 
+            IsOn="{x:Bind ViewModel.AutoUnlatch}"
+            Header="Tür mit Knauf"
+            OnContent="Falle automatisch ziehen"
+            OffContent="Tür hat keine Falle"
+            RelativePanel.Below="LEDSignalLight"
+            RelativePanel.AlignLeftWithPanel="True"/>
+
+     
+    </RelativePanel>
+    
 </UserControl>

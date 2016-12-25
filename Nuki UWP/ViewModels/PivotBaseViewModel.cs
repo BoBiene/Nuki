@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MetroLog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,31 +21,79 @@ namespace Nuki.ViewModels
             get { return m_SelectedPivotItem; }
             set
             {
+                var prev = m_SelectedPivotItem;
                 Set(ref m_SelectedPivotItem, value);
-                OnNavigatedToPivotItemAsync(value).GetAwaiter();
+                OnNavigatedToPivotItemAsync(prev,value).GetAwaiter();
             }
         }
 
-        private static async Task OnNavigatedToPivotItemAsync(object value, NavigationMode mode = NavigationMode.Refresh, IDictionary<string, object> state = null)
+        private static async Task OnNavigatedToPivotItemAsync(object prevValue, object value, NavigationMode mode = NavigationMode.Refresh, IDictionary<string, object> state = null)
         {
-            PivotItem pivotItem = value as PivotItem;
-            if (pivotItem != null)
+            Part prevViewModel = GetViewModel(prevValue);
+            if (prevViewModel != null)
             {
-                UserControl control = pivotItem.Content as UserControl;
+                await prevViewModel.OnNavigatingFromAsync(new NavigatingEventArgs(new DeferralManager()));
+            }
+            else { }
 
-                Part viewModel = control?.DataContext as Part;
-                if (viewModel != null)
-                {
-                    await viewModel.OnNavigatedToAsync(null, mode, state);
-                }
-                else { }
+
+            Part viewModel = GetViewModel(value);
+            if (viewModel != null)
+            {
+                await viewModel.OnNavigatedToAsync(null, mode, state);
+            }
+            else { }
+
+            if (prevViewModel != null)
+            {
+                await prevViewModel.OnNavigatedFromAsync(state, false);
             }
             else { }
         }
 
+        private static Part GetViewModel(object objPivotItem)
+        {
+            PivotItem pivotItem = objPivotItem as PivotItem;
+            if (pivotItem != null)
+            {
+                UserControl control = pivotItem.Content as UserControl;
+
+                return control?.DataContext as Part;
+            }
+            else { }
+
+            return null;
+        }
+
+        public override async Task OnNavigatedFromAsync(IDictionary<string, object> pageState, bool suspending)
+        {
+            Part viewModel = GetViewModel(SelectedPivotItem);
+            if (viewModel != null)
+            {
+                await viewModel.OnNavigatedFromAsync(pageState,suspending);
+            }
+            else { }
+            await base.OnNavigatedFromAsync(pageState, suspending);
+        }
+        public override async Task OnNavigatingFromAsync(NavigatingEventArgs args)
+        {
+            Part viewModel = GetViewModel(SelectedPivotItem);
+            if (viewModel != null)
+            {
+                await viewModel.OnNavigatingFromAsync(args);
+            }
+            else { }
+            await base.OnNavigatingFromAsync(args);
+        }
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
         {
-            await OnNavigatedToPivotItemAsync(SelectedPivotItem, mode, state);
+            Part viewModel = GetViewModel(SelectedPivotItem);
+            if (viewModel != null)
+            {
+                await viewModel.OnNavigatedToAsync(parameter,mode,state);
+            }
+            else { }
+            
             await base.OnNavigatedToAsync(parameter, mode, state);
         }
 
@@ -57,6 +106,7 @@ namespace Nuki.ViewModels
         private static T Current { get; set; }
         public abstract class Part : ViewModelBase
         {
+            protected static ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger<Part>();
             public T BaseModel { get; private set; }
             public Part()
                 : this(PivotBaseViewModel<T>.Current)
