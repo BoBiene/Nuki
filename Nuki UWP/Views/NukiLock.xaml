@@ -26,7 +26,8 @@
                      RelativePanel.Below="pageHeader" 
                      IsIndeterminate="True"
                      Height="10" 
-                        Visibility="{x:Bind ViewModel.ProgressbarVisibility}"
+                     Foreground="{StaticResource ResourceKey=ContrastColorBrush}"
+                        Visibility="{x:Bind ViewModel.ProgressbarVisibility, Mode=OneWay}"
                      RelativePanel.AlignLeftWithPanel="True"
                      RelativePanel.AlignRightWithPanel="True"/>
         <!--  content  -->
@@ -51,5 +52,19 @@
                 <v:NukiLockAdministration />
             </PivotItem>
         </Pivot>
+        <Grid 
+            Visibility="{x:Bind ViewModel.ErrorbarVisibility,Mode=OneWay}"
+            Height="40"
+            Background="#B6222A"
+            
+            RelativePanel.AlignBottomWithPanel="True"
+            RelativePanel.AlignLeftWithPanel="True"  
+            RelativePanel.AlignRightWithPanel="True">
+            <TextBlock 
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"    
+                Foreground="#FCF8F8"
+                Text="{x:Bind ViewModel.ErrorbarText,Mode=OneWay}"></TextBlock>
+        </Grid>
     </RelativePanel>
 </Page>

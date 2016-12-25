@@ -66,6 +66,7 @@ namespace Nuki.ViewModels
 
         private async Task RefreshNukiState()
         {
+            BaseModel.ShowProgressbar(true);
             INukiConfigMessage nukiConfig = null;
             try
             {
@@ -97,6 +98,7 @@ namespace Nuki.ViewModels
                 this.UTCOffset = nukiConfig.UTCOffset;
             }
             else { }
+            BaseModel.ShowProgressbar(true);
         }
 
         public override Task OnNavigatedFromAsync(IDictionary<string, object> pageState, bool suspending)

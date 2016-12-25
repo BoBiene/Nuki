@@ -131,8 +131,8 @@ namespace Nuki.ViewModels
 
         private async Task RefreshNukiState()
         {
-            LockRingState = "Requsting state...";
             BaseModel.ShowProgressbar(true);
+            LockRingState = "Requsting state...";
             INukiDeviceStateMessage nukiStateCmd = null;
             try
             {

@@ -10,6 +10,7 @@ using Nuki.Communication.Connection.Bluetooth.Commands.Response;
 using Nuki.Communication.Connection;
 using Nuki.Communication.SemanticTypes;
 using Windows.Storage.Streams;
+using Nuki.Communication.API;
 
 namespace Nuki_Test
 {

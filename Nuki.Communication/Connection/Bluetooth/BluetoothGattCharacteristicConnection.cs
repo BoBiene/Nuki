@@ -65,21 +65,23 @@ namespace Nuki.Communication.Connection.Bluetooth
                             m_cmdInProgress = null;
                             Log.Info($"Recieved Command {cmd}...");
 
-
-
-                            if (m_responseWaitHandle?.TrySetResult(cmd) == true)
-                            {
-                                Log.Debug("m_responseWaitHandle set");
-                            }
+                            bool blnWarnIfNotHandlet = false;
+                            if (cmd is RecieveErrorReportCommand)
+                                Connection.Update(cmd as RecieveErrorReportCommand);
                             else if (cmd is RecieveNukiStatesCommand)
                                 Connection.Update(cmd as RecieveNukiStatesCommand);
                             else if (cmd is RecieveChallengeCommand)
                                 Connection.Update(cmd as RecieveChallengeCommand);
-                            else if(cmd is RecieveErrorReportCommand)
-                                Connection.Update(cmd as RecieveErrorReportCommand);
+                            else
+                                blnWarnIfNotHandlet = true;
+                            if (m_responseWaitHandle?.TrySetResult(cmd) == true)
+                            {
+                                Log.Debug("m_responseWaitHandle set");
+                            }
                             else
                             {
-                                Log.Warn($"Recieved Command {cmd} is not handlet...");
+                                if (blnWarnIfNotHandlet)
+                                    Log.Warn($"Recieved Command {cmd} is not handlet...");
                             }
                         }
                         else

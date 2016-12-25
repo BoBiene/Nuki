@@ -18,8 +18,10 @@ namespace Nuki.ViewModels
     public partial class NukiLockViewModel : PivotBaseViewModel<NukiLockViewModel>
     {
         private NukiConnectionConfig m_NukiConnectionBinding = null;
+        private int m_nProgressRequests = 0;
         private Visibility m_ProgressbarVisibility = Visibility.Collapsed;
-      
+        private Visibility m_ErrorbarVisibility = Visibility.Collapsed;
+        private string m_strErrorText = string.Empty;
 
         public string SelectedLock
         {
@@ -27,12 +29,22 @@ namespace Nuki.ViewModels
 
         }
 
+        public Visibility ErrorbarVisibility => m_ErrorbarVisibility;
+        public string ErrorbarText => m_strErrorText;
+        public Visibility ProgressbarVisibility
+        {
+            get { return m_ProgressbarVisibility; }
 
-        public Visibility ProgressbarVisibility => m_ProgressbarVisibility;
+        }
 
         public void ShowProgressbar(bool blnVisibility)
         {
             if (blnVisibility)
+                ++m_nProgressRequests;
+            else
+                --m_nProgressRequests;
+
+            if (m_nProgressRequests > 0)
                 m_ProgressbarVisibility = Visibility.Visible;
             else
                 m_ProgressbarVisibility = Visibility.Collapsed;
@@ -40,6 +52,19 @@ namespace Nuki.ViewModels
             RaisePropertyChanged(nameof(ProgressbarVisibility));
         }
 
+        public void ShowError(string strText)
+        {
+            Dispatcher.DispatchAsync(async () =>
+            {
+                m_strErrorText = strText;
+                m_ErrorbarVisibility = Visibility.Visible;
+                RaisePropertyChanged(nameof(ErrorbarText));
+                RaisePropertyChanged(nameof(ErrorbarVisibility));
+                await Task.Delay(10000);
+                m_ErrorbarVisibility = Visibility.Collapsed;
+                RaisePropertyChanged(nameof(ErrorbarVisibility));
+            }, 0, CoreDispatcherPriority.Low);
+        }
 
         public INukiConnection NukiConncetion { get; private set; }
 
@@ -55,16 +80,56 @@ namespace Nuki.ViewModels
         }
 
 
+        public override Task OnNavigatingFromAsync(NavigatingEventArgs args)
+        {
+            if (NukiConncetion != null)
+                NukiConncetion.PropertyChanged -= NukiConncetion_PropertyChanged;
+            return base.OnNavigatingFromAsync(args);
+        }
+
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
         {
+            ShowProgressbar(true);
+           
             NukiConnectionConfig = SettingsService.Instance.PairdLocks.Where((l) => l.UniqueClientID.Value == parameter as uint?).FirstOrDefault();
-
-            var connectResult = await NukiConnectionFactory.TryConnect(NukiConnectionConfig, (action) => Dispatcher.DispatchAsync(action,priority: CoreDispatcherPriority.Low).AsAsyncAction());
-
-            NukiConncetion = connectResult.Connection;
-            RaisePropertyChanged(nameof(NukiConncetion));
-
+            await TryToConnect();
             await base.OnNavigatedToAsync(parameter, mode, state);
+            ShowProgressbar(false);
+        }
+
+        private async Task<bool> TryToConnect(int nTryCount = 0)
+        {
+            bool blnRet = false;
+            var connectResult = await NukiConnectionFactory.TryConnect(NukiConnectionConfig, (action) => Dispatcher.DispatchAsync(action, priority: CoreDispatcherPriority.Low).AsAsyncAction());
+            if (connectResult.Successfull)
+            {
+                if (NukiConncetion != null)
+                    NukiConncetion.PropertyChanged -= NukiConncetion_PropertyChanged;
+
+                NukiConncetion = connectResult.Connection;
+                
+                NukiConncetion.PropertyChanged += NukiConncetion_PropertyChanged;
+                RaisePropertyChanged(nameof(NukiConncetion));
+            }
+            else if (nTryCount < 5 )
+            {
+                blnRet = await Task.Delay(1000).ContinueWith((t) => TryToConnect(nTryCount + 1)).Unwrap();
+            }
+            else
+            {
+                //Failed
+            }
+
+            return blnRet;
+        }
+
+        private void NukiConncetion_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if(e.PropertyName == nameof( NukiConncetion.LastError))
+            {
+                ShowError($"Command <{NukiConncetion.LastError.FailedCommand}> errocode: {NukiConncetion.LastError.ErrorCode}");
+            }
+            else {  }
         }
 
         public struct PasswordRequestResult
