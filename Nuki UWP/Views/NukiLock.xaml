@@ -1,0 +1,133 @@
+﻿<Page
+    x:Class="Nuki.Views.NukiLock"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Nuki.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+     xmlns:controls="using:Template10.Controls"
+       xmlns:vm="using:Nuki.ViewModels"
+    xmlns:v="using:Nuki.Views"
+
+    mc:Ignorable="d">
+    <Page.DataContext>
+        <vm:NukiLockViewModel x:Name="ViewModel" />
+    </Page.DataContext>
+
+
+    
+    <controls:ModalDialog IsModal="{x:Bind ViewModel.IsPasswordDialogVisible, Mode=OneWay}">
+        <controls:ModalDialog.Content>
+
+
+            <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                <!--  header  -->
+                <controls:PageHeader x:Name="pageHeader"
+                             Content="{x:Bind ViewModel.SelectedLock,Mode=OneWay}"
+                             Frame="{x:Bind Frame}"   
+                             RelativePanel.AlignLeftWithPanel="True"
+                             RelativePanel.AlignRightWithPanel="True"
+                             RelativePanel.AlignTopWithPanel="True" />
+                <ProgressBar x:Name="progress" 
+                     RelativePanel.Below="pageHeader" 
+                     IsIndeterminate="True"
+                     Height="10" 
+                        Visibility="{x:Bind ViewModel.ProgressbarVisibility}"
+                     RelativePanel.AlignLeftWithPanel="True"
+                     RelativePanel.AlignRightWithPanel="True"/>
+                <!--  content  -->
+                <Pivot x:Name="MyPivot"
+               Grid.Row="1"
+               SelectedItem="{x:Bind ViewModel.SelectedPivotItem, Mode=TwoWay}"
+               EntranceNavigationTransitionInfo.IsTargetElement="True"
+               RelativePanel.AlignBottomWithPanel="True"
+               RelativePanel.AlignLeftWithPanel="True"
+               RelativePanel.AlignRightWithPanel="True"
+               RelativePanel.Below="progress">
+                    <PivotItem Header="Home" >
+                        <v:NukiLockHome />
+                    </PivotItem>
+                    <PivotItem Header="Settings"  >
+                        <v:NukiLockSettings />
+                    </PivotItem>
+
+                    <PivotItem Header="Status"  >
+                        <v:NukiLockStatus />
+                    </PivotItem>
+                    <PivotItem Header="Administration"  >
+                        <v:NukiLockAdministration />
+                    </PivotItem>
+                </Pivot>
+            </RelativePanel>
+        </controls:ModalDialog.Content>
+        <controls:ModalDialog.ModalContent>
+            <Viewbox MaxHeight="200">
+                <RelativePanel>
+                    <PasswordBox 
+                        Margin="10,0,10,0"
+                        RelativePanel.AlignLeftWithPanel="True"
+                        RelativePanel.AlignRightWithPanel="True"
+                        RelativePanel.AlignTopWithPanel="True"
+                        Header="PIN" 
+                                 x:Name="PasswordBox" 
+                                 Password="{x:Bind ViewModel.UserInputPassword, Mode=TwoWay}">
+                        <PasswordBox.InputScope>
+                            <InputScope>
+                                <InputScope.Names>
+                                    <InputScopeName NameValue="NumericPin"/>
+                                </InputScope.Names>
+                            </InputScope>
+                        </PasswordBox.InputScope>
+                    </PasswordBox>
+                    <Button 
+                        Width="100"
+                        Margin="10"
+                        Command="{x:Bind ViewModel.PasswordOkAction }"
+                        RelativePanel.Below="PasswordBox" 
+                        x:Name="PasswordBoxOK" >Ok</Button>
+                    <Button  x:Name="PasswordBoxCancel"
+                            Width="100"
+                             Margin="10"
+                             Command="{x:Bind ViewModel.PasswordCancelAction }"
+                            RelativePanel.Below="PasswordBox" 
+                            RelativePanel.RightOf="PasswordBoxOK">Cancel</Button>
+                </RelativePanel>
+            </Viewbox>
+        </controls:ModalDialog.ModalContent>
+    </controls:ModalDialog>
+    <!--<Grid Background="{StaticResource ExtendedSplashBackground}" x:Name="Grid">
+        -->
+    <!--<Path Width="200" Height="200" Stroke="Black" StrokeThickness="3" Stretch="Uniform">
+            <Path.Data>
+                <GeometryGroup>
+                    <EllipseGeometry  Center="1,1"  RadiusX="1" RadiusY="1"/>
+                    <LineGeometry StartPoint="1,1" EndPoint="1,0"/>
+                    <LineGeometry StartPoint="1,1" EndPoint="1.866,1.5"/>
+                    <LineGeometry StartPoint="1,1" EndPoint="0.134,1.5"/>
+                </GeometryGroup>
+            </Path.Data>
+        </Path>-->
+    <!--<Border>
+            -->
+    <!--<Border.RenderTransform>
+                <ScaleTransform ScaleX=""
+            </Border.RenderTransform>-->
+    <!--
+        <Controls:RingSegment  Width="100" Height="100" x:Name="MyRingSlice" HorizontalAlignment="Center"
+                        VerticalAlignment="Center" StartAngle="50" EndAngle="310"
+                               Fill="{StaticResource ExtendedSplashForeground}"
+                               
+                           StrokeThickness="4"
+                               />
+        </Border>-->
+    <!--<Controls:RingSegment  x:Name="MyRingSlice" HorizontalAlignment="Center"
+                        VerticalAlignment="Center" StartAngle="50" EndAngle="310"
+                           Fill="{StaticResource ExtendedSplashForeground}"
+                              
+                               Margin="20" MaxWidth="500" MinWidth="200" MaxHeight="500" MinHeight="200"
+                               Radius="{Binding RelativeSource={RelativeSource Mode=Self},Path=Width, Converter={StaticResource DiameterToRadius}}"
+                               InnerRadius="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Radius, Converter={StaticResource RadiusToInnerRadius}}"
+                              StrokeThickness="4"/>-->
+    <!--
+    </Grid>-->
+</Page>

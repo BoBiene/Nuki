@@ -17,7 +17,7 @@ namespace Nuki.Communication.Commands.Request
         /// </summary>
         /// <param name="byPublicKey">The public key of the sender. </param>
         public SendRequestConfigCommand(IConnectionContext context)
-            : base(CommandTypes.RequestConfig,context, 3)
+            : base(CommandTypes.RequestConfig,context, 1)
         {
             AddField(nameof(ChallengeNonce), context.SmartLockNonce);
         }

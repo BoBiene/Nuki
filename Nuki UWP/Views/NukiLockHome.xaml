@@ -1,0 +1,167 @@
+﻿<UserControl
+    x:Class="Nuki.Views.NukiLockHome"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Nuki.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    xmlns:controls="using:Template10.Controls"
+    xmlns:vm="using:Nuki.ViewModels"
+    xmlns:Helper="using:Nuki.Views.Helper"
+    xmlns:Converter="using:Nuki.Converter"
+     xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    d:DesignHeight="800"
+    d:DesignWidth="400">
+
+    <UserControl.DataContext>
+        <vm:NukiLockHomePartViewModel x:Name="ViewModel" />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <Converter:MultiplyConverter Value="0.5" x:Name="DiameterToRadius" />
+        <Converter:SubstractConverter Value="10" x:Name="RadiusToInnerRadius" />
+        <Converter:SubstractConverter Value="40" x:Name="ContainerMargin" />
+        <Style TargetType="Button" x:Key="CommandButton">
+            <Setter Property="Width" Value="200"/>
+            <Setter Property="RelativePanel.AlignHorizontalCenterWithPanel" Value="True" />
+            <!--<Setter Property="RelativePanel.AlignLeftWithPanel" Value="True" />
+            <Setter Property="RelativePanel.AlignRightWithPanel" Value="True" />-->
+            <Setter Property="Margin" Value="10,10,10,0" />
+
+        </Style>
+
+    </UserControl.Resources>
+    <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
+                <VisualState x:Name="VisualStateNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for narrow view  -->
+                        <Setter Target="MyRingSlice.Radius" Value="100" />
+                        <Setter Target="MyRingSlice.Height" Value="200" />
+                        <Setter Target="MyRingSlice.InnerRadius" Value="90" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateNormal">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for normal view  -->
+                        <Setter Target="MyRingSlice.Radius" Value="150" />
+                        <Setter Target="MyRingSlice.Height" Value="300" />
+                        <Setter Target="MyRingSlice.InnerRadius" Value="135" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--  TODO: change properties for wide view  -->
+                        <Setter Target="MyRingSlice.Radius" Value="200" />
+                        <Setter Target="MyRingSlice.InnerRadius" Value="180" />
+                        <Setter Target="MyRingSlice.Height" Value="400" />
+
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        <RelativePanel  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <RelativePanel x:Name="RingContainer" VerticalAlignment="Center"
+            RelativePanel.AlignBottomWithPanel="True"
+                RelativePanel.AlignLeftWithPanel="True"
+                RelativePanel.AlignRightWithPanel="True"
+                       RelativePanel.AlignTopWithPanel="True">
+                <Grid x:Name="GridOverRing"
+                     RelativePanel.Above="GridRing"
+                RelativePanel.AlignBottomWithPanel="True"
+                RelativePanel.AlignTopWithPanel="True"
+                RelativePanel.AlignRightWithPanel="True"
+                RelativePanel.AlignLeftWithPanel="True">
+                    <TextBlock
+                TextAlignment="Center"
+                VerticalAlignment="Center"
+            Text="{x:Bind ViewModel.LockRingState, Mode=OneWay}">
+
+                    </TextBlock>
+                </Grid>
+                <Grid x:Name="GridRing" 
+                VerticalAlignment="Center"  
+                RelativePanel.AlignBottomWithPanel="True"
+                RelativePanel.AlignTopWithPanel="True"
+                RelativePanel.AlignRightWithPanel="True"
+                RelativePanel.AlignLeftWithPanel="True">
+                    <controls:RingSegment x:Name="MyRingSlice" 
+                                      HorizontalAlignment="Center"
+                        VerticalAlignment="Center" StartAngle="50" EndAngle="310"
+                               Fill="{StaticResource ApplicationForegroundThemeBrush}"
+                               Radius="100"
+                               InnerRadius="90">
+                    </controls:RingSegment>
+
+                </Grid>
+
+            </RelativePanel>
+            <Grid
+            RelativePanel.AlignBottomWithPanel="True"
+                RelativePanel.AlignLeftWithPanel="True"
+                RelativePanel.AlignRightWithPanel="True"
+                RelativePanel.Above="RingContainer"
+                Visibility="{x:Bind ViewModel.IsFlyoutOpen,Mode=TwoWay}">
+                <RelativePanel 
+                MaxWidth="400"
+                Background="{ThemeResource CustomColorBrush}">
+
+                    <!--<TextBox x:Name="LockStateText"
+                        Header="Status"
+                        IsEnabled="False"
+                        Text="{x:Bind ViewModel.LockState, Mode=OneWay}" />
+            <TextBox x:Name="NukiStateText"
+                        Header="Status"
+                        IsEnabled="False"
+                        RelativePanel.Below="LockStateText"
+                        Text="{x:Bind ViewModel.NukiState, Mode=OneWay}" />-->
+                    <Button 
+                        x:Name="LockButton" 
+                        Content="Lock"
+                Style="{StaticResource CommandButton}"
+                        
+                        RelativePanel.AlignHorizontalCenterWithPanel="True"
+                        Command="{x:Bind ViewModel.SendLockCommand }"
+                        />
+                    <Button 
+                        x:Name="UnkockButton" 
+                        Content="Unlock"
+                Style="{StaticResource CommandButton}"
+                        Command="{x:Bind ViewModel.SendUnlockCommand }"
+                        RelativePanel.Below="LockButton"
+                        />
+                    <Button 
+                        x:Name="CalibrateButton" 
+                        Content="Calibrate"
+                       Margin="10,10,10,10"
+                Style="{StaticResource CommandButton}"
+                        Command="{x:Bind ViewModel.SendCalibrateCommand }"
+                        RelativePanel.Below="UnkockButton"
+                        />
+                </RelativePanel>
+                <Grid.Transitions>
+                    <TransitionCollection>
+                        <PopupThemeTransition></PopupThemeTransition>
+                    </TransitionCollection>
+                </Grid.Transitions>
+            </Grid>
+            <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="Tapped">
+                    <core:InvokeCommandAction Command="{x:Bind  ViewModel.ToggleFlyoutCommand }" />
+                </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+
+        </RelativePanel>
+    </Grid>
+</UserControl>

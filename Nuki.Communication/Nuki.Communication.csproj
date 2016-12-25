@@ -125,7 +125,6 @@
     <Compile Include="..\Semantictypes\SemanticTypes\UncomparableSemanticType.cs">
       <Link>SemanticTypes\Core\UncomparableSemanticType.cs</Link>
     </Compile>
-    <Compile Include="API\NukiConfig.cs" />
     <Compile Include="API\NukiDSTSetting.cs" />
     <Compile Include="API\NukiFobAction.cs" />
     <Compile Include="API\NukiLockActionFlags.cs" />
@@ -150,6 +149,7 @@
     <Compile Include="Commands\Request\SendBaseCommandWithContext.cs" />
     <Compile Include="Commands\Request\SendLockActionCommand.cs" />
     <Compile Include="Commands\Request\SendPublicKeyComand.cs" />
+    <Compile Include="Commands\Request\SendRequestCalibrationCommand.cs" />
     <Compile Include="Commands\Request\SendRequestDataCommand.cs" />
     <Compile Include="Commands\Request\SendRequestConfigCommand.cs" />
     <Compile Include="Commands\ResponseCommandParser.cs" />
@@ -168,10 +168,10 @@
     <Compile Include="Connection\BluetoothGattCharacteristicConnection.cs" />
     <Compile Include="Connection\BluetoothGattCharacteristicConnectionEncrypted.cs" />
     <Compile Include="Connection\BluetoothGattCharacteristicConnectionPlain.cs" />
-    <Compile Include="Connection\BluetoothImplementation.cs" />
     <Compile Include="Connection\BluetoothPairResult.cs" />
     <Compile Include="Connection\IConnectionContext.cs" />
     <Compile Include="Connection\BlutoothPairStatus.cs" />
+    <Compile Include="Connection\INukiConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SemanticTypes\ADATANonce.cs" />
     <Compile Include="SemanticTypes\BluetoothCharacteristic.cs" />

@@ -1,0 +1,27 @@
+﻿<Page
+    x:Class="Nuki.Pages.Setup.Setup06LockNamePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Nuki.Pages.Setup"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" Style="{StaticResource SetupPage}" >
+
+        <RelativePanel>
+            <TextBlock
+                x:Name="Title"
+                RelativePanel.AlignHorizontalCenterWithPanel="True"
+                Text="Gib einen Namen für dein Schloss ein:" Style="{StaticResource SetupPageTitle}" />
+        <TextBox x:Name="NameBox"  
+                 RelativePanel.Below="Title"
+                 RelativePanel.AlignHorizontalCenterWithPanel="True"
+                 Style="{StaticResource SetupPageTextBox}" 
+                 Text="{x:Bind ViewModel.MyLockName, Mode=TwoWay}" >
+        </TextBox>
+        <Button Style="{StaticResource SetupPageButton}" 
+                RelativePanel.Below="NameBox"
+                Margin="0,20,0,0"
+                RelativePanel.AlignHorizontalCenterWithPanel="True"
+                Click="{x:Bind ViewModel.GotoNextPage}">Weiter</Button>
+    </RelativePanel>
+</Page>

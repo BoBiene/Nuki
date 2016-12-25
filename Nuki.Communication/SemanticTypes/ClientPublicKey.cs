@@ -14,7 +14,7 @@ namespace Nuki.Communication.SemanticTypes
 
         }
         private ClientPublicKey()
-            : base(new byte[32])
+            : this(new byte[32])
         {
 
         }

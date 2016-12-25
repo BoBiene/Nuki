@@ -1,4 +1,5 @@
-﻿using Nuki.Communication.API;
+﻿using MetroLog;
+using Nuki.Communication.API;
 using Nuki.Communication.Commands;
 using Nuki.Communication.Commands.Request;
 using Nuki.Communication.Commands.Response;
@@ -20,25 +21,31 @@ using Windows.Storage.Streams;
 
 namespace Nuki.Communication.Connection
 {
-    public class BluetoothConnection : IConnectionContext
+    public class BluetoothConnection : IConnectionContext, INukiConnection
     {
         public static readonly BluetoothServiceUUID KeyTurnerPairingService = new BluetoothServiceUUID("a92ee100550111e4916c0800200c9a66");
         public static readonly BluetoothServiceUUID KeyTurnerInitializingService = new BluetoothServiceUUID("a92ee000550111e4916c0800200c9a66");
         public static readonly BluetoothServiceUUID KeyTurnerService = new BluetoothServiceUUID("a92ee200550111e4916c0800200c9a66");
 
         public static readonly BluetoothCharacteristic KeyTurnerPairingGDIO = new BluetoothCharacteristic("a92ee101550111e4916c0800200c9a66");
+
+       
+
         public static readonly BluetoothCharacteristic KeyTurnerGDIO = new BluetoothCharacteristic("a92ee201550111e4916c0800200c9a66");
         public static readonly BluetoothCharacteristic KeyTurnerUGDIO = new BluetoothCharacteristic("a92ee202550111e4916c0800200c9a66");
-       
-        private BluetoothGattCharacteristicConnection m_pairingGDIO = null;
-        private BluetoothGattCharacteristicConnection m_GDIO = null;
-        private BluetoothGattCharacteristicConnection m_UGDIO = null;
 
+        private ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger<BluetoothConnection>();
+        private BluetoothGattCharacteristicConnection m_pairingGDIO = null;
+        //private BluetoothGattCharacteristicConnection m_GDIO = null;
+        private BluetoothGattCharacteristicConnection m_UGDIO = null;
+        private object Syncroot = new object();
         private BluetoothLEDevice m_bleDevice = null;
-        
+        public bool Connected => m_bleDevice != null;
+
+       
         public string DeviceName => m_connectionInfo.DeviceName;
         public static Collection Connections => Collection.Instance;
-        private BluetoothConnectionInfo m_connectionInfo = new BluetoothConnectionInfo();
+        private NukiConnectionBinding m_connectionInfo = new NukiConnectionBinding();
         public ClientPublicKey ClientPublicKey => m_connectionInfo.ClientPublicKey;
         public SmartLockPublicKey SmartLockPublicKey => m_connectionInfo.SmartLockPublicKey;
         public SharedKey SharedKey => m_connectionInfo.SharedKey;
@@ -91,12 +98,96 @@ namespace Nuki.Communication.Connection
             m_connectionInfo.DeviceName = strDeviceName;
             m_connectionInfo.UniqueClientID = new UniqueClientID(5);
             m_pairingGDIO = new BluetoothGattCharacteristicConnectionPlain(this);
-            m_GDIO = new BluetoothGattCharacteristicConnectionEncrypted(this);
+            //m_GDIO = new BluetoothGattCharacteristicConnectionEncrypted(this);
             m_UGDIO = new BluetoothGattCharacteristicConnectionEncrypted(this);
         }
-        public async Task<bool> Connect(string strDeviceID, BluetoothConnectionInfo connectionInfo = null)
+        public Task<bool> Connect(NukiConnectionBinding connectionInfo)
         {
-            bool blnRet = false;
+            if (connectionInfo == null)
+                throw new ArgumentNullException(nameof(connectionInfo));
+            return Connect(connectionInfo.DeviceName);
+        }
+
+        public async Task<RecieveNukiStatesCommand> RequestNukiState()
+        {
+            RecieveNukiStatesCommand retCmd = null;
+        
+
+                if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.NukiStates)))
+                {
+                    Log.Debug("Send request Config command...");
+                    var cmd = await m_UGDIO.Recieve(5000);
+                    retCmd = cmd as RecieveNukiStatesCommand;
+                }
+                else
+                {
+                }
+          
+
+            return retCmd;
+        }
+        public async Task<RecieveStatusCommand> SendCalibrateRequest(UInt16 securityPin)
+        {
+            RecieveStatusCommand retCmd = null;
+            if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))
+            {
+                RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
+
+                if (await m_UGDIO.Send(new SendRequestCalibrationCommand(this,securityPin)))
+                {
+                    Log.Debug("SendRequestCalibrationCommand command...");
+                     cmd = await m_UGDIO.Recieve(5000);
+                    retCmd = cmd as RecieveStatusCommand;
+                }
+                else
+                {
+                }
+            }
+            else
+            {
+            }
+
+            return retCmd;
+        }
+        public async Task<RecieveStatusCommand> SendLockAction(NukiLockAction lockAction, NukiLockActionFlags flags =  NukiLockActionFlags.None)
+        {
+            RecieveStatusCommand retCmd = null;
+            if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))
+            {
+                RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
+
+                if (await m_UGDIO.Send(new SendLockActionCommand(lockAction, flags, this)))
+                {
+                    Log.Debug("Send SendLockAction command...");
+                    retCmd = await m_UGDIO.Recieve(5000) as RecieveStatusCommand;
+                }
+                else
+                {
+                }
+            }
+            else
+            {
+            }
+
+            return retCmd;
+        }
+        public enum ConnectResult
+        {
+            NeedRepair = -1,
+            Failed = 0,
+            Successfull = 1,
+            Connected = 2,
+        }
+        public async Task<bool> Connect(string strDeviceID)
+        {
+            return await Connect(strDeviceID, null) >= ConnectResult.Successfull;
+        }
+        public async Task<ConnectResult> Connect(string strDeviceID, NukiConnectionBinding connectionInfo)
+        {
+            ConnectResult result = ConnectResult.Failed;
+
+
+
             try
             {
                 if (connectionInfo != null)
@@ -104,19 +195,23 @@ namespace Nuki.Communication.Connection
                 var deviceService = await GattDeviceService.FromIdAsync(strDeviceID);
                 if (deviceService != null)
                 {
-                    foreach (var character in deviceService.GetAllCharacteristics())
+                    foreach (var character in 
+                        deviceService.GetCharacteristics(KeyTurnerUGDIO.Value).
+                        Concat(deviceService.GetCharacteristics(KeyTurnerPairingGDIO.Value)))
                     {
-                        if (character.Uuid == KeyTurnerGDIO.Value)
+                        //if (character.Uuid == KeyTurnerGDIO.Value)
+                        //{
+                        //    m_GDIO.SetConnection(character);
+                        //}
+                        //else 
+                        if (character.Uuid == KeyTurnerPairingGDIO.Value)
                         {
-                            m_GDIO.SetConnection(character);
-                        }
-                        else if (character.Uuid == KeyTurnerPairingGDIO.Value)
-                        {
+                            result = ConnectResult.Successfull;
                             m_pairingGDIO.SetConnection(character);
                         }
                         else if (character.Uuid == KeyTurnerUGDIO.Value)
                         {
-
+                            result = ConnectResult.Successfull;
                             m_UGDIO.SetConnection(character);
                         }
                     }
@@ -127,49 +222,56 @@ namespace Nuki.Communication.Connection
                 }
                 else
                 {
-                    Debug.WriteLine($"Unable to get GattDeviceService.FromIdAsync(\"{strDeviceID}\");");
+                    Log.Warn($"Unable to get GattDeviceService.FromIdAsync(\"{strDeviceID}\");");
                 }
-                blnRet = m_bleDevice?.ConnectionStatus == BluetoothConnectionStatus.Connected;
+
+                if (m_bleDevice?.ConnectionStatus == BluetoothConnectionStatus.Connected)
+                    result = ConnectResult.Connected;
             }
             catch(Exception ex)
             {
-                Debug.WriteLine("Connect failed: {0}",ex);
-            }
-            return blnRet;
-        }
-
-        private async void M_bleDevice_ConnectionStatusChanged(BluetoothLEDevice sender, object args)
-        {
-            Debug.WriteLine($"Connection changed to {sender.ConnectionStatus}");
-
-            m_pairingGDIO?.Reset();
-            m_GDIO?.Reset();
-            m_UGDIO?.Reset();
-
-            if (sender.ConnectionStatus == BluetoothConnectionStatus.Connected)
-            {
-                if (await m_UGDIO.Send(new SendRequestDataCommand(CommandTypes.Challenge)))
+                Log.Error("Connect failed: {0}",ex);
+                if(ex is InvalidOperationException && (uint)ex.HResult == 0x8000000E )
                 {
-                    RecieveBaseCommand cmd = await m_UGDIO.Recieve(5000);
-
-                    if (await m_UGDIO.Send(new SendRequestConfigCommand(this)))
-                    {
-                        Debug.WriteLine("Send request Config command...");
-                    }
-                    else { }
+                    result = ConnectResult.NeedRepair;
                 }
                 else { }
             }
-            else { }
+            return result;
         }
+
+    
+        private  void M_bleDevice_ConnectionStatusChanged(BluetoothLEDevice sender, object args)
+        {
+            try
+            {
+                Log.Debug($"Connection changed to {sender.ConnectionStatus}");
+
+                m_pairingGDIO?.Reset();
+                m_UGDIO?.Reset();
+            }
+            catch(Exception ex)
+            {
+                Log.Error("Exception in connection change: {0}", ex);
+            }
+        }
+        private bool m_blnPairingInProgress = false;
 
         public async Task<BluetoothPairResult> PairDevice(string strConnectionName)
         {
             BlutoothPairStatus status = BlutoothPairStatus.Failed;
+            lock (Syncroot)
+            {
+                if (m_blnPairingInProgress)
+                    status = BlutoothPairStatus.PairingInProgress;
+                else
+                    m_blnPairingInProgress = true;
+            }
             try
             {
                 if (m_pairingGDIO.IsValid &&
-                    m_GDIO.IsValid &&
+                     //m_GDIO.IsValid &&
+                     status != BlutoothPairStatus.PairingInProgress &&
                     m_UGDIO.IsValid)
                 {
 
@@ -303,17 +405,29 @@ namespace Nuki.Communication.Connection
                     {
                         status = BlutoothPairStatus.Failed;
                     }
+
                 }
                 else
                 {
-                    if (m_UGDIO.IsValid || m_pairingGDIO.IsValid || m_GDIO.IsValid)
+                    if (m_UGDIO.IsValid || m_pairingGDIO.IsValid
+                        //|| m_GDIO.IsValid
+                        )
                         status = BlutoothPairStatus.MissingCharateristic;
                 }
             }
+
             catch (Exception ex)
             {
-                Debug.WriteLine("Error in pairing: {0}", ex);
+                Log.Error("Error in pairing: {0}", ex);
                 status = BlutoothPairStatus.Failed;
+            }
+            finally
+            {
+                lock (Syncroot)
+                {
+                    if (status != BlutoothPairStatus.PairingInProgress)
+                        m_blnPairingInProgress = false;
+                }
             }
             return new BluetoothPairResult(status, (status == BlutoothPairStatus.Successfull) ? m_connectionInfo : null);
         }

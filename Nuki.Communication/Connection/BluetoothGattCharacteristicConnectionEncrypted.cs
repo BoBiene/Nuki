@@ -13,13 +13,13 @@ namespace Nuki.Communication.Connection
 {
     internal class BluetoothGattCharacteristicConnectionEncrypted : BluetoothGattCharacteristicConnection
     {
+        private object Syncroot = new object();
         private RecieveBuffer m_RecieveBuffer = null;
         private class RecieveBuffer
         {
             private List<byte> m_bufferPDATA = new List<byte>();
             private byte[] m_bufferADATA = new byte[30];
             private byte m_nADATABufferPointer = 0;
-
             public ADATANonce Nonce { get; private set; }
             public UniqueClientID UniqueClientID { get; private set; }
             public UInt16 Length { get; private set; }
@@ -144,51 +144,54 @@ namespace Nuki.Communication.Connection
         protected override bool TryGetRecieveBuffer(IBuffer value, out DataReader reader)
         {
             bool blnRet = false;
-
-            reader = null;
-            try
+            lock (Syncroot)
             {
-                if (m_RecieveBuffer == null)
+                reader = null;
+                try
                 {
-                    m_RecieveBuffer = new RecieveBuffer(value);
-                }
-                else
-                {
-                    m_RecieveBuffer?.Consume(value);
-                }
-
-                if (m_RecieveBuffer?.Complete == true)
-                {
-                    if (m_RecieveBuffer.UniqueClientID == this.Connection.UniqueClientID)
+                    if (m_RecieveBuffer == null)
                     {
-                        reader = m_RecieveBuffer.Decrypt(Connection);
-                        reader.ByteOrder = ByteOrder.LittleEndian;
-                        m_RecieveBuffer = null;
-                        if (reader.ReadUInt32() == this.Connection.UniqueClientID.Value)
+                        m_RecieveBuffer = new RecieveBuffer(value);
+                    }
+                    else
+                    {
+                        m_RecieveBuffer?.Consume(value);
+                    }
+
+                    if (m_RecieveBuffer?.Complete == true)
+                    {
+                        if (m_RecieveBuffer.UniqueClientID == this.Connection.UniqueClientID)
                         {
-                            blnRet = true;
+                            reader = m_RecieveBuffer.Decrypt(Connection);
+                            reader.ByteOrder = ByteOrder.LittleEndian;
+                            m_RecieveBuffer = null;
+                            if (reader.ReadUInt32() == this.Connection.UniqueClientID.Value)
+                            {
+                                blnRet = true;
+                            }
+                            else
+                            {
+                                Log.Warn("Decryption of message failed (PDATA has wrong UniqueClientID)!");
+                            }
                         }
                         else
                         {
-                            Debug.WriteLine("Decryption of message failed (PDATA has wrong UniqueClientID)!");
+                            Log.Warn("Recieved message for wrong ClientID?!");
                         }
                     }
                     else
                     {
-                        Debug.WriteLine("Recieved message for wron ClientID?!");
+                        Log.Debug($"Nonce: {m_RecieveBuffer.Nonce}");
+                        Log.Debug($"UniqueClientID: {m_RecieveBuffer.UniqueClientID}");
+                        Log.Debug($"Length: {m_RecieveBuffer.Length}");
+                        Log.Debug($"HeaderComplete: {m_RecieveBuffer.HeaderComplete}");
+                        Log.Debug($"Recieved: {m_RecieveBuffer.Recieved}");
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    Debug.WriteLine($"Nonce: {m_RecieveBuffer.Nonce}");
-                    Debug.WriteLine($"UniqueClientID: {m_RecieveBuffer.UniqueClientID}");
-                    Debug.WriteLine($"Length: {m_RecieveBuffer.Length}");
-                    Debug.WriteLine($"HeaderComplete: {m_RecieveBuffer.HeaderComplete}");
-                    Debug.WriteLine($"Recieved: {m_RecieveBuffer.Recieved}");
+                    Log.Error("Exception in TryRecieve: " + ex.ToString());
                 }
-            }catch(Exception ex)
-            {
-                Debug.WriteLine("Exception in TryRecieve: " + ex.ToString());
             }
             return blnRet;
         }

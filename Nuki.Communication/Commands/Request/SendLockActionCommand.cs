@@ -22,7 +22,7 @@ namespace Nuki.Communication.Commands.Request
         public SendLockActionCommand(NukiLockAction lockAction, NukiLockActionFlags flags, IConnectionContext connectionContext) :
             base(CommandTypes.LockAction, connectionContext, 4)
         {
-            AddField(nameof(LockAction), NukiClientTypeID.App);
+            AddField(nameof(LockAction), lockAction);
             AddField(nameof(UniqueClientID), connectionContext.UniqueClientID);
             AddField(nameof(Flags), flags);
             AddField(nameof(SmartLockNonce), connectionContext.SmartLockNonce);
