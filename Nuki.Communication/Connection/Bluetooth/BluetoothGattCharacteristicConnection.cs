@@ -106,13 +106,18 @@ namespace Nuki.Communication.Connection.Bluetooth
             return Send(cmd, 2000);
         }
 
-        public async Task<T> Send<T>(SendBaseCommand cmd,int nTimeout = 5000)
+        public async Task<T> Send<T>(SendBaseCommand cmd,int nTimeout = 2000)
             where T:RecieveBaseCommand
         {
             T ret = default(T);
             if(await Send(cmd))
             {
                 ret = await Recieve<T>(nTimeout);
+                if(ret == null)
+                {
+                    Connection.Update(new NukiCommandTimeout(cmd, nTimeout));
+                }
+                else { }
             }
             else { }
             return ret;

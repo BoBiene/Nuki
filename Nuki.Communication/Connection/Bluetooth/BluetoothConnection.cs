@@ -102,7 +102,7 @@ namespace Nuki.Communication.Connection.Bluetooth
             }
         }
 
-        internal void Update(RecieveErrorReportCommand recieveErrorReportCommand)
+        internal void Update(INukiErrorMessage recieveErrorReportCommand)
         {
             Log.Error(recieveErrorReportCommand.ToString());
             LastError = recieveErrorReportCommand;
@@ -143,6 +143,11 @@ namespace Nuki.Communication.Connection.Bluetooth
         public async Task<INukiDeviceStateMessage> RequestNukiState()
         {
             return await m_UGDIO.Send<RecieveNukiStatesCommand>(new SendRequestDataCommand(NukiCommandType.NukiStates));
+        }
+
+        public async Task<INukiBatteryReport> RequestNukiBatteryReport()
+        {
+            return await m_UGDIO.Send<RecieveBatteryReportCommand>(new SendRequestDataCommand(NukiCommandType.BatteryReport));
         }
 
         public async Task<INukiConfigMessage> RequestNukiConfig()
@@ -322,7 +327,7 @@ namespace Nuki.Communication.Connection.Bluetooth
                                                 {
                                                     this.SmartLockNonce = ((RecieveChallengeCommand)response).Nonce;
 
-                                                    cmd = new SendAuthorizationDataCommand("WinPhone Lock", this);
+                                                    cmd = new SendAuthorizationDataCommand(strConnectionName, this);
 
                                                     if (await m_pairingGDIO.Send(cmd)) //16
                                                     {
@@ -445,5 +450,7 @@ namespace Nuki.Communication.Connection.Bluetooth
         {
             return new ClientNonce(Sodium.Core.GetRandomBytes(32));
         }
+
+
     }
 }

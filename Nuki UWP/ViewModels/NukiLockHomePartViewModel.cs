@@ -159,12 +159,12 @@ namespace Nuki.ViewModels
                      LockState = nukiStateCmd.LockState;
                      NukiState = nukiStateCmd.NukiState;
                      CriticalBattery = nukiStateCmd.CriticalBattery;
-                     LockRingState = LockState.ToString();
                  }
                  else
                  {
                      LockState = NukiLockState.Undefined;
                  }
+                 LockRingState = LockState.ToString();
              });
             if (Dispatcher != null)
             {

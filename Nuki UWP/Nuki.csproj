@@ -117,6 +117,7 @@
     <Compile Include="Converter\SubstractConverter.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Converter\MultiplyConverter.cs" />
+    <Compile Include="ViewModels\Helper\LockHistoryList.cs" />
     <Compile Include="ViewModels\NukiLockStatusPartViewModel.cs" />
     <Compile Include="ViewModels\NukiLockAdministrationPartViewModel.cs" />
     <Compile Include="ViewModels\NukiLockSettingsPartViewModel.cs" />

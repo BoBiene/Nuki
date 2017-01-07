@@ -44,10 +44,11 @@ namespace Nuki.ViewModels
             else
                 --m_nProgressRequests;
 
-            if (m_nProgressRequests > 0)
+            if (blnVisibility)
                 m_ProgressbarVisibility = Visibility.Visible;
             else
                 m_ProgressbarVisibility = Visibility.Collapsed;
+
 
             RaisePropertyChanged(nameof(ProgressbarVisibility));
         }
@@ -90,11 +91,11 @@ namespace Nuki.ViewModels
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
         {
             ShowProgressbar(true);
-           
+
             NukiConnectionConfig = SettingsService.Instance.PairdLocks.Where((l) => l.UniqueClientID.Value == parameter as uint?).FirstOrDefault();
             await TryToConnect();
-            await base.OnNavigatedToAsync(parameter, mode, state);
             ShowProgressbar(false);
+            await base.OnNavigatedToAsync(parameter, mode, state);
         }
 
         private async Task<bool> TryToConnect(int nTryCount = 0)
@@ -127,7 +128,7 @@ namespace Nuki.ViewModels
         {
             if(e.PropertyName == nameof( NukiConncetion.LastError))
             {
-                ShowError($"Command <{NukiConncetion.LastError.FailedCommand}> errocode: {NukiConncetion.LastError.ErrorCode}");
+                ShowError($"Command <{NukiConncetion.LastError.FailedCommand}> errocode: {NukiConncetion.LastError.ErrorCode} {NukiConncetion.LastError.Message}");
             }
             else {  }
         }

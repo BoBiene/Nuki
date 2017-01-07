@@ -41,6 +41,9 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands
                 case NukiCommandType.Config:
                     cmd = new RecieveConfigCommand();
                     break;
+                case NukiCommandType.BatteryReport:
+                    cmd = new RecieveBatteryReportCommand();
+                    break;
                 default:
                     Log.Error($"Command {cmdType} is not handelt!");
                     break;
