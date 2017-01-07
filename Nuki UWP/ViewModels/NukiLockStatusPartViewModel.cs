@@ -20,7 +20,7 @@ namespace Nuki.ViewModels
       
         public NukiLockStatusPartViewModel()
         {
-            LockHistory = new IncrementalLoadingCollection<LockHistoryList, INukiLogEntry>();
+            LockHistory = null;
         }
 
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
@@ -43,6 +43,9 @@ namespace Nuki.ViewModels
                 Log.Error("Failed to request Nuki Stat: {0}", ex);
             }
             BaseModel.ShowProgressbar(false);
+
+            LockHistory = new IncrementalLoadingCollection<LockHistoryList, INukiLogEntry>(new LockHistoryList(BaseModel));
+            RaisePropertyChanged(nameof(LockHistory));
         }
     }
 }

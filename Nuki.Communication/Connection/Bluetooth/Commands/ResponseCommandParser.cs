@@ -17,36 +17,50 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands
         public static RecieveBaseCommand Parse(IDataReader reader)
         {
             RecieveBaseCommand cmd = null;
-            NukiCommandType cmdType =(NukiCommandType) reader.ReadUInt16();
-            switch (cmdType)
+            if (reader.UnconsumedBufferLength >= 2)
             {
-                case NukiCommandType.AuthorizationID:
-                    cmd = new RecieveAuthorizationIDCommand();
-                    break;
-                case NukiCommandType.Challenge:
-                    cmd = new RecieveChallengeCommand();
-                    break;
-                case NukiCommandType.ErrorReport:
-                    cmd = new RecieveErrorReportCommand();
-                    break;
-                case NukiCommandType.PublicKey:
-                    cmd = new RecievePublicKeyCommand();
-                    break;
-                case NukiCommandType.Status:
-                    cmd = new RecieveStatusCommand();
-                    break;
-                case NukiCommandType.NukiStates:
-                    cmd = new RecieveNukiStatesCommand();
-                    break;
-                case NukiCommandType.Config:
-                    cmd = new RecieveConfigCommand();
-                    break;
-                case NukiCommandType.BatteryReport:
-                    cmd = new RecieveBatteryReportCommand();
-                    break;
-                default:
-                    Log.Error($"Command {cmdType} is not handelt!");
-                    break;
+
+                NukiCommandType cmdType = (NukiCommandType)reader.ReadUInt16();
+                switch (cmdType)
+                {
+                    case NukiCommandType.AuthorizationID:
+                        cmd = new RecieveAuthorizationIDCommand();
+                        break;
+                    case NukiCommandType.Challenge:
+                        cmd = new RecieveChallengeCommand();
+                        break;
+                    case NukiCommandType.ErrorReport:
+                        cmd = new RecieveErrorReportCommand();
+                        break;
+                    case NukiCommandType.PublicKey:
+                        cmd = new RecievePublicKeyCommand();
+                        break;
+                    case NukiCommandType.Status:
+                        cmd = new RecieveStatusCommand();
+                        break;
+                    case NukiCommandType.NukiStates:
+                        cmd = new RecieveNukiStatesCommand();
+                        break;
+                    case NukiCommandType.Config:
+                        cmd = new RecieveConfigCommand();
+                        break;
+                    case NukiCommandType.BatteryReport:
+                        cmd = new RecieveBatteryReportCommand();
+                        break;
+                    case NukiCommandType.LogEntryCount:
+                        cmd = new RecieveLogEntryCountCommand();
+                        break;
+                    case NukiCommandType.LogEntry:
+                        cmd = new RecieveLogEntryCommand();
+                        break;
+                    default:
+                        Log.Error($"Command {cmdType} is not handelt!");
+                        break;
+                }
+            }
+            else
+            {
+                //not enough data...
             }
 
             return cmd;

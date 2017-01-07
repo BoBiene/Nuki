@@ -54,16 +54,21 @@
         </Pivot>
         <Grid 
             Visibility="{x:Bind ViewModel.ErrorbarVisibility,Mode=OneWay}"
-            Height="40"
+           
             Background="#B6222A"
-            
+            Height="Auto"
+            MinHeight="20"
             RelativePanel.AlignBottomWithPanel="True"
             RelativePanel.AlignLeftWithPanel="True"  
             RelativePanel.AlignRightWithPanel="True">
+            
             <TextBlock 
+                Width="Auto"
             VerticalAlignment="Center"
             HorizontalAlignment="Center"    
                 Foreground="#FCF8F8"
+                TextWrapping="WrapWholeWords"
+                Margin="10"
                 Text="{x:Bind ViewModel.ErrorbarText,Mode=OneWay}"></TextBlock>
         </Grid>
     </RelativePanel>

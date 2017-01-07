@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
@@ -39,7 +40,8 @@ namespace Nuki.Communication.Connection.Bluetooth
         private BluetoothGattCharacteristicConnection m_pairingGDIO = null;
         //private BluetoothGattCharacteristicConnection m_GDIO = null;
         private BluetoothGattCharacteristicConnection m_UGDIO = null;
-        private object Syncroot = new object();
+        private Locker Locker { get; set; } = new Locker();
+
         private BluetoothLEDevice m_bleDevice = null;
 
         public INukiDeviceStateMessage m_LastDeviceState = null;
@@ -142,53 +144,176 @@ namespace Nuki.Communication.Connection.Bluetooth
 
         public async Task<INukiDeviceStateMessage> RequestNukiState()
         {
-            return await m_UGDIO.Send<RecieveNukiStatesCommand>(new SendRequestDataCommand(NukiCommandType.NukiStates));
+            INukiDeviceStateMessage retValue = null;
+            try
+            {
+                using (var lockHandle = await Locker.Lock())
+                {
+                    if (lockHandle.Successfull)
+                        retValue = await m_UGDIO.Send<RecieveNukiStatesCommand>(new SendRequestDataCommand(NukiCommandType.NukiStates));
+                }
+            }
+            catch (Exception ex)
+            {
+                Update(new NukiCommandException(NukiCommandType.NukiStates, ex));
+            }
+            return retValue;
         }
 
         public async Task<INukiBatteryReport> RequestNukiBatteryReport()
         {
-            return await m_UGDIO.Send<RecieveBatteryReportCommand>(new SendRequestDataCommand(NukiCommandType.BatteryReport));
+            INukiBatteryReport retValue = null;
+            try
+            {
+                using (var lockHandle = await Locker.Lock())
+                {
+                    if (lockHandle.Successfull)
+                        retValue = await m_UGDIO.Send<RecieveBatteryReportCommand>(new SendRequestDataCommand(NukiCommandType.BatteryReport));
+                }
+            }
+            catch (Exception ex)
+            {
+                Update(new NukiCommandException(NukiCommandType.BatteryReport, ex));
+            }
+            return retValue;
         }
+
+        public async Task<INukiLogEntryCount> RequestNukiLogEntryCount()
+        {
+            INukiLogEntryCount retValue = null;
+            try
+            {
+                using (var lockHandle = await Locker.Lock())
+                {
+                    if (lockHandle.Successfull)
+                        retValue = await m_UGDIO.Send<RecieveLogEntryCountCommand>(new SendRequestDataCommand(NukiCommandType.LogEntryCount));
+                }
+            }
+            catch (Exception ex)
+            {
+                Update(new NukiCommandException(NukiCommandType.LogEntryCount, ex));
+            }
+            return retValue;
+        }
+        public async Task<IEnumerable<INukiLogEntry>> RequestLogEntries(bool blnMostRecent, UInt16 nStartIndex, UInt16 nCount, UInt16 nSecurityPIN)
+        {
+          
+            List<INukiLogEntry> retEntries = new List<INukiLogEntry>();
+            try
+            {
+                using (var lockHandle = await Locker.Lock())
+                {
+                    if (lockHandle.Successfull && await Challenge())
+                    {
+                        var cmdStatus = await m_UGDIO.Send<RecieveBaseCommand>(new SendRequestLogEntriesCommand(this, blnMostRecent, nStartIndex, nCount, nSecurityPIN), 30000);
+
+                        if (
+                            (cmdStatus as RecieveStatusCommand)?.StatusCode == NukiErrorCode.COMPLETE ||
+                            (cmdStatus as RecieveLogEntryCountCommand)?.Count > 0)
+                        {
+                            bool blnTimeout = false;
+                            for (int i = 0; i < nCount && !blnTimeout; ++i)
+                            {
+                                RecieveLogEntryCommand cmd = await m_UGDIO.Recieve<RecieveLogEntryCommand>(30000);
+                                if (cmd == null)
+                                {
+                                    //Timeout...
+                                    blnTimeout = true;
+                                }
+                                else
+                                {
+                                    // Debug.Assert(i + nStartIndex == cmd.Index, $"Index is not correct, should be { i + nStartIndex } but recieved {cmd.Index}");
+                                    retEntries.Add(cmd);
+                                }
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    else
+                    {
+
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Update(new NukiCommandException(NukiCommandType.RequestLogEntries, ex));
+            }
+            return retEntries;
+
+            //return await m_UGDIO.Send<RecieveLogEntryCountCommand>(new SendRequestDataCommand(NukiCommandType.LogEntryCount));
+        }
+
 
         public async Task<INukiConfigMessage> RequestNukiConfig()
         {
             RecieveConfigCommand retCmd = null;
-            if (await Challenge())
+            try
             {
-                retCmd = await m_UGDIO.Send<RecieveConfigCommand>(new SendRequestConfigCommand(this));
+                using (var lockHandle = await Locker.Lock())
+                {
+                    if (lockHandle.Successfull && await Challenge())
+                    {
+                        retCmd = await m_UGDIO.Send<RecieveConfigCommand>(new SendRequestConfigCommand(this));
+                    }
+                    else
+                    {
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
+                Update(new NukiCommandException(NukiCommandType.RequestConfig, ex));
             }
-
             return retCmd;
         }
 
         public async Task<INukiReturnMessage> SendCalibrateRequest(UInt16 securityPin)
         {
             RecieveStatusCommand retCmd = null;
-            if (await Challenge())
+            try
             {
-                retCmd = await m_UGDIO.Send<RecieveStatusCommand>(new SendRequestCalibrationCommand(this, securityPin));
+                using (var lockHandle = await Locker.Lock())
+                {
+                    if (lockHandle.Successfull && await Challenge())
+                    {
+                        retCmd = await m_UGDIO.Send<RecieveStatusCommand>(new SendRequestCalibrationCommand(this, securityPin));
+                    }
+                    else
+                    {
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
+                Update(new NukiCommandException(NukiCommandType.RequestCalibration, ex));
             }
-
             return retCmd;
         }
         public async Task<INukiReturnMessage> SendLockAction(NukiLockAction lockAction, NukiLockActionFlags flags = NukiLockActionFlags.None)
         {
             RecieveStatusCommand retCmd = null;
-            if (await Challenge())
+            try
             {
-                Log.Debug("Send SendLockAction command...");
-                retCmd = await m_UGDIO.Send<RecieveStatusCommand>(new SendLockActionCommand(lockAction, flags, this));
+                using (var lockHandle = await Locker.Lock())
+                {
+                    if (lockHandle.Successfull && await Challenge())
+                    {
+                        Log.Debug("Send SendLockAction command...");
+                        retCmd = await m_UGDIO.Send<RecieveStatusCommand>(new SendLockActionCommand(lockAction, flags, this));
+                    }
+                    else
+                    {
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
+                Update(new NukiCommandException(NukiCommandType.LockAction, ex));
             }
-
             return retCmd;
         }
         public enum ConnectResult
@@ -274,18 +399,26 @@ namespace Nuki.Communication.Connection.Bluetooth
         public async Task<BluetoothPairResult> PairDevice(string strConnectionName)
         {
             BlutoothPairStatus status = BlutoothPairStatus.Failed;
-            lock (Syncroot)
+            bool blnAbort = false;
+            using (var lockHandle = await Locker.Lock())
             {
-                if (m_blnPairingInProgress)
-                    status = BlutoothPairStatus.PairingInProgress;
+                if (lockHandle.Successfull)
+                {
+                    if (m_blnPairingInProgress)
+                        blnAbort = true;
+                    else
+                        m_blnPairingInProgress = true;
+                }
                 else
-                    m_blnPairingInProgress = true;
+                {
+                    blnAbort = true;
+                }
             }
+
             try
             {
                 if (m_pairingGDIO.IsValid &&
-                     //m_GDIO.IsValid &&
-                     status != BlutoothPairStatus.PairingInProgress &&
+                     !blnAbort &&
                     m_UGDIO.IsValid)
                 {
 
@@ -437,12 +570,13 @@ namespace Nuki.Communication.Connection.Bluetooth
             }
             finally
             {
-                lock (Syncroot)
+                using(var lockHandle = await Locker.Lock())
                 {
                     if (status != BlutoothPairStatus.PairingInProgress)
                         m_blnPairingInProgress = false;
                 }
             }
+
             return new BluetoothPairResult(status, (status == BlutoothPairStatus.Successfull) ? m_connectionInfo : null);
         }
 

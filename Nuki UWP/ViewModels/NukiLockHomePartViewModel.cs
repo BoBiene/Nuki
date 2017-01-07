@@ -132,6 +132,7 @@ namespace Nuki.ViewModels
         private async Task RefreshNukiState()
         {
             BaseModel.ShowProgressbar(true);
+            BaseModel.ShowError("Test Error with a super long text hoping we will get a word wrapping... Test Error with a super long text hoping we will get a word wrapping...");
             LockRingState = "Requsting state...";
             INukiDeviceStateMessage nukiStateCmd = null;
             try

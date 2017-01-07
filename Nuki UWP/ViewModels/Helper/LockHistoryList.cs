@@ -12,16 +12,28 @@ namespace Nuki.ViewModels.Helper
 {
     public class LockHistoryList : IIncrementalSource<INukiLogEntry>
     {
-        public INukiConnection Connection { get; private set; }
-        public LockHistoryList(INukiConnection nukiConnection)
+        private UInt16 m_nLastIndex = 0;
+        public NukiLockViewModel NukiLockViewModel { get; private set; }
+        public LockHistoryList(NukiLockViewModel nukiLockViewModel)
         {
-            Connection = nukiConnection;
+            NukiLockViewModel = nukiLockViewModel;
         }
         public async Task<IEnumerable<INukiLogEntry>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var result = Create(pageIndex, pageSize);
+            IEnumerable<INukiLogEntry> retValue = null;
+            if (NukiLockViewModel?.NukiConncetion != null)
+            {
+                NukiLockViewModel.ShowProgressbar(true);
+                retValue = await NukiLockViewModel.NukiConncetion.RequestLogEntries(m_nLastIndex == 0, m_nLastIndex, (UInt16)pageSize, 0);
+                m_nLastIndex = retValue.LastOrDefault()?.Index ?? 0;
+                NukiLockViewModel.ShowProgressbar(false);
+            }
+            else
+            {
+                retValue = new INukiLogEntry[0];
+            }
 
-            return await Task.FromResult(result);
+            return retValue;
         }
         private IEnumerable<INukiLogEntry> Create(int pageIndex, int pageSize)
         {
