@@ -44,26 +44,39 @@ namespace Nuki.ViewModels
             else
                 --m_nProgressRequests;
 
-            if (m_nProgressRequests > 0)
+            if (blnVisibility)
                 m_ProgressbarVisibility = Visibility.Visible;
             else
                 m_ProgressbarVisibility = Visibility.Collapsed;
+
 
             RaisePropertyChanged(nameof(ProgressbarVisibility));
         }
 
         public void ShowError(string strText)
         {
-            Dispatcher.DispatchAsync(async () =>
+            try
             {
-                m_strErrorText = strText;
-                m_ErrorbarVisibility = Visibility.Visible;
-                RaisePropertyChanged(nameof(ErrorbarText));
-                RaisePropertyChanged(nameof(ErrorbarVisibility));
-                await Task.Delay(10000);
-                m_ErrorbarVisibility = Visibility.Collapsed;
-                RaisePropertyChanged(nameof(ErrorbarVisibility));
-            }, 0, CoreDispatcherPriority.Low);
+                Log.Trace("Show error: " + strText);
+                var func = new Action(async () =>
+                 {
+                     m_strErrorText = strText;
+                     m_ErrorbarVisibility = Visibility.Visible;
+                     RaisePropertyChanged(nameof(ErrorbarText));
+                     RaisePropertyChanged(nameof(ErrorbarVisibility));
+                     await Task.Delay(10000);
+                     m_ErrorbarVisibility = Visibility.Collapsed;
+                     RaisePropertyChanged(nameof(ErrorbarVisibility));
+                 });
+                if (Dispatcher != null)
+                    Dispatcher.DispatchAsync(func, 0, CoreDispatcherPriority.Low);
+                else
+                    func();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Failed to display error: " + strText, ex);
+            }
         }
 
         public INukiConnection NukiConncetion { get; private set; }
@@ -90,11 +103,11 @@ namespace Nuki.ViewModels
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
         {
             ShowProgressbar(true);
-           
+
             NukiConnectionConfig = SettingsService.Instance.PairdLocks.Where((l) => l.UniqueClientID.Value == parameter as uint?).FirstOrDefault();
             await TryToConnect();
-            await base.OnNavigatedToAsync(parameter, mode, state);
             ShowProgressbar(false);
+            await base.OnNavigatedToAsync(parameter, mode, state);
         }
 
         private async Task<bool> TryToConnect(int nTryCount = 0)
@@ -127,7 +140,7 @@ namespace Nuki.ViewModels
         {
             if(e.PropertyName == nameof( NukiConncetion.LastError))
             {
-                ShowError($"Command <{NukiConncetion.LastError.FailedCommand}> errocode: {NukiConncetion.LastError.ErrorCode}");
+                ShowError($"Command <{NukiConncetion.LastError.FailedCommand}> errocode: {NukiConncetion.LastError.ErrorCode} {NukiConncetion.LastError.Message}");
             }
             else {  }
         }

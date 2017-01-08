@@ -54,7 +54,8 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
         {
             if (!Complete)
             {
-                byte[] buffer = new byte[(int)reader.UnconsumedBufferLength];
+                int nRmainingData = m_byData.Length - m_nRecievePointer;
+                byte[] buffer = new byte[Math.Min(nRmainingData,(int)reader.UnconsumedBufferLength)];
                 reader.ReadBytes(buffer);
                 ProcessRecievedData(buffer);
               

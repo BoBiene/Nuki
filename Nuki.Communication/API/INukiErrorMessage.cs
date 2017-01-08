@@ -6,5 +6,7 @@ namespace Nuki.Communication.API
     {
         NukiErrorCode ErrorCode { get; }
         NukiCommandType FailedCommand { get; }
+
+        string Message { get; }
     }
 }
