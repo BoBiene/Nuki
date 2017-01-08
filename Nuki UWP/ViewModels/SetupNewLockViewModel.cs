@@ -10,6 +10,7 @@ using Windows.UI.Xaml.Controls;
 using Nuki.Views.Setup;
 using Nuki.Services.SettingsServices;
 using Nuki.Views;
+using Nuki.Communication.Connection.Bluetooth;
 
 namespace Nuki.ViewModels
 {

@@ -11,32 +11,40 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using Template10.Common;
 using Template10.Services.NavigationService;
+using Windows.UI.Core;
 
 namespace Nuki.ViewModels
 {
-    public partial class NukiLockViewModel : ViewModelBase
+    public partial class NukiLockViewModel : PivotBaseViewModel<NukiLockViewModel>
     {
-        private NukiConnectionBinding m_NukiConnectionBinding = null;
+        private NukiConnectionConfig m_NukiConnectionBinding = null;
+        private int m_nProgressRequests = 0;
         private Visibility m_ProgressbarVisibility = Visibility.Collapsed;
-        private object m_SelectedPivotItem = null;
-        //public NukiLockAdministrationPartViewModel AdministrationViewModel { get; private set; }
-        //public NukiLockHomePartViewModel HomeViewModel { get; private set; }
-        //public NukiLockSettingsPartViewModel SettingsViewModel { get; private set; }
-        //public NukiLockStatusPartViewModel StatusViewModel { get; private set; }
-
+        private Visibility m_ErrorbarVisibility = Visibility.Collapsed;
+        private string m_strErrorText = string.Empty;
 
         public string SelectedLock
         {
-            get { return NukiConncection?.ConnectionName ?? string.Empty; }
+            get { return NukiConnectionConfig?.ConnectionName ?? string.Empty; }
 
         }
 
+        public Visibility ErrorbarVisibility => m_ErrorbarVisibility;
+        public string ErrorbarText => m_strErrorText;
+        public Visibility ProgressbarVisibility
+        {
+            get { return m_ProgressbarVisibility; }
 
-        public Visibility ProgressbarVisibility => m_ProgressbarVisibility;
+        }
 
         public void ShowProgressbar(bool blnVisibility)
         {
             if (blnVisibility)
+                ++m_nProgressRequests;
+            else
+                --m_nProgressRequests;
+
+            if (m_nProgressRequests > 0)
                 m_ProgressbarVisibility = Visibility.Visible;
             else
                 m_ProgressbarVisibility = Visibility.Collapsed;
@@ -44,114 +52,116 @@ namespace Nuki.ViewModels
             RaisePropertyChanged(nameof(ProgressbarVisibility));
         }
 
-        public object SelectedPivotItem {
-            get { return m_SelectedPivotItem; }
-            set
+        public void ShowError(string strText)
+        {
+            Dispatcher.DispatchAsync(async () =>
             {
-                Set(ref m_SelectedPivotItem, value);
-                PivotItem pivotItem = value as PivotItem;
-                if (pivotItem != null)
-                {
-                    UserControl control = pivotItem.Content as UserControl;
-                    
-                    Part viewModel = control?.DataContext as Part;
-                    if (viewModel != null)
-                    {
-                        viewModel.OnNavigatedToAsync(null, NavigationMode.Refresh, null);
-                    }
-                    else { }
-                }
-                else { }
-            }
+                m_strErrorText = strText;
+                m_ErrorbarVisibility = Visibility.Visible;
+                RaisePropertyChanged(nameof(ErrorbarText));
+                RaisePropertyChanged(nameof(ErrorbarVisibility));
+                await Task.Delay(10000);
+                m_ErrorbarVisibility = Visibility.Collapsed;
+                RaisePropertyChanged(nameof(ErrorbarVisibility));
+            }, 0, CoreDispatcherPriority.Low);
         }
-        public BluetoothConnection BluetoothConnection { get; private set; }
 
-        public NukiConnectionBinding NukiConncection
+        public INukiConnection NukiConncetion { get; private set; }
+
+        public NukiConnectionConfig NukiConnectionConfig
         {
             get { return m_NukiConnectionBinding; }
             set
             {
                 Set(ref m_NukiConnectionBinding, value);
                 RaisePropertyChanged(nameof(SelectedLock));
-                if (value != null)
-                {
-                    BluetoothConnection = BluetoothConnection.Connections[value.DeviceName];
-                }
-                else { }
-                RaisePropertyChanged(nameof(BluetoothConnection));
+            
             }
         }
 
+
+        public override Task OnNavigatingFromAsync(NavigatingEventArgs args)
+        {
+            if (NukiConncetion != null)
+                NukiConncetion.PropertyChanged -= NukiConncetion_PropertyChanged;
+            return base.OnNavigatingFromAsync(args);
+        }
 
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
         {
-            NukiConncection = SettingsService.Instance.PairdLocks.Where((l) => l.UniqueClientID.Value == parameter as uint?).FirstOrDefault();
-            //await HomeViewModel.OnNavigatedToAsync(parameter, mode, state);
+            ShowProgressbar(true);
+           
+            NukiConnectionConfig = SettingsService.Instance.PairdLocks.Where((l) => l.UniqueClientID.Value == parameter as uint?).FirstOrDefault();
+            await TryToConnect();
             await base.OnNavigatedToAsync(parameter, mode, state);
+            ShowProgressbar(false);
         }
 
-        public NukiLockViewModel()
+        private async Task<bool> TryToConnect(int nTryCount = 0)
         {
-            Current = this;
-            //AdministrationViewModel = new NukiLockAdministrationPartViewModel(this);
-            //HomeViewModel = new NukiLockHomePartViewModel(this);
-            //SettingsViewModel = new NukiLockSettingsPartViewModel(this);
-            //StatusViewModel = new NukiLockStatusPartViewModel(this);
+            bool blnRet = false;
+            var connectResult = await NukiConnectionFactory.TryConnect(NukiConnectionConfig, (action) => Dispatcher.DispatchAsync(action, priority: CoreDispatcherPriority.Low).AsAsyncAction());
+            if (connectResult.Successfull)
+            {
+                if (NukiConncetion != null)
+                    NukiConncetion.PropertyChanged -= NukiConncetion_PropertyChanged;
+
+                NukiConncetion = connectResult.Connection;
+                
+                NukiConncetion.PropertyChanged += NukiConncetion_PropertyChanged;
+                RaisePropertyChanged(nameof(NukiConncetion));
+            }
+            else if (nTryCount < 5 )
+            {
+                blnRet = await Task.Delay(1000).ContinueWith((t) => TryToConnect(nTryCount + 1)).Unwrap();
+            }
+            else
+            {
+                //Failed
+            }
+
+            return blnRet;
         }
 
-        private static NukiLockViewModel Current { get; set; }
-        public abstract class Part : ViewModelBase
+        private void NukiConncetion_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            public NukiLockViewModel BaseModel { get; private set; }
-            public Part()
-                :this(NukiLockViewModel.Current)
+            if(e.PropertyName == nameof( NukiConncetion.LastError))
             {
-
+                ShowError($"Command <{NukiConncetion.LastError.FailedCommand}> errocode: {NukiConncetion.LastError.ErrorCode}");
             }
-            public Part(NukiLockViewModel baseModel)
-                : base()
+            else {  }
+        }
+
+        public struct PasswordRequestResult
+        {
+            public UInt16 SecurityPIN { get; private set; }
+            public bool Successfull { get; private set; }
+            public PasswordRequestResult(UInt16 securityPin, bool blnSuccessfull)
             {
-                BaseModel = baseModel;
-             
-            }
-
-            public override IStateItems SessionState
-            {
-                get
-                {
-                    return base.SessionState ?? BaseModel.SessionState;
-                }
-
-                set
-                {
-                    base.SessionState = value;
-                }
-            }
-
-            public override INavigationService NavigationService
-            {
-                get
-                {
-                    return base.NavigationService ?? BaseModel.NavigationService;
-                }
-
-                set
-                {
-                    base.NavigationService = value;
-                }
-            }
-            public override IDispatcherWrapper Dispatcher
-            {
-                get
-                {
-                    return base.Dispatcher ?? BaseModel.Dispatcher;
-                }
-
-                set
-                {
-                    base.Dispatcher = value;
-                }
+                SecurityPIN = securityPin;
+                Successfull = blnSuccessfull;
             }
         }
+
+        public async Task<PasswordRequestResult> RequestPassword()
+        {
+            var dlg = new Views.dialogRequestPassword();
+            var result = await dlg.ShowAsync();
+            PasswordRequestResult returnValue = new PasswordRequestResult();
+            if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                ushort pin = 0;
+                if (ushort.TryParse(dlg.UserInputPassword, out pin))
+                    returnValue = new PasswordRequestResult(pin, true);
+
+            }
+            else
+            {
+
+            }
+
+            return returnValue;
+        }
+
     }
 }

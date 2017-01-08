@@ -18,7 +18,7 @@ namespace Nuki.Services.SettingsServices
     public class SettingsService
     {
         private static ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger(nameof(SettingsService));
-        private static XmlSerializer s_XmlSerializer = new XmlSerializer(typeof(NukiConnectionBinding[]));
+        private static XmlSerializer s_XmlSerializer = new XmlSerializer(typeof(NukiConnectionConfig[]));
         public static SettingsService Instance { get; } = new SettingsService();
         Template10.Services.SettingsService.ISettingsHelper _helper;
         
@@ -29,9 +29,9 @@ namespace Nuki.Services.SettingsServices
             PairdLocks.CollectionChanged += PairdLocks_CollectionChanged;
         }
 
-        private NukiConnectionBinding[] LoadBluetoothConnectionInfo()
+        private NukiConnectionConfig[] LoadBluetoothConnectionInfo()
         {
-            NukiConnectionBinding[] retValues = new NukiConnectionBinding[0];
+            NukiConnectionConfig[] retValues = new NukiConnectionConfig[0];
             try
             {
                 string strLockSettings = _helper.Read<string>(nameof(PairdLocks), string.Empty);
@@ -43,7 +43,7 @@ namespace Nuki.Services.SettingsServices
                             w.Write(strLockSettings);
 
                         mem.Position = 0;
-                        retValues = s_XmlSerializer.Deserialize(mem) as NukiConnectionBinding[];
+                        retValues = s_XmlSerializer.Deserialize(mem) as NukiConnectionConfig[];
                     }
                 }
                 else { }
@@ -79,8 +79,8 @@ namespace Nuki.Services.SettingsServices
         }
 
 
-        public ObservableCollection<NukiConnectionBinding> PairdLocks { get; private set; } 
-            = new ObservableCollection<NukiConnectionBinding>();
+        public ObservableCollection<NukiConnectionConfig> PairdLocks { get; private set; } 
+            = new ObservableCollection<NukiConnectionConfig>();
 
         public bool UseShellBackButton
         {
