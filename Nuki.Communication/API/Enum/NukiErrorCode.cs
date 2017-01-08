@@ -10,6 +10,10 @@ namespace Nuki.Communication.API
     public enum NukiErrorCode : byte
     {
         /// <summary>
+        /// Command Timout (Not in Nuki API-Doc)
+        /// </summary>
+        ERROR_COMMAND_TIMEOUT = 0xFC,
+        /// <summary>
         /// CRC of received command is invalid
         /// </summary>
         ERROR_BAD_CRC = 0xFD,

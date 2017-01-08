@@ -71,8 +71,8 @@
         </Controls:ModalDialog.Content>
         <Controls:ModalDialog.ModalContent>
 
-            <Viewbox Height="32">
-                <StackPanel Orientation="Horizontal">
+            <Viewbox Height="45">
+                <StackPanel Orientation="Vertical">
                     <ProgressRing Width="16" Height="16"
                                   Margin="12,0" Foreground="White"
                                   IsActive="{x:Bind IsBusy, Mode=OneWay}" />

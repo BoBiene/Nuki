@@ -15,6 +15,7 @@ namespace Nuki.ViewModels
     public abstract class PivotBaseViewModel<T> : ViewModelBase
         where T : PivotBaseViewModel<T>
     {
+        protected static ILogger Log = LogManagerFactory.DefaultLogManager.GetLogger<PivotBaseViewModel<T>>();
         private object m_SelectedPivotItem = null;
         public object SelectedPivotItem
         {

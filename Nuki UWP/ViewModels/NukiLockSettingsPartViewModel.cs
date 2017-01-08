@@ -98,7 +98,7 @@ namespace Nuki.ViewModels
                 this.UTCOffset = nukiConfig.UTCOffset;
             }
             else { }
-            BaseModel.ShowProgressbar(true);
+            BaseModel.ShowProgressbar(false);
         }
 
         public override Task OnNavigatedFromAsync(IDictionary<string, object> pageState, bool suspending)

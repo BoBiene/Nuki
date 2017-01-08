@@ -78,23 +78,21 @@ namespace Nuki.ViewModels
             => m_SendUnlockCommand ?? (m_SendUnlockCommand = new DelegateCommand(async () =>
             {
                 Shell.SetBusy(true, "Unlocking...");
-                await BaseModel.NukiConncetion.SendLockAction(NukiLockAction.Unlock,NukiLockActionFlags.ForceUnlock);
+                await BaseModel.NukiConncetion.SendLockAction(NukiLockAction.Unlock);
                 Shell.SetBusy(false);
 
             }, () => BaseModel.NukiConncetion?.Connected == true));
 
-        public DelegateCommand m_SendCalibrateCommand = null;
-        public DelegateCommand SendCalibrateCommand
-            => m_SendCalibrateCommand ?? (m_SendCalibrateCommand = new DelegateCommand(async () =>
+        public DelegateCommand m_SendUnlatchCommand = null;
+        public DelegateCommand SendUnlatchCommand
+            => m_SendUnlatchCommand ?? (m_SendUnlatchCommand = new DelegateCommand(async () =>
             {
-                var userPassword = await BaseModel.RequestPassword();
-                if (userPassword.Successfull)
-                {
-                    await BaseModel.NukiConncetion.SendCalibrateRequest(userPassword.SecurityPIN);
-                }
-                else { }
+                Shell.SetBusy(true, "Unlatching...");
+                await BaseModel.NukiConncetion.SendLockAction(NukiLockAction.Unlatch);
+                Shell.SetBusy(false);
 
             }, () => BaseModel.NukiConncetion?.Connected == true));
+
 
         public override Task OnNavigatingFromAsync(NavigatingEventArgs args)
         {
@@ -132,7 +130,7 @@ namespace Nuki.ViewModels
         private async Task RefreshNukiState()
         {
             BaseModel.ShowProgressbar(true);
-            LockRingState = "Requsting state...";
+           LockRingState = "Requsting state...";
             INukiDeviceStateMessage nukiStateCmd = null;
             try
             {
@@ -144,7 +142,7 @@ namespace Nuki.ViewModels
                 Log.Error("Failed to request Nuki Stat: {0}", ex);
             }
             await UpdateNukiDeviceState(nukiStateCmd);
-            SendCalibrateCommand.RaiseCanExecuteChanged();
+            SendUnlatchCommand.RaiseCanExecuteChanged();
             SendLockCommand.RaiseCanExecuteChanged();
             SendUnlockCommand.RaiseCanExecuteChanged();
             BaseModel.ShowProgressbar(false);
@@ -159,12 +157,12 @@ namespace Nuki.ViewModels
                      LockState = nukiStateCmd.LockState;
                      NukiState = nukiStateCmd.NukiState;
                      CriticalBattery = nukiStateCmd.CriticalBattery;
-                     LockRingState = LockState.ToString();
                  }
                  else
                  {
                      LockState = NukiLockState.Undefined;
                  }
+                 LockRingState = LockState.ToString();
              });
             if (Dispatcher != null)
             {

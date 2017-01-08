@@ -86,6 +86,10 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Request
             {
                 return (byte[])fieldData;
             }
+            else if(fieldData is bool)
+            {
+                return new byte[] { ((bool)fieldData) ? (byte)1 : (byte)0 };
+            }
             else if(fieldData is string)
             {
                 string strValue = string.Format("{0}", fieldData);

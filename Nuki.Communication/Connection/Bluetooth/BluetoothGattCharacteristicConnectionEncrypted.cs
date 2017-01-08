@@ -116,7 +116,8 @@ namespace Nuki.Communication.Connection.Bluetooth
         protected override Task<bool> Send(SendBaseCommand cmd, DataWriter writer)
         {
             bool blnRet = false;
-            m_RecieveBuffer = null;
+            lock (Syncroot)
+                m_RecieveBuffer = null;
 
             byte[] byNonce = Sodium.Core.GetRandomBytes(24);
             writer.WriteBytes(byNonce);
@@ -158,7 +159,12 @@ namespace Nuki.Communication.Connection.Bluetooth
                         m_RecieveBuffer?.Consume(value);
                     }
 
-                    if (m_RecieveBuffer?.Complete == true)
+                    if (m_RecieveBuffer.HeaderComplete && m_RecieveBuffer.UniqueClientID != this.Connection.UniqueClientID)
+                    {
+                        Log.Warn("Recieved for invalid client id. Data currupt, discarding...");
+                        m_RecieveBuffer = null;
+                    }
+                    else if (m_RecieveBuffer?.Complete == true)
                     {
                         if (m_RecieveBuffer.UniqueClientID == this.Connection.UniqueClientID)
                         {

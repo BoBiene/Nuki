@@ -133,6 +133,8 @@
     <Compile Include="API\Enum\NukiLockState.cs" />
     <Compile Include="API\Enum\NukiLockStateChangeTrigger.cs" />
     <Compile Include="API\Enum\NukiState.cs" />
+    <Compile Include="API\INukiBatteryReport.cs" />
+    <Compile Include="API\INukiLogEntry.cs" />
     <Compile Include="API\NukiTimeStamp.cs" />
     <Compile Include="Connection\Bluetooth\Commands\BaseCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\ByteHelper.cs" />
@@ -152,21 +154,29 @@
     <Compile Include="Connection\Bluetooth\Commands\Request\SendRequestCalibrationCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Request\SendRequestDataCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Request\SendRequestConfigCommand.cs" />
+    <Compile Include="Connection\Bluetooth\Commands\Request\SendRequestLogEntriesCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\ResponseCommandParser.cs" />
     <Compile Include="API\INukiDeviceStateMessage.cs" />
     <Compile Include="API\INukiReturnMessage.cs" />
     <Compile Include="API\INukiErrorMessage.cs" />
     <Compile Include="API\INukiConfigMessage.cs" />
+    <Compile Include="API\INukiLogEntryCount.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveAuthorization­IDCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveBaseCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveBaseCommandAuthenticated.cs" />
+    <Compile Include="Connection\Bluetooth\Commands\Response\RecieveBatteryReportCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveChallengeCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveConfigCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveErrorReportCommand.cs" />
+    <Compile Include="Connection\Bluetooth\Commands\Response\RecieveLogEntryCountCommand.cs" />
+    <Compile Include="Connection\Bluetooth\Commands\Response\RecieveLogEntryCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveNukiStatesCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecievePublicKeyCommand.cs" />
     <Compile Include="Connection\Bluetooth\Commands\Response\RecieveStatusCommand.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothConnection.cs" />
+    <Compile Include="Connection\NukiCommandException.cs" />
+    <Compile Include="Connection\NukiCommandFailed.cs" />
+    <Compile Include="Connection\NukiCommandTimeout.cs" />
     <Compile Include="Connection\NukiConnectionConfig.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothConnectionFactory.cs" />
     <Compile Include="Connection\Bluetooth\BluetoothGattCharacteristicConnection.cs" />
@@ -195,6 +205,7 @@
     <Compile Include="SemanticTypes\ClientPublicKey.cs" />
     <Compile Include="SemanticTypes\SemanticByteArray.cs" />
     <Compile Include="Util\CRC16.cs" />
+    <Compile Include="Util\Locker.cs" />
     <Compile Include="Util\NotifyPropertyChanged.cs" />
     <EmbeddedResource Include="Properties\Nuki.Communication.rd.xml" />
   </ItemGroup>

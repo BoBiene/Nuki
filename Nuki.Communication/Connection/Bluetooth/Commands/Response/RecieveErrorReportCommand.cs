@@ -11,10 +11,21 @@ namespace Nuki.Communication.Connection.Bluetooth.Commands.Response
     {
         public NukiErrorCode ErrorCode => GetData<NukiErrorCode>(nameof(ErrorCode));
         public NukiCommandType FailedCommand => GetData<NukiCommandType>(nameof(FailedCommand));
+        public string Message => string.Empty;
 
         public RecieveErrorReportCommand() 
             : base(NukiCommandType.ErrorReport, CreateFields())
         {
+        }
+
+        public RecieveErrorReportCommand(NukiErrorCode errorCode, NukiCommandType failedCommand)
+            : base(NukiCommandType.ErrorReport, new FieldParserBase[]
+            {
+                new FieldParser<NukiErrorCode>(nameof(ErrorCode), sizeof(NukiErrorCode),(b,s,l) => errorCode),
+                new FieldParser<NukiCommandType>(nameof(FailedCommand), sizeof(NukiCommandType), (b,s,l) => failedCommand)
+            })
+        {
+
         }
 
         private static IEnumerable<FieldParserBase> CreateFields()

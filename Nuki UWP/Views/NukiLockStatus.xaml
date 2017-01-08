@@ -6,10 +6,71 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="300"
+    xmlns:vm="using:Nuki.ViewModels"
+        xmlns:api="using:Nuki.Communication.API"
+    d:DesignHeight="800"
     d:DesignWidth="400">
 
-    <Grid>
+    <UserControl.DataContext>
+        <vm:NukiLockStatusPartViewModel x:Name="ViewModel" />
+    </UserControl.DataContext>
 
-    </Grid>
+    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Button x:Name="RequestLogEntries" 
+                Margin="10"
+                  Command="{x:Bind ViewModel.RequestLogEntriesCommand }"
+                RelativePanel.AlignTopWithPanel="True" 
+                Content="Log laden"></Button>
+        <TextBlock Margin="10 0" 
+                   x:Name="LogHistory"
+                   RelativePanel.Below="RequestLogEntries">Log-History</TextBlock>
+        <ListView
+           x:Name="LogEntries" 
+            ItemsSource="{x:Bind ViewModel.LockHistory, Mode=OneWay}"
+            RelativePanel.AlignLeftWithPanel="True"
+            RelativePanel.AlignRightWithPanel="True"
+            RelativePanel.AlignBottomWithPanel="True"
+            RelativePanel.Below="LogHistory">
+            <ListView.ItemTemplate>
+                <DataTemplate  x:DataType="api:INukiLogEntry">
+                    <RelativePanel Margin="0.5">
+                        <TextBlock 
+                            x:Name="HistoryLockAction"
+                            RelativePanel.AlignLeftWithPanel="True" 
+                            FontWeight="Bold"
+                            Text="{x:Bind LockAction}"/>
+                        <TextBlock 
+                            Margin="5 0"
+                            x:Name="HistoryName"
+                            RelativePanel.RightOf="HistoryLockAction"
+                            Text="{x:Bind Name}" />
+                        <TextBlock
+                            x:Name="HistoryTimestamp"
+                            RelativePanel.Below="HistoryLockAction"
+                            Text="{x:Bind Timestamp}"
+                            FontSize="10"
+                            ></TextBlock>
+                        <TextBlock
+                            x:Name="HistoryTrigger"
+                            RelativePanel.Below="HistoryLockAction"
+                            RelativePanel.RightOf="HistoryTimestamp"
+                            Margin="5 0"
+                            Text="{x:Bind Trigger}"
+                            FontSize="10"
+                            ></TextBlock>
+                    </RelativePanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            <ListView.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name, Mode=OneWay}"/>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ListView.GroupStyle>
+        </ListView>
+        
+    </RelativePanel>
 </UserControl>

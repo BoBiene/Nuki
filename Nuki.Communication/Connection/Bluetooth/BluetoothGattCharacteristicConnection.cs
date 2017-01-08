@@ -20,6 +20,7 @@ namespace Nuki.Communication.Connection.Bluetooth
         private object syncroot = new object();
         private GattCharacteristic m_GattCharacteristic = null;
         private TaskCompletionSource<RecieveBaseCommand> m_responseWaitHandle = null;
+        private ConcurrentQueue<RecieveBaseCommand> m_recieveQueue = new ConcurrentQueue<RecieveBaseCommand>();
         private RecieveBaseCommand m_cmdInProgress = null;
         public BluetoothConnection Connection { get; private set; }
         public BluetoothGattCharacteristicConnection(BluetoothConnection connection)
@@ -53,45 +54,49 @@ namespace Nuki.Communication.Connection.Bluetooth
                 DataReader reader = null;
                 if (TryGetRecieveBuffer(recieveBuffer, out reader))
                 {
-                    if (m_cmdInProgress == null)
-                        m_cmdInProgress = ResponseCommandParser.Parse(reader);
-
-                    if (m_cmdInProgress != null)
+                    while (reader.UnconsumedBufferLength >= 2)
                     {
-                        m_cmdInProgress.ProcessRecievedData(reader);
-                        if (m_cmdInProgress.Complete)
-                        {
-                            var cmd = m_cmdInProgress;
-                            m_cmdInProgress = null;
-                            Log.Info($"Recieved Command {cmd}...");
+                        if (m_cmdInProgress == null)
+                            m_cmdInProgress = ResponseCommandParser.Parse(reader);
 
-                            bool blnWarnIfNotHandlet = false;
-                            if (cmd is RecieveErrorReportCommand)
-                                Connection.Update(cmd as RecieveErrorReportCommand);
-                            else if (cmd is RecieveNukiStatesCommand)
-                                Connection.Update(cmd as RecieveNukiStatesCommand);
-                            else if (cmd is RecieveChallengeCommand)
-                                Connection.Update(cmd as RecieveChallengeCommand);
-                            else
-                                blnWarnIfNotHandlet = true;
-                            if (m_responseWaitHandle?.TrySetResult(cmd) == true)
+                        if (m_cmdInProgress != null)
+                        {
+                            m_cmdInProgress.ProcessRecievedData(reader);
+                            if (m_cmdInProgress.Complete)
                             {
-                                Log.Debug("m_responseWaitHandle set");
+                                var cmd = m_cmdInProgress;
+                                m_cmdInProgress = null;
+                                Log.Info($"Recieved Command {cmd}...");
+
+                                bool blnWarnIfNotHandlet = false;
+                                if (cmd is RecieveErrorReportCommand)
+                                    Connection.Update(cmd as RecieveErrorReportCommand);
+                                else if (cmd is RecieveNukiStatesCommand)
+                                    Connection.Update(cmd as RecieveNukiStatesCommand);
+                                else if (cmd is RecieveChallengeCommand)
+                                    Connection.Update(cmd as RecieveChallengeCommand);
+                                else
+                                    blnWarnIfNotHandlet = true;
+                                m_recieveQueue.Enqueue(cmd);
+                                if (m_responseWaitHandle?.TrySetResult(cmd) == true)
+                                {
+                                    Log.Debug("m_responseWaitHandle set");
+                                }
+                                else
+                                {
+                                    if (blnWarnIfNotHandlet)
+                                        Log.Warn($"Recieved Command {cmd} is not handlet...");
+                                }
                             }
                             else
                             {
-                                if (blnWarnIfNotHandlet)
-                                    Log.Warn($"Recieved Command {cmd} is not handlet...");
+                                Log.Debug($"Command {m_cmdInProgress.CommandType} not complete (Recieved {m_cmdInProgress.BytesRecieved} from {m_cmdInProgress.BytesTotal})...");
                             }
                         }
                         else
                         {
-                            Log.Debug($"Command {m_cmdInProgress.CommandType} not complete (Recieved {m_cmdInProgress.BytesRecieved} from {m_cmdInProgress.BytesTotal})...");
+                            Log.Warn("Recieved unknown command");
                         }
-                    }
-                    else
-                    {
-                        Log.Warn("Recieved unknown command");
                     }
                 }
                 else
@@ -106,28 +111,47 @@ namespace Nuki.Communication.Connection.Bluetooth
             return Send(cmd, 2000);
         }
 
-        public async Task<T> Send<T>(SendBaseCommand cmd,int nTimeout = 5000)
+        public async Task<T> Send<T>(SendBaseCommand cmd,int nTimeout = 2000)
             where T:RecieveBaseCommand
         {
             T ret = default(T);
             if(await Send(cmd))
             {
                 ret = await Recieve<T>(nTimeout);
+                if (ret == null)
+                {
+                    Connection.Update(new NukiCommandTimeout(cmd, nTimeout));
+                }
+                else if (ret is RecieveStatusCommand)
+                {
+                    var status = ((RecieveStatusCommand)(object)ret).StatusCode;
+                    if(status != API.NukiErrorCode.COMPLETE && status != API.NukiErrorCode.ACCEPTED)
+                    {
+                        this.Connection.Update(new NukiCommandFailed(cmd.CommandType, status));
+                    }
+                    else { } //OK
+                }
+                else { }
             }
-            else { }
+            else
+            {
+                Connection.Update(new NukiCommandTimeout(cmd, nTimeout));
+            }
             return ret;
         }
 
         public virtual void Reset()
         {
             m_cmdInProgress = null;
+            m_responseWaitHandle = new TaskCompletionSource<RecieveBaseCommand>();
+            m_recieveQueue = new ConcurrentQueue<RecieveBaseCommand>();
         }
 
 
         public async Task<bool> Send(SendBaseCommand cmd, int nTimeout)
         {
             bool blnRet = false;
-            m_responseWaitHandle = new TaskCompletionSource<RecieveBaseCommand>();
+            Reset();
             Log.Info($"Send Command {cmd}...");
             var writer = new DataWriter();
             writer.ByteOrder = ByteOrder.LittleEndian;
@@ -148,21 +172,41 @@ namespace Nuki.Communication.Connection.Bluetooth
         }
 
         public async Task<T> Recieve<T>(int nTimeout)
-            where T:RecieveBaseCommand
+            where T : RecieveBaseCommand
         {
             T retCommand = null;
+            RecieveBaseCommand cmd = null;
             Log.Debug("Await response...");
-            Task completedTask = await Task.WhenAny(m_responseWaitHandle.Task, Task.Delay(nTimeout));
-
-            if (completedTask == m_responseWaitHandle.Task)
+            if (!m_recieveQueue.TryDequeue(out cmd))
             {
-                Log.Debug("Recieved command...");
-                retCommand = m_responseWaitHandle.Task.Result as T;
+                Task completedTask = await Task.WhenAny(m_responseWaitHandle.Task, Task.Delay(nTimeout));
+
+                if (m_recieveQueue.TryDequeue(out cmd))
+                {
+                    
+                    retCommand = cmd as T;
+                    if (retCommand == null && cmd != null)
+                    {
+                        Log.Debug($"Discarding response {retCommand}...");
+                        m_responseWaitHandle = new TaskCompletionSource<RecieveBaseCommand>();
+                        retCommand = await Recieve<T>(nTimeout);
+                    }
+                    else
+                    {
+                        Log.Debug($"Returning response {retCommand}...");
+                        m_responseWaitHandle = new TaskCompletionSource<RecieveBaseCommand>();
+                    }
+                }
+                else
+                {
+                    Log.Warn("Recieve timed out...");
+                    //Timeout
+                }
             }
             else
             {
-                Log.Warn("Recieve timed out...");
-                //Timeout
+                retCommand = cmd as T;
+                m_responseWaitHandle = new TaskCompletionSource<RecieveBaseCommand>();
             }
 
             return retCommand;
