@@ -13,8 +13,9 @@ namespace Nuki.ViewModels.Helper
     public class LockHistoryList : IIncrementalSource<INukiLogEntry>
     {
         private UInt16 m_nLastIndex = 0;
+        private ushort m_nSecurityPIN = 0;
         public NukiLockViewModel NukiLockViewModel { get; private set; }
-        public LockHistoryList(NukiLockViewModel nukiLockViewModel)
+        public LockHistoryList(NukiLockViewModel nukiLockViewModel, ushort securityPIN)
         {
             NukiLockViewModel = nukiLockViewModel;
         }
@@ -24,7 +25,7 @@ namespace Nuki.ViewModels.Helper
             if (NukiLockViewModel?.NukiConncetion != null)
             {
                 NukiLockViewModel.ShowProgressbar(true);
-                retValue = await NukiLockViewModel.NukiConncetion.RequestLogEntries(m_nLastIndex == 0, m_nLastIndex, (UInt16)pageSize, 0);
+                retValue = WrapEntries(await NukiLockViewModel.NukiConncetion.RequestLogEntries(m_nLastIndex == 0, m_nLastIndex, (UInt16)pageSize, m_nSecurityPIN));
                 m_nLastIndex = retValue.LastOrDefault()?.Index ?? 0;
                 NukiLockViewModel.ShowProgressbar(false);
             }
@@ -35,71 +36,28 @@ namespace Nuki.ViewModels.Helper
 
             return retValue;
         }
-        private IEnumerable<INukiLogEntry> Create(int pageIndex, int pageSize)
+        private IEnumerable<INukiLogEntry> WrapEntries(IEnumerable<INukiLogEntry> entries)
         {
-
-            for (int i = 0; i < pageSize; ++i)
-            {
-                yield return new Dummy(pageIndex + i) as INukiLogEntry;
-            }
+            foreach (var target in entries)
+                yield return new Wrapper(target);
         }
-        public class Dummy : INukiLogEntry
+        private class Wrapper : INukiLogEntry
         {
-            public NukiLockActionFlags Flags
-            {
-                get
-                {
-                    return NukiLockActionFlags.None;
-                }
-            }
+            private INukiLogEntry m_WrapedEntry = null;
+            public NukiLockActionFlags Flags => m_WrapedEntry.Flags;
+            public ushort Index => m_WrapedEntry.Index;
 
-            public ushort Index
-            {
-                get;private set;
-            }
+            public NukiLockAction LockAction => m_WrapedEntry.LockAction;
 
-            public NukiLockAction LockAction
-            {
-                get
-                {
-                    return Index % 2 == 0 ? NukiLockAction.Lock : NukiLockAction.Unlock;
-                }
-            }
+            public bool LoggingEnabled => m_WrapedEntry.LoggingEnabled;
 
-            public bool LoggingEnabled
-            {
-                get
-                {
-                    return true;
-                }
-            }
+            public string Name => (Trigger == NukiLockStateChangeTrigger.System) ? m_WrapedEntry.Name : $"Manuell ({Trigger})";
+            public NukiTimeStamp Timestamp => m_WrapedEntry.Timestamp;
 
-            public string Name
+            public NukiLockStateChangeTrigger Trigger => m_WrapedEntry.Trigger;
+            public Wrapper(INukiLogEntry target)
             {
-                get
-                {
-                    return "Index:" + Index;
-                }
-            }
-
-            public NukiTimeStamp Timestamp
-            {
-                get
-                {
-                    return new NukiTimeStamp(DateTime.Now.AddHours(-1 * Index));
-                }
-            }
-
-            public NukiLockStateChangeTrigger Trigger
-            {
-                get
-                {
-                    return NukiLockStateChangeTrigger.Button;
-                }
-            }
-            public Dummy(int i)
-            {
-                Index = (ushort)i;
+                m_WrapedEntry = target;
             }
         }
     }

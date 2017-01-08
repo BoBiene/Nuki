@@ -16,7 +16,14 @@
     </UserControl.DataContext>
 
     <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <TextBlock x:Name="LogHistory" RelativePanel.AlignTopWithPanel="True">Log-History</TextBlock>
+        <Button x:Name="RequestLogEntries" 
+                Margin="10"
+                  Command="{x:Bind ViewModel.RequestLogEntriesCommand }"
+                RelativePanel.AlignTopWithPanel="True" 
+                Content="Log laden"></Button>
+        <TextBlock Margin="10 0" 
+                   x:Name="LogHistory"
+                   RelativePanel.Below="RequestLogEntries">Log-History</TextBlock>
         <ListView
            x:Name="LogEntries" 
             ItemsSource="{x:Bind ViewModel.LockHistory, Mode=OneWay}"

@@ -199,48 +199,64 @@ namespace Nuki.Communication.Connection.Bluetooth
         {
           
             List<INukiLogEntry> retEntries = new List<INukiLogEntry>();
-            try
+            int nRetryCount = 0;
+            bool blnSuccessfull = false;
+            while (!blnSuccessfull && nRetryCount++ <= 3)
             {
-                using (var lockHandle = await Locker.Lock())
+                try
                 {
-                    if (lockHandle.Successfull && await Challenge())
+                    using (var lockHandle = await Locker.Lock())
                     {
-                        var cmdStatus = await m_UGDIO.Send<RecieveBaseCommand>(new SendRequestLogEntriesCommand(this, blnMostRecent, nStartIndex, nCount, nSecurityPIN), 30000);
-
-                        if (
-                            (cmdStatus as RecieveStatusCommand)?.StatusCode == NukiErrorCode.COMPLETE ||
-                            (cmdStatus as RecieveLogEntryCountCommand)?.Count > 0)
+                        if (lockHandle.Successfull && await Challenge())
                         {
-                            bool blnTimeout = false;
-                            for (int i = 0; i < nCount && !blnTimeout; ++i)
+                            var cmdStatus = await m_UGDIO.Send<RecieveBaseCommand>(new SendRequestLogEntriesCommand(this, blnMostRecent, nStartIndex, nCount, nSecurityPIN), 30000);
+
+                            if (
+                                (cmdStatus as RecieveStatusCommand)?.StatusCode == NukiErrorCode.COMPLETE ||
+                                (cmdStatus as RecieveLogEntryCountCommand)?.Count > 0 ||
+                                cmdStatus is RecieveLogEntryCommand)
+
                             {
-                                RecieveLogEntryCommand cmd = await m_UGDIO.Recieve<RecieveLogEntryCommand>(30000);
-                                if (cmd == null)
+                                if (cmdStatus is RecieveLogEntryCommand)
+                                    retEntries.Add(cmdStatus as RecieveLogEntryCommand);
+
+                                bool blnTimeout = false, blmComplete = false ;
+                                for (int i = retEntries.Count; i < nCount && !blnTimeout && !blmComplete; ++i)
                                 {
-                                    //Timeout...
-                                    blnTimeout = true;
+                                    RecieveBaseCommand cmd = await m_UGDIO.Recieve<RecieveBaseCommand>(30000);
+                                    if (cmd == null)
+                                    {
+                                        //Timeout...
+                                        blnTimeout = true;
+                                        
+                                    }
+                                    else if(cmd is RecieveLogEntryCommand)
+                                    {
+                                        retEntries.Add(cmd as RecieveLogEntryCommand);
+                                    }
+                                    else if(cmd is RecieveStatusCommand)
+                                    {
+                                        blmComplete = true;
+                                    }
+                                    else { } //
                                 }
-                                else
-                                {
-                                    // Debug.Assert(i + nStartIndex == cmd.Index, $"Index is not correct, should be { i + nStartIndex } but recieved {cmd.Index}");
-                                    retEntries.Add(cmd);
-                                }
+                                blnSuccessfull = !blnTimeout;
+                            }
+                            else
+                            {
+
                             }
                         }
                         else
                         {
-
+                            Log.Warn("Challenge failed");
                         }
                     }
-                    else
-                    {
-
-                    }
                 }
-            }
-            catch(Exception ex)
-            {
-                Update(new NukiCommandException(NukiCommandType.RequestLogEntries, ex));
+                catch (Exception ex)
+                {
+                    Update(new NukiCommandException(NukiCommandType.RequestLogEntries, ex));
+                }
             }
             return retEntries;
 

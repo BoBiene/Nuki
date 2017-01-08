@@ -8,13 +8,20 @@
     mc:Ignorable="d"
      xmlns:controls="using:Template10.Controls"
     xmlns:vm="using:Nuki.ViewModels"
-    d:DesignHeight="300"
+    d:DesignHeight="800"
     d:DesignWidth="400">
 
     <UserControl.DataContext>
         <vm:NukiLockAdministrationPartViewModel x:Name="ViewModel" />
     </UserControl.DataContext>
-    <Grid>
-
-    </Grid>
+    <RelativePanel  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Button 
+                        x:Name="CalibrateButton" 
+                        Content="Calibrate"
+                       Margin="10,10,10,10"
+                
+                        Command="{x:Bind ViewModel.SendCalibrateCommand }"
+                       RelativePanel.AlignTopWithPanel="True"
+                        />
+    </RelativePanel>
 </UserControl>

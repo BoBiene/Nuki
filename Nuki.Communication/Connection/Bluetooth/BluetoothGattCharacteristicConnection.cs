@@ -129,11 +129,14 @@ namespace Nuki.Communication.Connection.Bluetooth
                     {
                         this.Connection.Update(new NukiCommandFailed(cmd.CommandType, status));
                     }
-                    else { }
+                    else { } //OK
                 }
                 else { }
             }
-            else { }
+            else
+            {
+                Connection.Update(new NukiCommandTimeout(cmd, nTimeout));
+            }
             return ret;
         }
 

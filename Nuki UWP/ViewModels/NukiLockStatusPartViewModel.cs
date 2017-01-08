@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Template10.Mvvm;
 using Windows.UI.Xaml.Navigation;
 
 namespace Nuki.ViewModels
@@ -22,6 +23,20 @@ namespace Nuki.ViewModels
         {
             LockHistory = null;
         }
+
+        public DelegateCommand m_RequestLogEntriesCommand = null;
+        public DelegateCommand RequestLogEntriesCommand
+            => m_RequestLogEntriesCommand ?? (m_RequestLogEntriesCommand = new DelegateCommand(async () =>
+            {
+                var userPassword = await BaseModel.RequestPassword();
+                if (userPassword.Successfull)
+                {
+                    LockHistory = new IncrementalLoadingCollection<LockHistoryList, INukiLogEntry>(new LockHistoryList(BaseModel, userPassword.SecurityPIN), 10);
+                    RaisePropertyChanged(nameof(LockHistory));
+                }
+                else { }
+
+            }, () => BaseModel.NukiConncetion?.Connected == true));
 
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> state)
         {
@@ -44,8 +59,7 @@ namespace Nuki.ViewModels
             }
             BaseModel.ShowProgressbar(false);
 
-            LockHistory = new IncrementalLoadingCollection<LockHistoryList, INukiLogEntry>(new LockHistoryList(BaseModel));
-            RaisePropertyChanged(nameof(LockHistory));
+        
         }
     }
 }

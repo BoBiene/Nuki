@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
-  <Identity Name="40193BoBiene.NukiSmartLock" Publisher="CN=1139BFB6-85C6-402C-A9E2-FE7C6E98DA8A" Version="1.1.14.0" />
+  <Identity Name="40193BoBiene.NukiSmartLock" Publisher="CN=1139BFB6-85C6-402C-A9E2-FE7C6E98DA8A" Version="1.1.25.0" />
   <mp:PhoneIdentity PhoneProductId="2456611c-a2cc-4135-a062-51ba35e9ea1d" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>Nuki Smart Lock</DisplayName>

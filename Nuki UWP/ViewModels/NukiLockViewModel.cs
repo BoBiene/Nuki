@@ -55,16 +55,28 @@ namespace Nuki.ViewModels
 
         public void ShowError(string strText)
         {
-            Dispatcher.DispatchAsync(async () =>
+            try
             {
-                m_strErrorText = strText;
-                m_ErrorbarVisibility = Visibility.Visible;
-                RaisePropertyChanged(nameof(ErrorbarText));
-                RaisePropertyChanged(nameof(ErrorbarVisibility));
-                await Task.Delay(10000);
-                m_ErrorbarVisibility = Visibility.Collapsed;
-                RaisePropertyChanged(nameof(ErrorbarVisibility));
-            }, 0, CoreDispatcherPriority.Low);
+                Log.Trace("Show error: " + strText);
+                var func = new Action(async () =>
+                 {
+                     m_strErrorText = strText;
+                     m_ErrorbarVisibility = Visibility.Visible;
+                     RaisePropertyChanged(nameof(ErrorbarText));
+                     RaisePropertyChanged(nameof(ErrorbarVisibility));
+                     await Task.Delay(10000);
+                     m_ErrorbarVisibility = Visibility.Collapsed;
+                     RaisePropertyChanged(nameof(ErrorbarVisibility));
+                 });
+                if (Dispatcher != null)
+                    Dispatcher.DispatchAsync(func, 0, CoreDispatcherPriority.Low);
+                else
+                    func();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Failed to display error: " + strText, ex);
+            }
         }
 
         public INukiConnection NukiConncetion { get; private set; }

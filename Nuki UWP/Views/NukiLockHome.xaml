@@ -143,11 +143,11 @@
                         RelativePanel.Below="LockButton"
                         />
                     <Button 
-                        x:Name="CalibrateButton" 
-                        Content="Calibrate"
+                        x:Name="UnlatchButton" 
+                        Content="Unlatch"
                        Margin="10,10,10,10"
                 Style="{StaticResource CommandButton}"
-                        Command="{x:Bind ViewModel.SendCalibrateCommand }"
+                        Command="{x:Bind ViewModel.SendUnlatchCommand }"
                         RelativePanel.Below="UnkockButton"
                         />
                 </RelativePanel>
