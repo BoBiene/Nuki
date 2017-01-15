@@ -71,7 +71,15 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups> 
+        </VisualStateManager.VisualStateGroups>
+        <FlipView SelectedIndex="1">
+        <Grid Background="{StaticResource ResourceKey=ContrastColorBrush}" >
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="50" FontSize="30" Text="Lock">
+                    <TextBlock.RenderTransform>
+                        <RotateTransform Angle="90"/>
+                    </TextBlock.RenderTransform>
+                </TextBlock>
+        </Grid>
         <RelativePanel  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <RelativePanel x:Name="RingContainer" VerticalAlignment="Center"
             RelativePanel.AlignBottomWithPanel="True"
@@ -97,6 +105,7 @@
                 RelativePanel.AlignTopWithPanel="True"
                 RelativePanel.AlignRightWithPanel="True"
                 RelativePanel.AlignLeftWithPanel="True">
+                 
                     <controls:RingSegment x:Name="MyRingSlice" 
                                       HorizontalAlignment="Center"
                         VerticalAlignment="Center" StartAngle="50" EndAngle="310"
@@ -104,9 +113,8 @@
                                Radius="100"
                                InnerRadius="90">
                     </controls:RingSegment>
-
+                  
                 </Grid>
-
             </RelativePanel>
             <Grid
             RelativePanel.AlignBottomWithPanel="True"
@@ -164,5 +172,13 @@
             </i:Interaction.Behaviors>
 
         </RelativePanel>
+            <Grid Background="{StaticResource ResourceKey=ContrastColorBrush}" >
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="50" FontSize="30" Text="Unlock">
+                    <TextBlock.RenderTransform>
+                        <RotateTransform Angle="270"/>
+                    </TextBlock.RenderTransform>
+                </TextBlock>
+            </Grid>
+    </FlipView>
     </Grid>
 </UserControl>
