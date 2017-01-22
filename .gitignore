@@ -252,3 +252,4 @@ paket-files/
 *.sln.iml
 *.appx
 *.decrypted
+Nuki UWP/Nuki_StoreKey.snk

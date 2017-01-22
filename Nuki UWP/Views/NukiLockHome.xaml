@@ -22,6 +22,8 @@
     <UserControl.Resources>
         <Converter:MultiplyConverter Value="0.5" x:Name="DiameterToRadius" />
         <Converter:SubstractConverter Value="10" x:Name="RadiusToInnerRadius" />
+        <Converter:LockStateConverter LockState="Locked" x:Name="IsLocked" />
+        <Converter:LockStateConverter LockState="Locked" Inverted="True" x:Name="IsNotLocked" />
         <Converter:SubstractConverter Value="40" x:Name="ContainerMargin" />
         <Style TargetType="Button" x:Key="CommandButton">
             <Setter Property="Width" Value="200"/>
@@ -31,6 +33,13 @@
             <Setter Property="Margin" Value="10,10,10,0" />
 
         </Style>
+        <Storyboard x:Name="lockActionInProgess" RepeatBehavior="Forever" AutoReverse="True">
+            <DoubleAnimation
+                Storyboard.TargetName="RingContainer"
+                Storyboard.TargetProperty="Opacity"
+                From="1.0" To="0.0" Duration="0:0:1"
+                />
+        </Storyboard>
 
     </UserControl.Resources>
     <Grid>
@@ -71,8 +80,37 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups> 
+            <VisualStateGroup x:Name="RingState">
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{x:Bind ViewModel.LockState, Converter={StaticResource IsLocked}, Mode=OneWay}"></StateTrigger>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MyRingSlice.StartAngle" Value="1"></Setter>
+                        <Setter Target="MyRingSlice.EndAngle" Value="359"></Setter>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{x:Bind ViewModel.LockState, Converter={StaticResource IsNotLocked}, Mode=OneWay}"></StateTrigger>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MyRingSlice.StartAngle" Value="50"></Setter>
+                        <Setter Target="MyRingSlice.EndAngle" Value="310"></Setter>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        <FlipView SelectedIndex="{x:Bind ViewModel.SelectedFlipViewIndex, Mode=TwoWay}">
+        <Grid Background="{StaticResource ResourceKey=ContrastColorBrush}" >
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="50" FontSize="30" Text="Lock">
+                    <!--<TextBlock.RenderTransform>
+                        <RotateTransform Angle="90"/>
+                    </TextBlock.RenderTransform>-->
+                </TextBlock>
+        </Grid>
         <RelativePanel  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+               
             <RelativePanel x:Name="RingContainer" VerticalAlignment="Center"
             RelativePanel.AlignBottomWithPanel="True"
                 RelativePanel.AlignLeftWithPanel="True"
@@ -97,16 +135,17 @@
                 RelativePanel.AlignTopWithPanel="True"
                 RelativePanel.AlignRightWithPanel="True"
                 RelativePanel.AlignLeftWithPanel="True">
+                 
                     <controls:RingSegment x:Name="MyRingSlice" 
                                       HorizontalAlignment="Center"
                         VerticalAlignment="Center" StartAngle="50" EndAngle="310"
                                Fill="{StaticResource ApplicationForegroundThemeBrush}"
                                Radius="100"
                                InnerRadius="90">
+                            
                     </controls:RingSegment>
-
+                  
                 </Grid>
-
             </RelativePanel>
             <Grid
             RelativePanel.AlignBottomWithPanel="True"
@@ -164,5 +203,13 @@
             </i:Interaction.Behaviors>
 
         </RelativePanel>
+            <Grid Background="{StaticResource ResourceKey=ContrastColorBrush}" >
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="50" FontSize="30" Text="Unlock">
+                    <!--<TextBlock.RenderTransform>
+                        <RotateTransform Angle="270"/>
+                    </TextBlock.RenderTransform>-->
+                </TextBlock>
+            </Grid>
+    </FlipView>
     </Grid>
 </UserControl>
