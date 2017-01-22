@@ -22,6 +22,30 @@ namespace Nuki.Views
         public NukiLockHome()
         {
             this.InitializeComponent();
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+            lockActionInProgess.Begin();
+        }
+
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ViewModel.LockState))
+            {
+                switch (ViewModel.LockState)
+                {
+
+                    case Communication.API.NukiLockState.Unlocking:
+
+                    case Communication.API.NukiLockState.Locking:
+
+                    case Communication.API.NukiLockState.Unlatching:
+                        lockActionInProgess.Begin();
+                        break;
+                    default:
+                        lockActionInProgess.Stop();
+                        break;
+                }
+            }
+            else { }
         }
     }
 }
