@@ -27,6 +27,18 @@ namespace Nuki.ViewModels
         
         public Visibility IsFlyoutOpen { get { return m_IsFlyoutOpen; } set { Set(ref m_IsFlyoutOpen, value); } }
         public string LockRingState { get { return m_strLockRingState; } set { Set(ref m_strLockRingState, value); } }
+        public int SelectedFlipViewIndex {
+            get { return 1; }
+            set
+            {
+                if (value == 0)
+                    SendLockCommand.Execute();
+                else if (value == 2)
+                    SendUnlatchCommand.Execute();
+                RaisePropertyChanged();
+            }
+        }
+
         public bool CriticalBattery {  get { return m_blnCriticalBattery;  } set { Set(ref m_blnCriticalBattery, value); } }
         public NukiLockState LockState { get { return m_LockState; } set { Set(ref m_LockState, value); } }
         public NukiState NukiState { get { return m_NukiState; } set { Set(ref m_NukiState, value); } }

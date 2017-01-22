@@ -72,12 +72,12 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        <FlipView SelectedIndex="1">
+        <FlipView SelectedIndex="{x:Bind ViewModel.SelectedFlipViewIndex, Mode=TwoWay}">
         <Grid Background="{StaticResource ResourceKey=ContrastColorBrush}" >
                 <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="50" FontSize="30" Text="Lock">
-                    <TextBlock.RenderTransform>
+                    <!--<TextBlock.RenderTransform>
                         <RotateTransform Angle="90"/>
-                    </TextBlock.RenderTransform>
+                    </TextBlock.RenderTransform>-->
                 </TextBlock>
         </Grid>
         <RelativePanel  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -174,9 +174,9 @@
         </RelativePanel>
             <Grid Background="{StaticResource ResourceKey=ContrastColorBrush}" >
                 <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="50" FontSize="30" Text="Unlock">
-                    <TextBlock.RenderTransform>
+                    <!--<TextBlock.RenderTransform>
                         <RotateTransform Angle="270"/>
-                    </TextBlock.RenderTransform>
+                    </TextBlock.RenderTransform>-->
                 </TextBlock>
             </Grid>
     </FlipView>
